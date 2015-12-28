@@ -1,0 +1,11 @@
+component A {
+    default_value [1]
+	flavor data
+
+    option B{
+      display "Default console device"
+      default_value ["a"]
+	  requires [B == A]
+      flavor data 
+    }
+}

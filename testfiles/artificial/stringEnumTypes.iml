@@ -1,0 +1,11 @@
+  option A {
+      legal_values [ "aa" "ab" "cc"]
+	flavor data
+  }  
+
+  option B {
+	calculated [A]
+	requires [is_substr(B, "a")]
+	flavor data
+  }
+  

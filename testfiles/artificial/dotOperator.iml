@@ -1,0 +1,5 @@
+  option A{
+    display "Global compiler flags"
+    default_value [B. C . "-mcpu=arm7tdmi -g -O2 -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions " ]
+    flavor data 
+  }

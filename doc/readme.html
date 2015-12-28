@@ -1,0 +1,83 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<title>Readme of eCos Fix Generator v0.1</title>
+	</head>
+	<body>
+		<h1 align="center">Readme of ECC Fixer v0.1</h1>
+		<h2>Introduction</h2>
+		<p> The ECC fixer is a research prototype showing how to use the new fix generation technique developed by Generative Software Development Lab, University of Waterloo to fix configuration errors in <a href="http://ecos.sourceware.org/">eCos/CDL</a> configuration. Given an eCos configuration file (.ecc file), this tool automatically reports all errors in the configuration, and propose a list of fixes for each error. Alternatively, the user can specify an option name, and the tool will try to give a list of fixes for activating the option. This is a preliminary release mainly served as supplementary material for paper "Generating Range Fixes for Software Configuration".</p>
+		<h2>Installation</h2>
+			<h3>Prerequisite</h3>
+				<p>ECC fixer is developed in Scala using simple build tool. To successfully compile and run the code, you need the following tools.</p>
+				<ul>
+					<li>Windows Operating System (It should be possible to compile and run the code on Linux if you find the Linux version of Z3 and those of all tools under "tools" directory, but we have never tested it)</li>
+					<li>Microsoft Z3 SMT Solver 3.1+(download <a href="http://research.microsoft.com/en-us/um/redmond/projects/z3/download.html">here</a>)</li>
+					<li>Java SDK 1.6+</li>
+				</ul>
+			<h3>Installation Steps</h3>
+				<ol>
+					<li>Extract the zip file.</li>
+					<li>Open "src\main\scala\Configuration.scala", and point "Z3_PATH" to the binary of Z3. Note there are four different binaries of Z3, designed respectively for x86/x64 and single-thread/multi-thread. All of them are supported, and we recommend to use the multi-thread version if you have a multi-core CPU. Please choose one that suits your computer.</li>
+					<li>If you choose a multi-thread Z3 binary in the previous step, you may set the number of threads by changing "THREAD_NUMBER" in "src\main\scala\Configuration.scala".
+					<li>In the root of the extract files, type "tools\sbt" to start simple build tool</li>
+					<li>Type "generate" to generate part of the source code.</li>
+					<li>Type "compile" to compile the source code. There might be some warnings, but are safely </li>
+					<li>Type "exit" to exit simple build tool.
+					<!--<li>(optional) Type "test" to test if every works just fine.</li>-->
+				</ol>
+		<h2>Usage</h2>
+			<p>There are two main uses of Ecc fixer. First, given an .ecc file saved by eCos Configuration Tool (configtool), Ecc fixer automatically reports all errors in the configuration, and propose a list of fixes for each error. Second, the user can specify an option name, and the tool will try to give a list of fixes for activating the option.
+			<h3>Check and fix configuration errors</h3>
+				<p>Type "run [ecc_file_name]" to check and propose fixes for an ecc file.</p>
+				<p>The released package already contains a few (possibly faulty) ecc files under the directory "testfiles\realworld". For example, "Easy-3-redboot.ecc" contains one error. You may type "run testfiles\realworld\Easy-3-redboot.ecc" to get this error and three fixes for it.</p>
+				<dd>
+					[CYGBLD_REDBOOT_CMD_LINE_HISTORY_bool:=false] <br/>
+					[CYGNUM_REDBOOT_CMD_LINE_EDITING_data:(CYGNUM_REDBOOT_CMD_LINE_EDITING_data > 0)] <br/>
+					[CYGBLD_BUILD_REDBOOT_bool:=false]<br/>
+				</dd>
+				<p>When loading a new ecc file, the system will first try to deduce types for all options. It is possible that there are type conflicts or a unique type cannot be determined. In such cases, Ecc fixer uses annotations to overwrite faulty expressions or mark correct types for an option. To learn more about annotations, please refer to <a href="#annotation">the introduction of annotation</a> below.
+			<h3>Activate an option</h3>
+				<p>Type "run -a [option_name] [ecc_file_name]" to generate fixes for activating an option. For example, typing "run -a CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DEFAULT testfiles\realworld\Easy-3-redboot.ecc", we will get the following fix.</p>
+				<dd>[CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE_bool:=false]</dd>
+			<h3>Measure fixing time</h3>
+				<p>Use option "-t" to let Ecc fixer report the time used to generate the fixes. You may also use "-t [n]" to execute the generation n times and Ecc fixer will report the average time used for one generation.</p>
+			<h3 id="annotation">Use annotation file to correct type errors</h3>
+				<p>Ecc fixer assumes each option in a CDL model has one of the following types:</p>
+					<ul>
+						<li>Bool: Boolean value containing only 0 or 1. </li>
+						<li>Number: Integers or real numbers. </li>
+						<li>String: Strings are actually treated as space-separated sets containing atomic words. </li>
+						<li>Enumerations: Enumerations are those listed by "default_values", and can be integers or strings. </li>
+					</ul>
+				<p>Ecc fixer will try to deduce one type for each option from the expressions referring to the options. If no unique type can be determined, either because an option can have multiple types or has no suitable type, an type error is reported. For example, if we remove the following lines in "realworld\allModels.annotation",
+				<dd>CYGNUM_HAL_ARM_LPC2XXX_CAN_CLK{<br/>
+				calculated [CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / toInt(CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV) ] replacing [CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV]<br/>
+				}</dd>
+				we shall get the following type error:
+				<dd>ca.uwaterloo.gsd.rangeFix.TypeErrorsException: Type clash in CYGNUM_HAL_ARM_LPC2XXX_CAN_CLK:<br/>
+        T[CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV]=Number from Set(CYGNUM_HAL_ARM_LPC2XXX_CAN_CLK)<br/>
+        T[CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV]=Enum[1,2,4,0,6] from Set(CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV).</dd></p>
+				<p>The error basically says that from "CYGNUM_HAL_ARM_LPC2XXX_CAN_CLK" we deduce that "CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV" should be of type number, and from "CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV" we deduce that "CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV" should be of type enumeration. However, their types clash in "CYGNUM_HAL_ARM_LPC2XXX_CAN_CLK".</p>
+				<p>To fix type errors, we use annotations specified in "realworld\allModels.annotation". To fix the above type error, we add the above code back into "realworld\allModels.annotation". The code basically says that in option "CYGNUM_HAL_ARM_LPC2XXX_CAN_CLK", if we find a calculated declaration matching "[CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV]", we replace it with				"[CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / toInt(CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV) ]". By adding the "toInt" function, we explicitly convert the type of the later expression to number.</p>
+				<p>This kind of annotation has the following general form:</p>
+				<dd>header [expression1] replacing [expression2]</dd>
+				<p>where "header" can be "default_value", "legal_values", "requires", "calculated", and "active_if". When we use "requires" or "active_if", we may also add a number as "requires(0)" or "active_if(1)" to specify the index of the declaration to be replaced. If the declared expression matches expression2, it will be replaced with expression1.</p>
+				<p>Besides this one, we also supports two other forms of annotation, as listed below.</p>
+				<ul>
+					<li>header [expression] in (file_list)<p>For example, we can have the following annotation: calculated [ 4 ] in ("Easy-3-redboot", "redboot", "init-ea2468-res", "init-default-8-unres-ea2468"). Only when the file names match one in the file list, the corresponding declaration will be replaced.</p></li>
+					<li>type typename.<p>The typename can be number, string, bool, or enum, where a list of values should be given after "enum", such as enum[0, 1, 2, 4]. This annotation forces the related option to be the specified type.</p></li>
+				</ul>
+		<h2>Experiment</h2>
+			<p>The files used in the experiments in the paper are stored under folder "experiment". To repeat the experiments, execute "runExperiment", files will be created recording the result of the experiments.
+		<h2>Licenses</h2>
+			<p>Ecc fixer is published under MIT license. Please see "license.txt" file for more details. Some ecc files, libraries and tools are obtained from other projects, and they are released under their own licenses, specified by the "fileName-license.txt" or "directoryName-license.txt" in the respective directories.</p>
+		<h2>Contributors</h2>
+			<ul>
+				<li>Yingfei Xiong</li>
+				<li>Arnaud Hubaux</li>
+			</ul>
+		<h2>Contact</h2>
+		<p>Please contact <a href="http://gsd.uwaterloo.ca/yingfei">Yingfei Xiong</a> for any question, suggestion, or if you would like to contribute to the code.</p>
+	</body>
+</html>

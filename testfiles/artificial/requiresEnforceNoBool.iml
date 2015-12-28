@@ -1,0 +1,9 @@
+  option A{
+    display "Global compiler flags"
+    requires [B]
+    flavor bool 
+  }
+  option B {
+	legal_values [1 to 100]
+	flavor data
+  }

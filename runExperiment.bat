@@ -1,0 +1,3 @@
+@java -Xmx512M -da -cp "%~dp0\target\scala-2.9.1\classes;%~dp0\lib\kiama_2.9.2-1.4.0.jar;%~dp0\lib\scala-library.jar" ca.uwaterloo.gsd.rangeFix.MainExperiment -c
+@java -Xmx512M -da -cp "%~dp0\target\scala-2.9.1\classes;%~dp0\lib\kiama_2.9.2-1.4.0.jar;%~dp0\lib\scala-library.jar" ca.uwaterloo.gsd.rangeFix.MainExperiment 
+@java -Xmx512M -da -cp "%~dp0\target\scala-2.9.1\classes;%~dp0\lib\kiama_2.9.2-1.4.0.jar;%~dp0\lib\scala-library.jar" ca.uwaterloo.gsd.rangeFix.MainExperiment -ct

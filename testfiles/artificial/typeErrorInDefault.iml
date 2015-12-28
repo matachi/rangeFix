@@ -1,0 +1,11 @@
+      option A{
+        display "Console device name"
+        default_value ["\"/dev/ttydiag\"" ]
+        flavor data 
+      }
+
+    option B{
+      display "Default console device"
+      default_value [A + 1 ]
+      flavor data 
+    }

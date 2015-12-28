@@ -1,0 +1,91 @@
+CYGFUN_LIBC_STRING_BSD_FUNCS
+>     user_value 0
+<     inferred_value 0
+
+CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE
+>     # No user value
+<     user_value 4096
+
+CYGDBG_HAL_COMMON_INTERRUPTS_SAVE_MINIMUM_CONTEXT
+>     # No user value
+<     user_value 0
+
+CYGDBG_HAL_COMMON_CONTEXT_SAVE_MINIMUM
+>     # No user value
+<     inferred_value 0
+
+CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS
+>     # No user value
+<     inferred_value 1
+
+CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE
+>     # No user value
+<     user_value 1
+
+CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_RESET
+>     # No user value
+<     user_value 1
+
+CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_VERSION
+>     # No user value
+<     user_value 1
+
+CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DELAY_US
+>     # No user value
+<     user_value 1
+
+CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS
+>     # No user value
+<     user_value 1
+
+CYGSEM_HAL_USE_ROM_MONITOR
+>     # No user value
+<     user_value 0 0
+
+CYGBLD_BUILD_REDBOOT
+>     # No user value
+<     user_value 1
+
+CYGBLD_BUILD_REDBOOT_WITH_EXEC
+>     # No user value
+<     user_value 0
+
+CYGOPT_REDBOOT_FIS
+>     # No user value
+<     user_value 0
+
+CYGSEM_REDBOOT_FLASH_CONFIG
+>     # No user value
+<     user_value 0
+
+CYGHWR_REDBOOT_ARM_LINUX_EXEC_ADDRESS
+>     # No user value
+<     user_value 0
+
+CYGBLD_ISO_STRTOK_R_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_STRING_LOCALE_FUNCS_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_STRING_BSD_FUNCS_HEADER
+>     user_value 1 <cyg/libc/string/bsdstring.h>
+<     inferred_value 1 <cyg/libc/string/bsdstring.h>
+
+CYGBLD_ISO_STRING_MEMFUNCS_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_STRING_STRFUNCS_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_DNS_HEADER
+>     user_value 1 <cyg/ns/dns/dns.h>
+<     inferred_value 1 <cyg/ns/dns/dns.h>
+
+CYGPKG_NS_DNS_BUILD
+>     user_value 0
+<     inferred_value 0

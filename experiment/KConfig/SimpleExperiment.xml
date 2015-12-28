@@ -1,0 +1,16 @@
+<experiment name="Simple Experiment">
+  <configuration constraintFile="../../src/test/resources/2.6.30.exconfig" configurationFile="../../src/test/resources/2.6.30.config">
+    <set name="X86" val="false"/>
+  </configuration>
+  <autoconfig constraintFile="./constraint_files/2.6.17.exconfig">
+    <diff from =".\configuration_files\astlinux_2.6.17_281.config" to=".\configuration_files\astlinux_2.6.17_297.config" />
+    <diff from =".\configuration_files\astlinux_2.6.17_297.config" to=".\configuration_files\astlinux_2.6.17_308.config" />
+    <diff from =".\configuration_files\astlinux_2.6.17_308.config" to=".\configuration_files\astlinux_2.6.17_311.config" />
+    <diff from =".\configuration_files\astlinux_2.6.17_311.config" to=".\configuration_files\astlinux_2.6.17_315.config" />
+    <diff from =".\configuration_files\astlinux_2.6.17_315.config" to=".\configuration_files\astlinux_2.6.17_500.config" />
+    <diff from =".\configuration_files\astlinux_2.6.17_500.config" to=".\configuration_files\astlinux_2.6.17_572.config" />
+  </autoconfig>
+  <autoconfig constraintFile="./constraint_files/2.6.29.exconfig">
+    <diff from =".\configuration_files\CdMa-HeRoC-2.6.29_2.6.29_1.config" to=".\configuration_files\CdMa-HeRoC-2.6.29_2.6.29_2.config" />
+  </autoconfig>
+</experiment>

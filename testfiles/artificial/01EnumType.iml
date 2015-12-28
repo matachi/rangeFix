@@ -1,0 +1,19 @@
+  package CYGPKG_DEVS_I2C_ARM_LPC2XXX{
+    display "I2C driver for LPC2xxx family of ARM controllers"
+    active_if [CYGPKG_IO_I2C ]
+    active_if [CYGPKG_HAL_ARM_LPC2XXX || CYGPKG_HAL_ARM_LPC24XX ]
+
+   option A{
+      display "Driver debug output level"
+      legal_values [0 1 ]
+      default_value [0 ]
+      flavor data 
+    }
+
+  option B{
+    display "Driver debug output level"
+    legal_values [0 1 2 ]
+    default_value [0 ]
+    flavor data 
+  }
+ }

@@ -1,0 +1,7 @@
+    option A{
+      display "Work with a ROM monitor"
+      legal_values ["Generic" "GDB_stubs" ]
+      default_value [CYG_HAL_STARTUP == "RAM" ? "GDB_stubs" : "Generic"]
+      requires [CYG_HAL_STARTUP == "RAM" ]
+      flavor booldata 
+    }

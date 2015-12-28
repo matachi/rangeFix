@@ -1,0 +1,4026 @@
+
+component CYGBLD_GLOBAL_OPTIONS{
+  display "Global build options"
+  flavor none 
+
+  option CYGBLD_GLOBAL_COMMAND_PREFIX{
+    display "Global command prefix"
+    default_value ["arm-eabi" ]
+    flavor data 
+  }
+
+  option CYGBLD_GLOBAL_CFLAGS{
+    display "Global compiler flags"
+    default_value [CYGBLD_GLOBAL_WARNFLAGS . CYGBLD_ARCH_CFLAGS . "-mcpu=arm7tdmi -g -O2 -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions " ]
+    flavor data 
+  }
+
+  option CYGBLD_GLOBAL_LDFLAGS{
+    display "Global linker flags"
+    default_value [CYGBLD_ARCH_LDFLAGS . "-mcpu=arm7tdmi -Wl,--gc-sections -Wl,-static -g -nostdlib" ]
+    flavor data 
+  }
+
+  option CYGBLD_ARCH_CFLAGS{
+    display "Architecture-specific compiler flags"
+    calculated [(CYGHWR_THUMB ? " -mthumb " : "") . (CYGBLD_ARM_ENABLE_THUMB_INTERWORK ? " -mthumb-interwork " : " -mno-thumb-interwork ") . (CYGHWR_HAL_ARM_BIGENDIAN ? " -mbig-endian " : "") ]
+    requires [CYGHWR_THUMB && CYGBLD_ARM_ENABLE_THUMB_INTERWORK implies is_substr(CYGBLD_GLOBAL_CFLAGS, " -mthumb ") && is_substr(CYGBLD_GLOBAL_CFLAGS, " -mthumb-interwork ") && !is_substr(CYGBLD_GLOBAL_CFLAGS, " -mno-thumb-interwork ") ]
+    requires [!CYGHWR_THUMB && CYGBLD_ARM_ENABLE_THUMB_INTERWORK implies !is_substr(CYGBLD_GLOBAL_CFLAGS, " -mthumb ") && is_substr(CYGBLD_GLOBAL_CFLAGS, " -mthumb-interwork ") && !is_substr(CYGBLD_GLOBAL_CFLAGS, " -mno-thumb-interwork ") ]
+    requires [CYGHWR_THUMB && !CYGBLD_ARM_ENABLE_THUMB_INTERWORK implies is_substr(CYGBLD_GLOBAL_CFLAGS, " -mthumb ") && !is_substr(CYGBLD_GLOBAL_CFLAGS, " -mthumb-interwork ") && is_substr(CYGBLD_GLOBAL_CFLAGS, " -mno-thumb-interwork ") ]
+    requires [!CYGHWR_THUMB && !CYGBLD_ARM_ENABLE_THUMB_INTERWORK implies !is_substr(CYGBLD_GLOBAL_CFLAGS, " -mthumb ") && !is_substr(CYGBLD_GLOBAL_CFLAGS, " -mthumb-interwork ") && is_substr(CYGBLD_GLOBAL_CFLAGS, " -mno-thumb-interwork ") ]
+    requires [CYGHWR_HAL_ARM_BIGENDIAN implies is_substr(CYGBLD_GLOBAL_CFLAGS, " -mbig-endian ") ]
+    requires [!CYGHWR_HAL_ARM_BIGENDIAN implies !is_substr(CYGBLD_GLOBAL_CFLAGS, " -mbig-endian ") ]
+    flavor data 
+  }
+
+  option CYGBLD_ARCH_LDFLAGS{
+    display "Architecture-specific linker flags"
+    calculated [(CYGHWR_THUMB ? " -mthumb " : "") . (CYGBLD_ARM_ENABLE_THUMB_INTERWORK ? " -mthumb-interwork " : " -mno-thumb-interwork ") . (CYGHWR_HAL_ARM_BIGENDIAN ? " -mbig-endian " : "") ]
+    requires [CYGHWR_THUMB && CYGBLD_ARM_ENABLE_THUMB_INTERWORK implies is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mthumb ") && is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mthumb-interwork ") && !is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mno-thumb-interwork ") ]
+    requires [!CYGHWR_THUMB && CYGBLD_ARM_ENABLE_THUMB_INTERWORK implies !is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mthumb ") && is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mthumb-interwork ") && !is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mno-thumb-interwork ") ]
+    requires [CYGHWR_THUMB && !CYGBLD_ARM_ENABLE_THUMB_INTERWORK implies is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mthumb ") && !is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mthumb-interwork ") && is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mno-thumb-interwork ") ]
+    requires [!CYGHWR_THUMB && !CYGBLD_ARM_ENABLE_THUMB_INTERWORK implies !is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mthumb ") && !is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mthumb-interwork ") && is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mno-thumb-interwork ") ]
+    requires [CYGHWR_HAL_ARM_BIGENDIAN implies is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mbig-endian ") ]
+    requires [!CYGHWR_HAL_ARM_BIGENDIAN implies !is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mbig-endian ") ]
+    flavor data 
+  }
+
+  option CYGBLD_GLOBAL_WARNFLAGS{
+    display "Standard compiler warning flags"
+    calculated ["-Wall -Wpointer-arith -Wstrict-prototypes -Wundef -Woverloaded-virtual -Wno-write-strings " ]
+    flavor data 
+  }
+
+  option CYGBLD_BUILD_COMMON_GDB_STUBS{
+    display "Build common GDB stub ROM image"
+    default_value [0 ]
+    requires [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+  }
+}
+
+package CYGPKG_DEVICES_WATCHDOG_ARM_LPC2XXX{
+  display "ARM LPC2XXX watchdog driver"
+  active_if [CYGPKG_IO_WATCHDOG ]
+  requires [CYGPKG_HAL_ARM_LPC2XXX ]
+  requires [CYGPKG_KERNEL ]
+  implements [CYGINT_WATCHDOG_HW_IMPLEMENTATIONS ]
+  active_if [CYGIMP_WATCHDOG_HARDWARE ]
+
+  option CYGNUM_DEVS_WATCHDOG_ARM_LPC2XXX_DESIRED_TIMEOUT_MS{
+    display "Desired timeout value"
+    legal_values [1 to 2047 ]
+    default_value [100 ]
+    flavor data 
+  }
+
+  option CYGSEM_DEVS_WATCHDOG_ARM_LPC2XXX_RESET{
+    display "Generate reset on watchdog expiration"
+    default_value [1 ]
+    implements [CYGINT_WATCHDOG_RESETS_ON_TIMEOUT ]
+    flavor bool 
+  }
+
+  component CYGPKG_DEVICES_WATCHDOG_ARM_LPC2XXX_OPTIONS{
+    display "LPC2XXX watchdog build options"
+    flavor none 
+
+    option CYGPKG_DEVICES_WATCHDOG_ARM_LPC2XXX_CFLAGS_ADD{
+      display "Additional compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+
+    option CYGPKG_DEVICES_WATCHDOG_ARM_LPC2XXX_CFLAGS_REMOVE{
+      display "Suppressed compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+  }
+}
+
+option CYGIMP_WATCHDOG_HARDWARE{
+  display "Hardware watchdog"
+  calculated [1 ]
+  implements [CYGINT_WATCHDOG_IMPLEMENTATIONS ]
+}
+
+package CYGPKG_DEVICES_WALLCLOCK_ARM_LPC2XXX{
+  display "LPC2xxx Real-time clock"
+  active_if [CYGPKG_IO_WALLCLOCK ]
+  active_if [CYGPKG_HAL_ARM_LPC2XXX || CYGPKG_HAL_ARM_LPC24XX ]
+  requires [CYGHWR_HAL_ARM_LPC2XXX_IDLE_PWRSAVE == 0 ]
+  implements [CYGINT_WALLCLOCK_HW_IMPLEMENTATIONS ]
+  active_if [CYGIMP_WALLCLOCK_HARDWARE ]
+  implements [CYGINT_WALLCLOCK_SET_GET_MODE_SUPPORTED ]
+}
+
+option CYGIMP_WALLCLOCK_HARDWARE{
+  display "Hardware wallclock"
+  default_value [1 ]
+  implements [CYGINT_WALLCLOCK_IMPLEMENTATIONS ]
+}
+
+package CYGPKG_IO_SERIAL_GENERIC_16X5X{
+  display "16x5x generic serial device drivers"
+  active_if [CYGPKG_IO_SERIAL ]
+  active_if [CYGINT_IO_SERIAL_GENERIC_16X5X_REQUIRED ]
+  requires [CYGPKG_ERROR ]
+
+  interface CYGINT_IO_SERIAL_GENERIC_16X5X_CHAN_INTPRIO{
+    display "Per channel interrupt priority support"
+    flavor bool 
+  }
+
+  option CYGPKG_IO_SERIAL_GENERIC_16X5X_XMIT_REQUIRE_PRIME{
+    display "Transmission require priming"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  component CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO{
+    display "16x5x FIFO support"
+    default_value [1 ]
+    flavor bool 
+
+    option CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO_RX_THRESHOLD{
+      display "Threshold for RX interrupt on 16550 FIFO"
+      legal_values [14 8 4 1 ]
+      default_value [1 ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_GENERIC_16X5X_FIFO_TX_SIZE{
+      display "16x5x TX FIFO size"
+      default_value [16 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_IO_SERIAL_GENERIC_16X5X_OPTIONS{
+    display "Serial device driver build options"
+    flavor none 
+
+    option CYGPKG_IO_SERIAL_GENERIC_16X5X_CFLAGS_ADD{
+      display "Additional compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+
+    option CYGPKG_IO_SERIAL_GENERIC_16X5X_CFLAGS_REMOVE{
+      display "Suppressed compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+  }
+}
+
+package CYGPKG_IO_SERIAL_ARM_LPC24XX{
+  display "ARM LPC24xx serial device drivers"
+  active_if [CYGPKG_IO_SERIAL ]
+  active_if [CYGPKG_HAL_ARM_LPC24XX ]
+  implements [CYGINT_IO_SERIAL_GENERIC_16X5X_CHAN_INTPRIO ]
+  requires [CYGPKG_ERROR ]
+
+  interface CYGINT_IO_SERIAL_GENERIC_16X5X_REQUIRED{
+    display "Generic 16x5x serial driver required"
+  }
+
+  interface CYGINT_IO_SERIAL_LPC24XX_UART0{
+    display "Platform provides UART 0"
+    flavor bool 
+  }
+
+  component CYGPKG_IO_SERIAL_ARM_LPC24XX_SERIAL0{
+    display "ARM LPC24cxx UART 0 driver"
+    active_if [CYGINT_IO_SERIAL_LPC24XX_UART0 ]
+    default_value [1 ]
+    implements [CYGINT_IO_SERIAL_GENERIC_16X5X_REQUIRED ]
+    implements [CYGINT_IO_SERIAL_FLOW_CONTROL_HW ]
+    implements [CYGINT_IO_SERIAL_LINE_STATUS_HW ]
+    flavor bool 
+
+    option CYGDAT_IO_SERIAL_ARM_LPC24XX_SERIAL0_NAME{
+      display "Device name for UART 0"
+      default_value ["\"/dev/ser0\"" ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL0_BAUD{
+      display "Baud rate for UART 0"
+      legal_values [50 75 110 "134_5" 150 200 300 600 1200 1800 2400 3600 4800 7200 9600 14400 19200 38400 57600 115200 230400 ]
+      default_value [38400 ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL0_BUFSIZE{
+      display "Buffer size for the UART 0"
+      legal_values [0 to 8192 ]
+      default_value [128 ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL0_INTPRIO{
+      display "Interrupt priority of UART 0"
+      legal_values [0 to 15 ]
+      default_value [15 ]
+      flavor data 
+    }
+  }
+
+  interface CYGINT_IO_SERIAL_LPC24XX_UART1{
+    display "Platform provides UART 1"
+    flavor bool 
+  }
+
+  component CYGPKG_IO_SERIAL_ARM_LPC24XX_SERIAL1{
+    display "ARM LPC24cxx UART 1 driver"
+    active_if [CYGINT_IO_SERIAL_LPC24XX_UART1 ]
+    default_value [1 ]
+    implements [CYGINT_IO_SERIAL_GENERIC_16X5X_REQUIRED ]
+    implements [CYGINT_IO_SERIAL_FLOW_CONTROL_HW ]
+    implements [CYGINT_IO_SERIAL_LINE_STATUS_HW ]
+    flavor bool 
+
+    option CYGDAT_IO_SERIAL_ARM_LPC24XX_SERIAL1_NAME{
+      display "Device name for UART 1"
+      default_value ["\"/dev/ser1\"" ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL1_BAUD{
+      display "Baud rate for UART 1"
+      legal_values [50 75 110 "134_5" 150 200 300 600 1200 1800 2400 3600 4800 7200 9600 14400 19200 38400 57600 115200 230400 ]
+      default_value [38400 ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL1_BUFSIZE{
+      display "Buffer size for the UART 1"
+      legal_values [0 to 8192 ]
+      default_value [128 ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL1_INTPRIO{
+      display "Interrupt priority of UART 1"
+      legal_values [0 to 15 ]
+      default_value [15 ]
+      flavor data 
+    }
+  }
+
+  interface CYGINT_IO_SERIAL_LPC24XX_UART2{
+    display "Platform provides UART 2"
+    flavor bool 
+  }
+
+  component CYGPKG_IO_SERIAL_ARM_LPC24XX_SERIAL2{
+    display "ARM LPC24cxx UART 2 driver"
+    active_if [CYGINT_IO_SERIAL_LPC24XX_UART2 ]
+    default_value [1 ]
+    implements [CYGINT_IO_SERIAL_GENERIC_16X5X_REQUIRED ]
+    implements [CYGINT_IO_SERIAL_FLOW_CONTROL_HW ]
+    implements [CYGINT_IO_SERIAL_LINE_STATUS_HW ]
+    flavor bool 
+
+    option CYGDAT_IO_SERIAL_ARM_LPC24XX_SERIAL2_NAME{
+      display "Device name for UART 2"
+      default_value ["\"/dev/ser2\"" ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL2_BAUD{
+      display "Baud rate for UART 2"
+      legal_values [50 75 110 "134_5" 150 200 300 600 1200 1800 2400 3600 4800 7200 9600 14400 19200 38400 57600 115200 230400 ]
+      default_value [38400 ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL2_BUFSIZE{
+      display "Buffer size for the UART 2"
+      legal_values [0 to 8192 ]
+      default_value [128 ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL2_INTPRIO{
+      display "Interrupt priority of UART 2"
+      legal_values [0 to 15 ]
+      default_value [15 ]
+      flavor data 
+    }
+  }
+
+  interface CYGINT_IO_SERIAL_LPC24XX_UART3{
+    display "Platform provides UART 3"
+    flavor bool 
+  }
+
+  component CYGPKG_IO_SERIAL_ARM_LPC24XX_SERIAL3{
+    display "ARM LPC24cxx UART 3 driver"
+    active_if [CYGINT_IO_SERIAL_LPC24XX_UART3 ]
+    default_value [1 ]
+    implements [CYGINT_IO_SERIAL_GENERIC_16X5X_REQUIRED ]
+    implements [CYGINT_IO_SERIAL_FLOW_CONTROL_HW ]
+    implements [CYGINT_IO_SERIAL_LINE_STATUS_HW ]
+    flavor bool 
+
+    option CYGDAT_IO_SERIAL_ARM_LPC24XX_SERIAL3_NAME{
+      display "Device name for UART 3"
+      default_value ["\"/dev/ser3\"" ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL3_BAUD{
+      display "Baud rate for UART 3"
+      legal_values [50 75 110 "134_5" 150 200 300 600 1200 1800 2400 3600 4800 7200 9600 14400 19200 38400 57600 115200 230400 ]
+      default_value [38400 ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL3_BUFSIZE{
+      display "Buffer size for the UART 3"
+      legal_values [0 to 8192 ]
+      default_value [128 ]
+      flavor data 
+    }
+
+    option CYGNUM_IO_SERIAL_ARM_LPC24XX_SERIAL3_INTPRIO{
+      display "Interrupt priority of UART 3"
+      legal_values [0 to 15 ]
+      default_value [15 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_IO_SERIAL_ARM_LPC24XX_TESTING{
+    display "Testing parameters"
+    calculated [1 ]
+    active_if [CYGPKG_IO_SERIAL_ARM_LPC24XX_SERIAL0 ]
+    implements [CYGINT_IO_SERIAL_TEST_SKIP_9600 ]
+    implements [CYGINT_IO_SERIAL_TEST_SKIP_115200 ]
+    implements [CYGINT_IO_SERIAL_TEST_SKIP_PARITY_EVEN ]
+    flavor bool 
+
+    option CYGPRI_SER_TEST_SER_DEV{
+      display "Serial device used for testing"
+      default_value [CYGDAT_IO_SERIAL_ARM_LPC24XX_SERIAL0_NAME ]
+      flavor data 
+    }
+  }
+}
+
+package CYGPKG_DEVS_CAN_LPC2XXX{
+  display "Philips LPC2xxx CAN device drivers"
+  active_if [CYGPKG_IO_CAN ]
+  active_if [CYGPKG_HAL_ARM_LPC2XXX || CYGPKG_HAL_ARM_LPC24XX ]
+  requires [CYGPKG_ERROR ]
+  implements [CYGINT_IO_CAN_STD_CAN_ID ]
+  implements [CYGINT_IO_CAN_EXT_CAN_ID ]
+
+  component CYGOPT_DEVS_CAN_LPC2XXX_RUNTIME_ACCFILT{
+    display "Acceptance filter runtime configuration"
+    implements [CYGINT_IO_CAN_RUNTIME_MBOX_CFG ]
+    flavor bool 
+
+    option CYGOPT_DEVS_CAN_LPC2XXX_EXTENDED_CFG_KEYS{
+      display "Extended acceptance filtering"
+      default_value [0 ]
+      flavor bool 
+    }
+
+    option CYGOPT_DEVS_CAN_LPC2XXX_LUT_ERR_SUPP{
+      display "LUT Error Support"
+      default_value [0 ]
+      flavor bool 
+    }
+  }
+
+  option CYGOPT_DEVS_CAN_LPC2XXX_USE_SELF_RECEPTION{
+    display "Use Self Reception Request command"
+    active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGOPT_DEVS_CAN_LPC2XXX_ALIE{
+    display "Arbitration lost interrupt enable"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGDBG_DEVS_CAN_LPC2XXX_DEBUG{
+    display "Support printing debug information"
+    default_value [0 ]
+  }
+
+  interface CYGINT_DEVS_CAN_LPC2XXX_CAN0{
+    display "Platform provides CAN 0"
+    flavor bool 
+  }
+
+  component CYGPKG_DEVS_CAN_LPC2XXX_CAN0{
+    display "Allow access to the on-chip CAN 0 via a CAN driver"
+    active_if [CYGINT_DEVS_CAN_LPC2XXX_CAN0 ]
+    implements [CYGINT_IO_CAN_CHANNELS ]
+    default_value [1 ]
+    flavor bool 
+
+    option CYGPKG_DEVS_CAN_LPC2XXX_CAN0_NAME{
+      display "Device name for CAN module 0"
+      default_value ["\"/dev/can0\"" ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN0_KBAUD{
+      display "Default baud rate for CAN module 0"
+      default_value [100 ]
+      legal_values [10 20 50 100 125 250 500 800 1000 "AUTO" ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN0_QUEUESIZE_TX{
+      display "Size of TX Queue for the CAN module 0 driver"
+      default_value [32 ]
+      legal_values [1 to 1024 ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN0_QUEUESIZE_RX{
+      display "Size of RX Queue for the CAN module 0 driver"
+      default_value [64 ]
+      legal_values [8 to 4096 ]
+      flavor data 
+    }
+
+    option CYGOPT_DEVS_CAN_LPC2XXX_CAN0_ACCFILT_STARTUP_CFG{
+      display "Acceptance filter startup configuration"
+      legal_values ["RX_ALL" "RX_NONE" ]
+      default_value ["RX_ALL" ]
+      active_if [CYGOPT_DEVS_CAN_LPC2XXX_RUNTIME_ACCFILT ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN0_RX_INT_PRIORITY{
+      display "Priority level of CAN module 0 receive interrupt"
+      active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+      default_value [16 ]
+      legal_values [0 to 16 ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN0_TX_INT_PRIORITY{
+      display "Priority level of CAN module 0 transmit interrupt"
+      active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+      default_value [16 ]
+      legal_values [0 to 16 ]
+      flavor data 
+    }
+  }
+
+  interface CYGINT_DEVS_CAN_LPC2XXX_CAN1{
+    display "Platform provides CAN 1"
+    flavor bool 
+  }
+
+  component CYGPKG_DEVS_CAN_LPC2XXX_CAN1{
+    display "Allow access to the on-chip CAN 1 via a CAN driver"
+    active_if [CYGINT_DEVS_CAN_LPC2XXX_CAN1 ]
+    implements [CYGINT_IO_CAN_CHANNELS ]
+    default_value [1 ]
+    flavor bool 
+
+    option CYGPKG_DEVS_CAN_LPC2XXX_CAN1_NAME{
+      display "Device name for CAN module 1"
+      default_value ["\"/dev/can1\"" ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN1_KBAUD{
+      display "Default baud rate for CAN module 1"
+      default_value [100 ]
+      legal_values [10 20 50 100 125 250 500 800 1000 "AUTO" ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN1_QUEUESIZE_TX{
+      display "Size of TX Queue for the CAN module 1 driver"
+      default_value [32 ]
+      legal_values [1 to 1024 ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN1_QUEUESIZE_RX{
+      display "Size of RX Queue for the CAN module 1 driver"
+      default_value [64 ]
+      legal_values [8 to 4096 ]
+      flavor data 
+    }
+
+    option CYGOPT_DEVS_CAN_LPC2XXX_CAN1_ACCFILT_STARTUP_CFG{
+      display "Acceptance filter startup configuration"
+      legal_values ["RX_ALL" "RX_NONE" ]
+      default_value ["RX_ALL" ]
+      active_if [CYGOPT_DEVS_CAN_LPC2XXX_RUNTIME_ACCFILT ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN1_RX_INT_PRIORITY{
+      display "Priority level of CAN module 1 receive interrupt"
+      active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+      default_value [16 ]
+      legal_values [0 to 16 ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN1_TX_INT_PRIORITY{
+      display "Priority level of CAN module 1 transmit interrupt"
+      active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+      default_value [16 ]
+      legal_values [0 to 16 ]
+      flavor data 
+    }
+  }
+
+  interface CYGINT_DEVS_CAN_LPC2XXX_CAN2{
+    display "Platform provides CAN 2"
+    flavor bool 
+  }
+
+  component CYGPKG_DEVS_CAN_LPC2XXX_CAN2{
+    display "Allow access to the on-chip CAN 2 via a CAN driver"
+    active_if [CYGINT_DEVS_CAN_LPC2XXX_CAN2 ]
+    implements [CYGINT_IO_CAN_CHANNELS ]
+    default_value [1 ]
+    flavor bool 
+
+    option CYGPKG_DEVS_CAN_LPC2XXX_CAN2_NAME{
+      display "Device name for CAN module 2"
+      default_value ["\"/dev/can2\"" ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN2_KBAUD{
+      display "Default baud rate for CAN module 2"
+      default_value [100 ]
+      legal_values [10 20 50 100 125 250 500 800 1000 "AUTO" ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN2_QUEUESIZE_TX{
+      display "Size of TX Queue for the CAN module 2 driver"
+      default_value [32 ]
+      legal_values [1 to 1024 ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN2_QUEUESIZE_RX{
+      display "Size of RX Queue for the CAN module 2 driver"
+      default_value [64 ]
+      legal_values [8 to 4096 ]
+      flavor data 
+    }
+
+    option CYGOPT_DEVS_CAN_LPC2XXX_CAN2_ACCFILT_STARTUP_CFG{
+      display "Acceptance filter startup configuration"
+      legal_values ["RX_ALL" "RX_NONE" ]
+      default_value ["RX_ALL" ]
+      active_if [CYGOPT_DEVS_CAN_LPC2XXX_RUNTIME_ACCFILT ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN2_RX_INT_PRIORITY{
+      display "Priority level of CAN module 2 receive interrupt"
+      active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+      default_value [16 ]
+      legal_values [0 to 16 ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN2_TX_INT_PRIORITY{
+      display "Priority level of CAN module 2 transmit interrupt"
+      active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+      default_value [16 ]
+      legal_values [0 to 16 ]
+      flavor data 
+    }
+  }
+
+  interface CYGINT_DEVS_CAN_LPC2XXX_CAN3{
+    display "Platform provides CAN 3"
+    flavor bool 
+  }
+
+  component CYGPKG_DEVS_CAN_LPC2XXX_CAN3{
+    display "Allow access to the on-chip CAN 3 via a CAN driver"
+    active_if [CYGINT_DEVS_CAN_LPC2XXX_CAN3 ]
+    implements [CYGINT_IO_CAN_CHANNELS ]
+    default_value [1 ]
+    flavor bool 
+
+    option CYGPKG_DEVS_CAN_LPC2XXX_CAN3_NAME{
+      display "Device name for CAN module 3"
+      default_value ["\"/dev/can3\"" ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN3_KBAUD{
+      display "Default baud rate for CAN module 3"
+      default_value [100 ]
+      legal_values [10 20 50 100 125 250 500 800 1000 "AUTO" ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN3_QUEUESIZE_TX{
+      display "Size of TX Queue for the CAN module 3 driver"
+      default_value [32 ]
+      legal_values [1 to 1024 ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN3_QUEUESIZE_RX{
+      display "Size of RX Queue for the CAN module 3 driver"
+      default_value [64 ]
+      legal_values [8 to 4096 ]
+      flavor data 
+    }
+
+    option CYGOPT_DEVS_CAN_LPC2XXX_CAN3_ACCFILT_STARTUP_CFG{
+      display "Acceptance filter startup configuration"
+      legal_values ["RX_ALL" "RX_NONE" ]
+      default_value ["RX_ALL" ]
+      active_if [CYGOPT_DEVS_CAN_LPC2XXX_RUNTIME_ACCFILT ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN3_RX_INT_PRIORITY{
+      display "Priority level of CAN module 3 receive interrupt"
+      active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+      default_value [16 ]
+      legal_values [0 to 16 ]
+      flavor data 
+    }
+
+    option CYGNUM_DEVS_CAN_LPC2XXX_CAN3_TX_INT_PRIORITY{
+      display "Priority level of CAN module 3 transmit interrupt"
+      active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+      default_value [16 ]
+      legal_values [0 to 16 ]
+      flavor data 
+    }
+  }
+
+  option CYGNUM_DEVS_CAN_LPC2XXX_ERR_INT_PRIORITY{
+    display "Priority level of CAN error interrupt"
+    active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION < 4 ]
+    default_value [16 ]
+    legal_values [0 to 16 ]
+    flavor data 
+  }
+
+  option CYGNUM_DEVS_CAN_LPC2XXX_INT_PRIORITY{
+    display "Priority level of all CAN interrupts"
+    active_if [CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION >= 4 ]
+    default_value [15 ]
+    legal_values [0 to 15 ]
+    flavor data 
+  }
+
+  option CYGPKG_DEVS_CAN_LPC2XXX_TESTS{
+    display "CAN LPC2xxx device driver tests"
+    calculated ["tests/can_busload tests/can_rx_tx" ]
+    flavor data 
+  }
+
+  option CYGBLD_DEVS_CAN_LPC2XXX_EXTRA_TESTS{
+    display "Build extra CAN tests"
+    default_value [0 ]
+  }
+}
+
+package CYGPKG_DEVS_FLASH_EA2468{
+  display "EA LPC2468 OEM board FLASH memory support"
+  active_if [CYGPKG_IO_FLASH ]
+  requires [CYGPKG_HAL_ARM_LPC24XX ]
+  implements [CYGINT_DEVS_FLASH_SST_39VFXXX_REQUIRED ]
+  requires [!CYGSEM_REDBOOT_FLASH_COMBINED_FIS_AND_CONFIG ]
+  requires [CYGNUM_REDBOOT_FLASH_CONFIG_SIZE <= 4096 ]
+  requires [(CYGNUM_REDBOOT_FIS_DIRECTORY_ENTRY_SIZE * CYGNUM_REDBOOT_FIS_DIRECTORY_ENTRY_COUNT) <= 4096 ]
+
+  interface CYGINT_DEVS_FLASH_SST_39VFXXX_REQUIRED{
+    display "Generic SST 39VFXXX driver required"
+  }
+}
+
+package CYGPKG_DEVS_FLASH_SST_39VFXXX{
+  display "SST 39VFXXX FLASH memory support"
+  active_if [CYGPKG_IO_FLASH ]
+  active_if [CYGINT_DEVS_FLASH_SST_39VFXXX_REQUIRED ]
+  implements [CYGHWR_IO_FLASH_DEVICE ]
+  implements [CYGHWR_IO_FLASH_DEVICE_NEEDS_CACHE_HANDLED ]
+}
+
+package CYGPKG_DEVS_ETH_PHY{
+  display "Ethernet transciever (PHY) support"
+  active_if [CYGPKG_IO_ETH_DRIVERS ]
+  requires [CYGSEM_HAL_VIRTUAL_VECTOR_SUPPORT ]
+
+  option CYGDBG_DEVS_ETH_PHY{
+    display "Enable driver debugging"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGINT_DEVS_ETH_PHY_AUTO_NEGOTIATION_TIME{
+    display "Time period (seconds) to wait for auto-negotiation"
+    default_value [5 ]
+    flavor data 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_DP83847{
+    display "NSDP83847"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_AM79C874{
+    display "AMD 79C874"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_INLXT972{
+    display "Intel LXT972"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_ICS1890{
+    display "ICS 1890"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_ICS1892{
+    display "ICS 1892"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_ICS1893{
+    display "ICS 1893"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_DM9161A{
+    display "Davicom DM9161A"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_KS8721{
+    display "Micrel KS8721"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_KSZ8001{
+    display "Micrel KSZ8001"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGHWR_DEVS_ETH_PHY_KSZ8041{
+    display "Micrel KSZ8041"
+    default_value [0 ]
+    flavor bool 
+  }
+}
+
+package CYGPKG_DEVS_ETH_ARM_LPC2XXX{
+  display "NXP LPC2xxx ethernet driver"
+  active_if [CYGPKG_IO_ETH_DRIVERS ]
+  implements [CYGHWR_NET_DRIVERS ]
+  implements [CYGHWR_NET_DRIVER_ETH0 ]
+
+  option CYGPKG_DEVS_ETH_ARM_LPC2XXX_DEBUG_LEVEL{
+    display "Driver debug output level"
+    legal_values [0 1 2 3 ]
+    default_value [1 ]
+    flavor data 
+  }
+
+  option CYGPKG_DEVS_ETH_ARM_LPC2XXX_INTPRIO{
+    display "Interrupt priority"
+    legal_values [0 to 15 ]
+    default_value [15 ]
+    flavor data 
+  }
+
+  option CYGNUM_DEVS_ETH_ARM_LPC2XXX_RX_BUFS{
+    display "Number of RX buffers"
+    default_value [4 ]
+    legal_values [2 to 4 ]
+    flavor data 
+  }
+
+  option CYGNUM_DEVS_ETH_ARM_LPC2XXX_TX_BUFS{
+    display "Number of TX descriptors"
+    default_value [10 ]
+    legal_values [2 to 10 ]
+    flavor data 
+  }
+
+  component CYGPKG_DEVS_ETH_ARM_LPC2XXX_REDBOOT_HOLDS_ESA{
+    display "RedBoot manages ESA initialization data"
+    default_value [0 ]
+    active_if [CYGSEM_HAL_VIRTUAL_VECTOR_SUPPORT ]
+    active_if [(CYGPKG_REDBOOT || CYGSEM_HAL_USE_ROM_MONITOR) ]
+    flavor bool 
+
+    component CYGPKG_DEVS_ETH_ARM_LPC2XXX_REDBOOT_HOLDS_ESA_VARS{
+      display "Export RedBoot command to set ESA in FLASH config"
+      flavor none 
+
+      option CYGSEM_DEVS_ETH_ARM_LPC2XXX_REDBOOT_HOLDS_ESA_ETH0{
+        display "RedBoot manages ESA for eth0"
+        default_value [1 ]
+        active_if [CYGSEM_REDBOOT_FLASH_CONFIG ]
+        active_if [CYGPKG_REDBOOT_NETWORKING ]
+        flavor bool 
+      }
+    }
+  }
+
+  option CYGPKG_DEVS_ETH_ARM_LPC2XXX_MACADDR{
+    display "Ethernet station (MAC) address for eth0"
+    default_value ["0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC" ]
+    flavor data 
+  }
+
+  option CYGPKG_DEVS_ETH_ARM_LPC2XXX_CFLAGS_ADD{
+    display "Additional compiler flags"
+    default_value ["-D_KERNEL -D__ECOS" ]
+    flavor data 
+  }
+}
+
+package CYGPKG_DEVS_ADC_ARM_LPC24XX{
+  display "ADC hardware device driver for LPC24xx family of ARM controllers"
+  active_if [CYGPKG_IO_ADC_DEVICES ]
+  active_if [CYGPKG_HAL_ARM_LPC24XX ]
+  requires [CYGNUM_IO_ADC_SAMPLE_SIZE <= 10 ]
+  requires [CYGNUM_IO_ADC_SAMPLE_SIZE >= 3 ]
+
+  interface CYGINT_DEVS_ADC_ARM_LPC24XX_CHANNELS{
+    display "Number of ADC channels"
+  }
+
+  option CYGPKG_DEVS_ADC_ARM_LPC24XX_DEBUG_LEVEL{
+    display "Driver debug output level"
+    legal_values [0 1 2 ]
+    default_value [0 ]
+    flavor data 
+  }
+
+  option CYGNUM_DEVS_ADC_ARM_LPC24XX_INTPRIO{
+    display "Interrupt priority"
+    legal_values [0 to 15 ]
+    default_value [15 ]
+    flavor data 
+  }
+
+  option CYGNUM_DEVS_ADC_ARM_LPC24XX_DEFAULT_RATE{
+    display "Default sample rate"
+    legal_values [1 to 10000 ]
+    default_value [100 ]
+    flavor data 
+  }
+
+  component CYGPKG_DEVS_ADC_ARM_LPC24XX_CHANNEL0{
+    display "Access ADC channel 0"
+    default_value [0 == 0 ]
+    implements [CYGINT_DEVS_ADC_ARM_LPC24XX_CHANNELS ]
+    flavor bool 
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL0_NAME{
+      display "Device name"
+      default_value ["\"/dev/adc00\"" ]
+      flavor data 
+    }
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL0_BUFSIZE{
+      display "Size of data buffer"
+      legal_values [0x01 to 0x2000000 ]
+      default_value [512 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_DEVS_ADC_ARM_LPC24XX_CHANNEL1{
+    display "Access ADC channel 1"
+    default_value [1 == 0 ]
+    implements [CYGINT_DEVS_ADC_ARM_LPC24XX_CHANNELS ]
+    flavor bool 
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL1_NAME{
+      display "Device name"
+      default_value ["\"/dev/adc01\"" ]
+      flavor data 
+    }
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL1_BUFSIZE{
+      display "Size of data buffer"
+      legal_values [0x01 to 0x2000000 ]
+      default_value [512 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_DEVS_ADC_ARM_LPC24XX_CHANNEL2{
+    display "Access ADC channel 2"
+    default_value [2 == 0 ]
+    implements [CYGINT_DEVS_ADC_ARM_LPC24XX_CHANNELS ]
+    flavor bool 
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL2_NAME{
+      display "Device name"
+      default_value ["\"/dev/adc02\"" ]
+      flavor data 
+    }
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL2_BUFSIZE{
+      display "Size of data buffer"
+      legal_values [0x01 to 0x2000000 ]
+      default_value [512 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_DEVS_ADC_ARM_LPC24XX_CHANNEL3{
+    display "Access ADC channel 3"
+    default_value [3 == 0 ]
+    implements [CYGINT_DEVS_ADC_ARM_LPC24XX_CHANNELS ]
+    flavor bool 
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL3_NAME{
+      display "Device name"
+      default_value ["\"/dev/adc03\"" ]
+      flavor data 
+    }
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL3_BUFSIZE{
+      display "Size of data buffer"
+      legal_values [0x01 to 0x2000000 ]
+      default_value [512 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_DEVS_ADC_ARM_LPC24XX_CHANNEL4{
+    display "Access ADC channel 4"
+    default_value [4 == 0 ]
+    implements [CYGINT_DEVS_ADC_ARM_LPC24XX_CHANNELS ]
+    flavor bool 
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL4_NAME{
+      display "Device name"
+      default_value ["\"/dev/adc04\"" ]
+      flavor data 
+    }
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL4_BUFSIZE{
+      display "Size of data buffer"
+      legal_values [0x01 to 0x2000000 ]
+      default_value [512 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_DEVS_ADC_ARM_LPC24XX_CHANNEL5{
+    display "Access ADC channel 5"
+    default_value [5 == 0 ]
+    implements [CYGINT_DEVS_ADC_ARM_LPC24XX_CHANNELS ]
+    flavor bool 
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL5_NAME{
+      display "Device name"
+      default_value ["\"/dev/adc05\"" ]
+      flavor data 
+    }
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL5_BUFSIZE{
+      display "Size of data buffer"
+      legal_values [0x01 to 0x2000000 ]
+      default_value [512 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_DEVS_ADC_ARM_LPC24XX_CHANNEL6{
+    display "Access ADC channel 6"
+    default_value [6 == 0 ]
+    implements [CYGINT_DEVS_ADC_ARM_LPC24XX_CHANNELS ]
+    flavor bool 
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL6_NAME{
+      display "Device name"
+      default_value ["\"/dev/adc06\"" ]
+      flavor data 
+    }
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL6_BUFSIZE{
+      display "Size of data buffer"
+      legal_values [0x01 to 0x2000000 ]
+      default_value [512 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_DEVS_ADC_ARM_LPC24XX_CHANNEL7{
+    display "Access ADC channel 7"
+    default_value [7 == 0 ]
+    implements [CYGINT_DEVS_ADC_ARM_LPC24XX_CHANNELS ]
+    flavor bool 
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL7_NAME{
+      display "Device name"
+      default_value ["\"/dev/adc07\"" ]
+      flavor data 
+    }
+
+    option CYGDAT_DEVS_ADC_ARM_LPC24XX_CHANNEL7_BUFSIZE{
+      display "Size of data buffer"
+      legal_values [0x01 to 0x2000000 ]
+      default_value [512 ]
+      flavor data 
+    }
+  }
+
+  option CYGPKG_DEVS_ADC_ARM_LPC24XX_TESTS{
+    display "Tests for LPC24xx ADC driver"
+    calculated ["tests/lpc24xx_adc_test" ]
+    flavor data 
+  }
+}
+
+package CYGPKG_LIBC_STRING{
+  display "ISO C library string functions"
+  implements [CYGINT_ISO_STRTOK_R ]
+  implements [CYGINT_ISO_STRING_LOCALE_FUNCS ]
+  implements [CYGINT_ISO_STRING_MEMFUNCS ]
+  implements [CYGINT_ISO_STRING_STRFUNCS ]
+  requires [CYGBLD_ISO_STRING_LOCALE_FUNCS_HEADER == "<cyg/libc/string/string.h>" ]
+  requires [CYGBLD_ISO_STRING_MEMFUNCS_HEADER == "<cyg/libc/string/string.h>" ]
+  requires [CYGBLD_ISO_STRING_STRFUNCS_HEADER == "<cyg/libc/string/string.h>" ]
+  requires [CYGBLD_ISO_STRTOK_R_HEADER == "<cyg/libc/string/string.h>" ]
+  requires [CYGPKG_ISOINFRA ]
+
+  option CYGIMP_LIBC_STRING_INLINES{
+    display "Inline versions of <string.h> functions"
+    default_value [1 ]
+  }
+
+  option CYGIMP_LIBC_STRING_PREFER_SMALL_TO_FAST{
+    display "Optimize string functions for code size"
+    default_value [0 ]
+    flavor bool 
+  }
+
+  option CYGFUN_LIBC_STRING_BSD_FUNCS{
+    display "Provide BSD compatibility functions"
+    default_value [1 ]
+    implements [CYGINT_ISO_STRING_BSD_FUNCS ]
+    requires [CYGBLD_ISO_STRING_BSD_FUNCS_HEADER == "<cyg/libc/string/bsdstring.h>" ]
+    requires [CYGINT_ISO_CTYPE ]
+    flavor bool 
+  }
+
+  component CYGPKG_LIBC_STRING_STRTOK{
+    display "strtok"
+    flavor none 
+
+    option CYGSEM_LIBC_STRING_PER_THREAD_STRTOK{
+      display "Per-thread strtok()"
+      active_if [CYGPKG_KERNEL ]
+      requires [CYGVAR_KERNEL_THREADS_DATA ]
+      default_value [CYGVAR_KERNEL_THREADS_DATA ]
+    }
+
+    option CYGNUM_LIBC_STRING_STRTOK_TRACE_LEVEL{
+      display "Tracing level"
+      legal_values [0 to 1 ]
+      default_value [0 ]
+      flavor data 
+    }
+  }
+
+  option CYGFUN_LIBC_STRING_STRDUP{
+    display "strdup"
+    active_if [CYGINT_ISO_MALLOC ]
+    calculated [1 ]
+  }
+
+  component CYGPKG_LIBC_STRING_OPTIONS{
+    display "C library string functions build options"
+    flavor none 
+
+    option CYGPKG_LIBC_STRING_CFLAGS_ADD{
+      display "Additional compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+
+    option CYGPKG_LIBC_STRING_CFLAGS_REMOVE{
+      display "Suppressed compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+
+    option CYGPKG_LIBC_STRING_TESTS{
+      display "C library string function tests"
+      calculated ["tests/memchr tests/memcmp1 tests/memcmp2 tests/memcpy1 tests/memcpy2 tests/memmove1 tests/memmove2 tests/memset tests/strcat1 tests/strcat2 tests/strchr tests/strcmp1 tests/strcmp2 tests/strcoll1 tests/strcoll2 tests/strcpy1 tests/strcpy2 tests/strcspn tests/strcspn tests/strlen tests/strncat1 tests/strncat2 tests/strncpy1 tests/strncpy2 tests/strpbrk tests/strrchr tests/strspn tests/strstr tests/strtok tests/strxfrm1 tests/strxfrm2" ]
+      flavor data 
+    }
+  }
+}
+
+package CYGPKG_IO_I2C{
+  display "I2C support"
+  requires [CYGPKG_INFRA CYGPKG_HAL ]
+
+  component CYGPKG_IO_I2C_OPTIONS{
+    display "I2C build options"
+    flavor none 
+
+    option CYGPKG_IO_I2C_CFLAGS_ADD{
+      display "Additional compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+
+    option CYGPKG_IO_I2C_CFLAGS_REMOVE{
+      display "Suppressed compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+  }
+
+  package CYGPKG_DEVS_I2C_ARM_LPC2XXX{
+    display "I2C driver for LPC2xxx family of ARM controllers"
+    active_if [CYGPKG_IO_I2C ]
+    active_if [CYGPKG_HAL_ARM_LPC2XXX || CYGPKG_HAL_ARM_LPC24XX ]
+
+    option CYGHWR_DEVS_I2C_ARM_LPC2XXX_MULTIPLE_BUSES{
+      display "Target hardware may have multiple I2C buses"
+      default_value [0 ]
+      flavor bool 
+    }
+
+    option CYGPKG_DEVS_I2C_ARM_LPC2XXX_DEBUG_LEVEL{
+      display "Driver debug output level"
+      legal_values [0 1 ]
+      default_value [0 ]
+      flavor data 
+    }
+
+    component CYGHWR_HAL_ARM_LPC24XX_I2C0_SUPP{
+      display "I2C channel 0 configuration"
+      active_if [CYGPKG_DEVS_I2C_ARM_LPC2XXX ]
+      default_value [0 == 0 ]
+      flavor bool 
+
+      option CYGNUM_HAL_ARM_LPC24XX_I2C0_INT_PRIO{
+        display "I2C channel 0 interrupt priority"
+        legal_values [0 to 15 ]
+        default_value [15 ]
+        flavor data 
+      }
+
+      option CYGNUM_HAL_ARM_LPC24XX_I2C0_BUS_FREQ{
+        display "I2C channel 0 bus frequency (Hz)"
+        legal_values [100000 400000 ]
+        default_value [100000 ]
+        flavor data 
+      }
+    }
+
+    component CYGHWR_HAL_ARM_LPC24XX_I2C1_SUPP{
+      display "I2C channel 1 configuration"
+      active_if [CYGPKG_DEVS_I2C_ARM_LPC2XXX ]
+      default_value [1 == 0 ]
+      flavor bool 
+
+      option CYGNUM_HAL_ARM_LPC24XX_I2C1_INT_PRIO{
+        display "I2C channel 1 interrupt priority"
+        legal_values [0 to 15 ]
+        default_value [15 ]
+        flavor data 
+      }
+
+      option CYGNUM_HAL_ARM_LPC24XX_I2C1_BUS_FREQ{
+        display "I2C channel 1 bus frequency (Hz)"
+        legal_values [100000 400000 ]
+        default_value [100000 ]
+        flavor data 
+      }
+    }
+
+    component CYGHWR_HAL_ARM_LPC24XX_I2C2_SUPP{
+      display "I2C channel 2 configuration"
+      active_if [CYGPKG_DEVS_I2C_ARM_LPC2XXX ]
+      default_value [2 == 0 ]
+      flavor bool 
+
+      option CYGNUM_HAL_ARM_LPC24XX_I2C2_INT_PRIO{
+        display "I2C channel 2 interrupt priority"
+        legal_values [0 to 15 ]
+        default_value [15 ]
+        flavor data 
+      }
+
+      option CYGNUM_HAL_ARM_LPC24XX_I2C2_BUS_FREQ{
+        display "I2C channel 2 bus frequency (Hz)"
+        legal_values [100000 400000 ]
+        default_value [100000 ]
+        flavor data 
+      }
+    }
+  }
+}
+
+package CYGPKG_HAL{
+  display "eCos HAL"
+  requires [CYGPKG_INFRA ]
+
+  component CYGPKG_HAL_COMMON{
+    display "Platform-independent HAL options"
+    flavor none 
+
+    option CYGFUN_HAL_COMMON_KERNEL_SUPPORT{
+      display "Provide eCos kernel support"
+      requires [CYGPKG_KERNEL ]
+      default_value [CYGPKG_KERNEL ]
+    }
+
+    option CYGPKG_HAL_EXCEPTIONS{
+      display "HAL exception support"
+      requires [CYGPKG_KERNEL_EXCEPTIONS ]
+      default_value [CYGPKG_KERNEL_EXCEPTIONS ]
+    }
+
+    option CYGSEM_HAL_STOP_CONSTRUCTORS_ON_FLAG{
+      display "Stop calling constructors early"
+      requires [CYGSEM_LIBC_INVOKE_DEFAULT_STATIC_CONSTRUCTORS ]
+      default_value [0 ]
+    }
+
+    interface CYGINT_HAL_SUPPORTS_MMU_TABLES{
+      display "HAL uses the MMU and allows for CDL manipulation of it's use"
+    }
+
+    option CYGSEM_HAL_INSTALL_MMU_TABLES{
+      display "Install MMU tables."
+      default_value [CYG_HAL_STARTUP != "RAM" ]
+      active_if [CYGINT_HAL_SUPPORTS_MMU_TABLES ]
+    }
+
+    option CYGSEM_HAL_STATIC_MMU_TABLES{
+      display "Use static MMU tables."
+      default_value [0 ]
+      requires [CYGSEM_HAL_INSTALL_MMU_TABLES ]
+    }
+
+    component CYGDBG_HAL_DIAG_TO_DEBUG_CHAN{
+      display "Route diagnostic output to debug channel"
+      default_value [(CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS || CYG_HAL_STARTUP == "RAM") ? 1 : 0 ]
+      active_if [!CYGSEM_HAL_VIRTUAL_VECTOR_INHERIT_CONSOLE ]
+      active_if [CYGPKG_HAL_ARM || CYGPKG_HAL_POWERPC_MPC8xx || CYGPKG_HAL_V85X_V850 || CYGSEM_HAL_VIRTUAL_VECTOR_DIAG ]
+
+      option CYGSEM_HAL_DIAG_MANGLER{
+        display "Mangler used on diag output"
+        legal_values ["GDB" "None" ]
+        default_value ["GDB" ]
+        flavor data 
+      }
+    }
+
+    component CYGBLD_HAL_LINKER_GROUPED_LIBS{
+      display "Grouped libraries for linking"
+      default_value [CYGBLD_HAL_LINKER_GROUPED_LIBS_DEFAULT ]
+      requires [is_substr(CYGBLD_HAL_LINKER_GROUPED_LIBS, "libtarget.a") ]
+      flavor data 
+
+      option CYGBLD_HAL_LINKER_GROUPED_LIBS_DEFAULT{
+        display "Default setting"
+        default_value ["libtarget.a libgcc.a libsupc++.a" ]
+        flavor data 
+      }
+    }
+  }
+
+  component CYGPKG_HAL_COMMON_INTERRUPTS{
+    display "HAL interrupt handling"
+    flavor none 
+
+    option CYGIMP_HAL_COMMON_INTERRUPTS_USE_INTERRUPT_STACK{
+      display "Use separate stack for interrupts"
+      default_value [1 ]
+    }
+
+    option CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE{
+      display "Interrupt stack size"
+      default_value [CYGPKG_KERNEL ? 4096 : 32768 ]
+      legal_values [128 to 1048576 ]
+      flavor data 
+    }
+
+    option CYGSEM_HAL_COMMON_INTERRUPTS_ALLOW_NESTING{
+      display "Allow nested interrupts"
+      default_value [0 ]
+    }
+
+    option CYGDBG_HAL_COMMON_INTERRUPTS_SAVE_MINIMUM_CONTEXT{
+      display "Save minimum context on interrupt"
+      default_value [1 ]
+    }
+
+    option CYGIMP_HAL_COMMON_INTERRUPTS_CHAIN{
+      display "Chain all interrupts together"
+      default_value [0 ]
+    }
+
+    option CYGIMP_HAL_COMMON_INTERRUPTS_IGNORE_SPURIOUS{
+      display "Ignore spurious [fleeting] interrupts"
+      default_value [0 ]
+    }
+  }
+
+  component CYGPKG_HAL_COMMON_CONTEXT{
+    display "HAL context switch support"
+    flavor none 
+
+    option CYGDBG_HAL_COMMON_CONTEXT_SAVE_MINIMUM{
+      display "Use minimum thread context"
+      default_value [1 ]
+    }
+  }
+
+  component CYGPKG_HAL_CACHE_CONTROL{
+    display "Explicit control over cache behaviour"
+    flavor none 
+
+    component CYGSEM_HAL_ENABLE_DCACHE_ON_STARTUP{
+      display "Enable DATA cache on startup"
+      default_value [1 ]
+
+      option CYGSEM_HAL_DCACHE_STARTUP_MODE{
+        display "DATA cache mode on startup"
+        legal_values ["COPYBACK" "WRITETHRU" ]
+        default_value ["COPYBACK" ]
+        flavor data 
+      }
+    }
+
+    option CYGSEM_HAL_ENABLE_ICACHE_ON_STARTUP{
+      display "Enable INSTRUCTION cache on startup"
+      default_value [1 ]
+    }
+  }
+
+  component CYGPKG_HAL_DEBUG{
+    display "Source-level debugging support"
+    flavor none 
+
+    interface CYGINT_HAL_DEBUG_GDB_STUBS{
+      display "Support for GDB stubs"
+    }
+
+    option CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS{
+      display "Include GDB stubs in HAL"
+      active_if [CYGINT_HAL_DEBUG_GDB_STUBS ]
+      default_value [0 ]
+      requires [! CYGSEM_HAL_USE_ROM_MONITOR ]
+      requires [! CYGDBG_HAL_COMMON_INTERRUPTS_SAVE_MINIMUM_CONTEXT ]
+      requires [! CYGDBG_HAL_COMMON_CONTEXT_SAVE_MINIMUM ]
+      requires [!CYGSEM_HAL_VIRTUAL_VECTOR_DIAG || CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS ]
+    }
+
+    interface CYGINT_HAL_DEBUG_GDB_STUBS_BREAK{
+      display "Support for external break support in GDB stubs"
+    }
+
+    option CYGDBG_HAL_DEBUG_GDB_BREAK_SUPPORT{
+      display "Include GDB external break support for stubs"
+      active_if [CYGINT_HAL_DEBUG_GDB_STUBS_BREAK ]
+      requires [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+      default_value [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+    }
+
+    interface CYGINT_HAL_DEBUG_GDB_CTRLC_UNSUPPORTED{
+      display "Platform does not support CTRLC"
+    }
+
+    option CYGDBG_HAL_DEBUG_GDB_CTRLC_SUPPORT{
+      display "Include GDB external break support when no stubs"
+      requires [!CYGDBG_HAL_DEBUG_GDB_BREAK_SUPPORT ]
+      active_if [CYGSEM_HAL_USE_ROM_MONITOR || CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+      active_if [CYGINT_HAL_DEBUG_GDB_CTRLC_UNSUPPORTED == 0 ]
+      default_value [!CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+    }
+
+    option CYGDBG_HAL_DEBUG_GDB_THREAD_SUPPORT{
+      display "Include GDB multi-threading debug support"
+      active_if [CYGSEM_HAL_ROM_MONITOR || CYGDBG_KERNEL_DEBUG_GDB_THREAD_SUPPORT ]
+      default_value [1 ]
+    }
+
+    option CYGNUM_HAL_DEBUG_GDB_PROTOCOL_RETRIES{
+      display "Number of times to retry sending a $O packet"
+      default_value [0 ]
+      flavor data 
+    }
+
+    option CYGNUM_HAL_DEBUG_GDB_PROTOCOL_TIMEOUT{
+      display "Timeout period for GDB packets"
+      default_value [500 ]
+      flavor data 
+    }
+
+    option CYGDBG_HAL_CRCTABLE_LOCATION{
+      display "Location of CRC32 table"
+      legal_values ["ROM" "RAM" ]
+      default_value ["RAM" ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_HAL_ROM_MONITOR{
+    display "ROM monitor support"
+    flavor none 
+
+    interface CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT{
+      display "Target has virtual vector support"
+    }
+
+    interface CYGINT_HAL_VIRTUAL_VECTOR_COMM_BAUD_SUPPORT{
+      display "Target supports baud rate control via vectors"
+    }
+
+    component CYGSEM_HAL_VIRTUAL_VECTOR_SUPPORT{
+      display "Enable use of virtual vector calling interface"
+      active_if [CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT ]
+      calculated [1 ]
+
+      option CYGSEM_HAL_VIRTUAL_VECTOR_INHERIT_CONSOLE{
+        display "Inherit console settings from ROM monitor"
+        active_if [CYGSEM_HAL_USE_ROM_MONITOR ]
+        default_value [!CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS ]
+      }
+
+      option CYGPRI_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_CONFIGURABLE{
+        display "Debug channel is configurable"
+        calculated [CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS ]
+      }
+
+      option CYGPRI_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_CONFIGURABLE{
+        display "Console channel is configurable"
+        calculated [!CYGSEM_HAL_VIRTUAL_VECTOR_INHERIT_CONSOLE && !CYGDBG_HAL_DIAG_TO_DEBUG_CHAN ]
+      }
+
+      option CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE{
+        display "Initialize whole of virtual vector table"
+        default_value [CYG_HAL_STARTUP != "RAM" || !CYGSEM_HAL_USE_ROM_MONITOR ]
+        requires [CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_RESET ]
+        requires [CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DELAY_US ]
+        requires [CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DATA ]
+        requires [CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS ]
+      }
+
+      option CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DEFAULT{
+        display "Claim virtual vector table entries by default"
+        active_if [!CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE ]
+        default_value [1 ]
+      }
+
+      option CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_RESET{
+        display "Claim reset virtual vectors"
+        default_value [CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE || CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DEFAULT ]
+      }
+
+      option CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_VERSION{
+        display "Claim version virtual vectors"
+        default_value [CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE ]
+      }
+
+      option CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DELAY_US{
+        display "Claim delay_us virtual vector"
+        default_value [CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE || CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DEFAULT ]
+      }
+
+      option CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DATA{
+        display "Claim data virtual vectors"
+        default_value [CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE || CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_DEFAULT ]
+      }
+
+      option CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS{
+        display "Claim comms virtual vectors"
+        default_value [CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE || CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+      }
+
+      option CYGSEM_HAL_VIRTUAL_VECTOR_DIAG{
+        display "Do diagnostic IO via virtual vector table"
+        calculated [1 ]
+      }
+    }
+
+    option CYGSEM_HAL_ROM_MONITOR{
+      display "Behave as a ROM monitor"
+      default_value [0 ]
+      requires [CYG_HAL_STARTUP == "ROM" ]
+      flavor bool 
+    }
+
+    option CYGSEM_HAL_USE_ROM_MONITOR{
+      display "Work with a ROM monitor"
+      legal_values ["Generic" "GDB_stubs" ]
+      default_value [CYG_HAL_STARTUP == "RAM" ? "GDB_stubs" : 0 ]
+      requires [CYG_HAL_STARTUP == "RAM" ]
+      flavor booldata 
+    }
+  }
+
+  interface CYGINT_HAL_PLF_IF_INIT{
+    display "Platform defined I/O channels."
+  }
+
+  interface CYGINT_HAL_PLF_IF_IDE{
+    display "Platform IDE I/O support."
+  }
+
+  option CYGPKG_HAL_GDB_FILEIO{
+    display "File I/O operations via GDB"
+    default_value [0 ]
+    active_if [CYGSEM_REDBOOT_BSP_SYSCALLS ]
+    requires [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+  }
+
+  option CYGPKG_HAL_BUILD_COMPILER_TESTS{
+    display "Build Compiler sanity checking tests"
+  }
+
+  component CYGPKG_HAL_TESTS{
+    display "Common HAL tests"
+    calculated ["tests/context tests/basic" . ((!CYGINT_HAL_TESTS_NO_CACHES) ? " tests/cache" : "") . ((CYGPKG_HAL_BUILD_COMPILER_TESTS) ? " tests/cpp1 tests/vaargs" : "") . ((!CYGVAR_KERNEL_COUNTERS_CLOCK) ? " tests/intr" : "") ]
+    flavor data 
+
+    interface CYGINT_HAL_TESTS_NO_CACHES{
+      display "Interface for cache presence"
+      flavor booldata 
+    }
+  }
+
+  package CYGPKG_HAL_ARM{
+    display "ARM architecture"
+
+    interface CYGINT_HAL_ARM_THUMB_ARCH{
+      display "The CPU architecture supports THUMB mode"
+    }
+
+    option CYGHWR_THUMB{
+      display "Enable Thumb instruction set"
+      active_if [CYGINT_HAL_ARM_THUMB_ARCH != 0 ]
+      default_value [0 ]
+    }
+
+    option CYGBLD_ARM_ENABLE_THUMB_INTERWORK{
+      display "Enable Thumb interworking compiler option"
+      active_if [CYGINT_HAL_ARM_THUMB_ARCH != 0 ]
+      default_value [(CYGHWR_THUMB || CYGSEM_HAL_ROM_MONITOR) ]
+    }
+
+    interface CYGINT_HAL_ARM_BIGENDIAN{
+      display "The platform and architecture supports Big Endian operation"
+    }
+
+    option CYGHWR_HAL_ARM_BIGENDIAN{
+      display "Use big-endian mode"
+      active_if [CYGINT_HAL_ARM_BIGENDIAN != 0 ]
+      default_value [0 ]
+    }
+
+    interface CYGINT_HAL_ARM_ARCH_ARM7{
+      display "The platform uses a processor with an ARM7 core"
+    }
+
+    interface CYGINT_HAL_ARM_ARCH_ARM9{
+      display "The platform uses a processor with an ARM9 core"
+    }
+
+    interface CYGINT_HAL_ARM_ARCH_STRONGARM{
+      display "The platform uses a processor with a StrongARM core"
+    }
+
+    interface CYGINT_HAL_ARM_ARCH_XSCALE{
+      display "The platform uses a processor with a XScale core"
+    }
+
+    option CYGHWR_HAL_ARM_CPU_FAMILY{
+      display "ARM CPU family"
+      legal_values [(CYGINT_HAL_ARM_ARCH_ARM7 != 0) ? "ARM7" : "" (CYGINT_HAL_ARM_ARCH_ARM9 != 0) ? "ARM9" : "" (CYGINT_HAL_ARM_ARCH_STRONGARM != 0) ? "StrongARM" : "" (CYGINT_HAL_ARM_ARCH_XSCALE != 0) ? "XScale" : "" "" ]
+      default_value [(CYGINT_HAL_ARM_ARCH_ARM7 != 0) ? "ARM7" : (CYGINT_HAL_ARM_ARCH_ARM9 != 0) ? "ARM9" : (CYGINT_HAL_ARM_ARCH_STRONGARM != 0) ? "StrongARM" : (CYGINT_HAL_ARM_ARCH_XSCALE != 0) ? "XScale" : "unknown" ]
+      flavor data 
+    }
+
+    option CYGBLD_HAL_ARM_EABI{
+      display "Build for ARM EABI"
+      default_value [(is_substr(CYGBLD_GLOBAL_COMMAND_PREFIX, "-eabi") && !is_substr(CYGBLD_GLOBAL_CFLAGS, "-mabi=apcs-gnu") && !is_substr(CYGBLD_GLOBAL_CFLAGS, "-mabi=atpcs")) || is_substr(CYGBLD_GLOBAL_CFLAGS, "-mabi=aapcs") ]
+      implements [CYGINT_LIBSTDCXX_NO_CXX_EXCEPTION_REG_FRAME_IMPL ]
+    }
+
+    option CYGHWR_HAL_ARM_DUMP_EXCEPTIONS{
+      display "Provide diagnostic dump for exceptions"
+      requires [!CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+      default_value [0 ]
+    }
+
+    option CYGIMP_HAL_PROCESS_ALL_EXCEPTIONS{
+      display "Process all exceptions with the eCos application"
+      default_value [0 ]
+    }
+
+    option CYGHWR_HAL_ARM_ICE_THREAD_SUPPORT{
+      display "Support GDB thread operations via ICE/Multi-ICE"
+      default_value [0 ]
+      requires [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+      requires [CYGDBG_HAL_DEBUG_GDB_THREAD_SUPPORT ]
+      requires [CYGDBG_KERNEL_DEBUG_GDB_THREAD_SUPPORT ]
+    }
+
+    option CYGOPT_HAL_ARM_SYSCALL_GPROF_SUPPORT{
+      display "Support for 'gprof' callbacks"
+      calculated [1 ]
+      active_if [CYGSEM_REDBOOT_BSP_SYSCALLS ]
+      active_if [CYGDBG_HAL_DEBUG_GDB_CTRLC_SUPPORT || CYGDBG_HAL_DEBUG_GDB_BREAK_SUPPORT ]
+      implements [CYGINT_REDBOOT_BSP_SYSCALLS_GPROF_SUPPORT ]
+    }
+
+    option CYGOPT_HAL_ARM_WITH_USER_MODE{
+      display "Accept exceptions and irq's occurring in user mode"
+      default_value [0 ]
+    }
+
+    option CYGOPT_HAL_ARM_PRESERVE_SVC_SPSR{
+      display "Preserve svc spsr before returning to svc mode"
+      default_value [0 ]
+    }
+
+    option CYGBLD_LINKER_SCRIPT{
+      display "Linker script"
+      calculated ["src/arm.ld" ]
+      flavor data 
+    }
+
+    interface CYGINT_HAL_ARM_MEM_REAL_REGION_TOP{
+      display "Implementations of hal_arm_mem_real_region_top()"
+    }
+
+    package CYGPKG_HAL_ARM_LPC24XX{
+      display "NXP LPC24XX variant HAL"
+      implements [CYGINT_HAL_DEBUG_GDB_STUBS ]
+      implements [CYGINT_HAL_DEBUG_GDB_STUBS_BREAK ]
+      implements [CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT ]
+      implements [CYGINT_HAL_VIRTUAL_VECTOR_COMM_BAUD_SUPPORT ]
+      implements [CYGINT_HAL_ARM_ARCH_ARM7 ]
+      implements [CYGINT_HAL_ARM_THUMB_ARCH ]
+
+      component CYGHWR_HAL_ARM_LPC24XX{
+        display "LPC24XX variant used"
+        default_value ["LPC246x" ]
+        legal_values ["LPC246x" "LPC2458" "LPC2460" "LPC2468" "LPC2470" "LPC2478" ]
+        flavor data 
+
+        option CYGHWR_HAL_ARM_LPC24XX_FAMILY{
+          display "LPC24XX variant family"
+          calculated [is_substr(CYGHWR_HAL_ARM_LPC24XX, "LPC246") ? "LPC246X" : "LPC24XX" ]
+          flavor data 
+        }
+      }
+
+      component CYGHWR_HAL_ARM_LPC2XXX{
+        display "LPC2XXX variant used"
+        calculated [CYGHWR_HAL_ARM_LPC24XX ]
+        flavor data 
+
+        option CYGHWR_HAL_ARM_LPC2XXX_FAMILY{
+          display "LPC2XXX variant family"
+          calculated [CYGHWR_HAL_ARM_LPC24XX_FAMILY ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_ARM_LPC2XXX_VARIANT_VERSION{
+          display "LPC2XXX variant version"
+          calculated [is_substr(CYGHWR_HAL_ARM_LPC2XXX, "LPC21") ? 1 : is_substr(CYGHWR_HAL_ARM_LPC2XXX, "LPC22") ? 2 : is_substr(CYGHWR_HAL_ARM_LPC2XXX, "LPC24") ? 4 : 0 ]
+          flavor data 
+        }
+      }
+
+      option CYGNUM_HAL_ARM_VECTOR_0x14{
+        display "ARM vector at 0x14"
+        default_value [0xB4405F62 ]
+        legal_values [0 to 0xFFFFFFFF ]
+        flavor data 
+      }
+
+      component CYGNUM_HAL_ARM_LPC24XX_CLOCKING{
+        display "Clocking"
+        flavor none 
+
+        option CYGNUM_HAL_ARM_LPC24XX_PLL_MUL{
+          display "PLL multiplier"
+          legal_values [6 to 32767 ]
+          default_value [12 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_ARM_LPC24XX_PLL_DIV{
+          display "PLL divider"
+          legal_values [1 to 32 ]
+          default_value [1 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_ARM_LPC24XX_PLL_OUTPUT{
+          display "PLL output (MHz)"
+          legal_values [275000000 to 290000000 ]
+          calculated [2 * CYGNUM_HAL_ARM_LPC24XX_PLL_MUL * CYGNUM_HAL_ARM_LPC24XX_XTAL_FREQ / CYGNUM_HAL_ARM_LPC24XX_PLL_DIV ]
+          flavor data 
+        }
+
+        component CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED{
+          display "CPU clock speed"
+          calculated [2 * CYGNUM_HAL_ARM_LPC24XX_PLL_MUL * CYGNUM_HAL_ARM_LPC24XX_XTAL_FREQ / CYGNUM_HAL_ARM_LPC24XX_PLL_DIV / CYGNUM_HAL_ARM_LPC24XX_CPU_CLK_DIV ]
+          flavor data 
+
+          option CYGNUM_HAL_ARM_LPC24XX_CPU_CLK_DIV{
+            display "CPU clock divider"
+            legal_values [6 to 256 ]
+            default_value [6 ]
+            flavor data 
+          }
+        }
+
+        component CYGNUM_HAL_ARM_LPC24XX_USB_CLOCK_SPEED{
+          display "USB clock speed"
+          calculated [2 * CYGNUM_HAL_ARM_LPC24XX_PLL_MUL * CYGNUM_HAL_ARM_LPC24XX_XTAL_FREQ / CYGNUM_HAL_ARM_LPC24XX_PLL_DIV / CYGNUM_HAL_ARM_LPC24XX_USB_CLK_DIV ]
+          flavor data 
+
+          option CYGNUM_HAL_ARM_LPC24XX_USB_CLK_DIV{
+            display "USB clock divider"
+            legal_values [1 to 8 ]
+            default_value [6 ]
+            flavor data 
+          }
+        }
+
+        component CYGNUM_HAL_ARM_LPC2XXX_CAN_CLK{
+          display "CAN clock speed"
+          calculated [CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV ]
+          flavor data 
+
+          option CYGNUM_HAL_ARM_LPC24XX_CAN_CLK_DIV{
+            display "CAN clock divider"
+            legal_values [1 2 4 6 ]
+            default_value [1 ]
+            flavor data 
+          }
+        }
+
+        component CYGNUM_HAL_ARM_LPC24XX_RTC_CLK{
+          display "RTC clock speed"
+          calculated [CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / CYGNUM_HAL_ARM_LPC24XX_RTC_CLK_DIV ]
+          flavor data 
+
+          option CYGNUM_HAL_ARM_LPC24XX_RTC_CLK_DIV{
+            display "RTC clock divider"
+            legal_values [2 4 8 ]
+            default_value [2 ]
+            flavor data 
+          }
+        }
+
+        component CYGNUM_HAL_ARM_LPC24XX_ADC_CLK{
+          display "ADC clock speed"
+          calculated [CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / CYGNUM_HAL_ARM_LPC24XX_ADC_CLK_DIV ]
+          flavor data 
+
+          option CYGNUM_HAL_ARM_LPC24XX_ADC_CLK_DIV{
+            display "ADC clock divider"
+            legal_values [1 2 4 8 ]
+            default_value [1 ]
+            flavor data 
+          }
+        }
+
+        component CYGNUM_HAL_ARM_LPC24XX_I2C0_CLK{
+          display "I2C channel 0 clock speed"
+          calculated [CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / CYGNUM_HAL_ARM_LPC24XX_I2C0_CLK_DIV ]
+          flavor data 
+
+          option CYGNUM_HAL_ARM_LPC24XX_I2C0_CLK_DIV{
+            display "I2C channel 0 clock divider"
+            legal_values [1 2 4 8 ]
+            default_value [1 ]
+            flavor data 
+          }
+        }
+
+        component CYGNUM_HAL_ARM_LPC24XX_I2C1_CLK{
+          display "I2C channel 1 clock speed"
+          calculated [CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / CYGNUM_HAL_ARM_LPC24XX_I2C1_CLK_DIV ]
+          flavor data 
+
+          option CYGNUM_HAL_ARM_LPC24XX_I2C1_CLK_DIV{
+            display "I2C channel 1 clock divider"
+            legal_values [1 2 4 8 ]
+            default_value [1 ]
+            flavor data 
+          }
+        }
+
+        component CYGNUM_HAL_ARM_LPC24XX_I2C2_CLK{
+          display "I2C channel 2 clock speed"
+          calculated [CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED / CYGNUM_HAL_ARM_LPC24XX_I2C2_CLK_DIV ]
+          flavor data 
+
+          option CYGNUM_HAL_ARM_LPC24XX_I2C2_CLK_DIV{
+            display "I2C channel 2 clock divider"
+            legal_values [1 2 4 8 ]
+            default_value [1 ]
+            flavor data 
+          }
+        }
+
+        option CYGNUM_HAL_ARM_LPC24XX_XTAL_FREQ{
+          display "CPU xtal frequency"
+          default_value [12000000 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_ARM_LPC24XX_MAX_CLOCK_SPEED{
+          display "Max. CPU clock speed"
+          calculated [57600000 ]
+          requires [CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED <= 57600000 ]
+          flavor data 
+        }
+      }
+
+      component CYGNUM_HAL_RTC_CONSTANTS{
+        display "Real-time clock constants"
+        flavor none 
+
+        option CYGNUM_HAL_RTC_NUMERATOR{
+          display "Real-time clock numerator"
+          default_value [1000000000 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_RTC_DENOMINATOR{
+          display "Real-time clock denominator"
+          default_value [100 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_RTC_PERIOD{
+          display "Real-time clock period"
+          default_value [((CYGNUM_HAL_ARM_LPC24XX_CLOCK_SPEED) / CYGNUM_HAL_RTC_DENOMINATOR) ]
+          flavor data 
+        }
+      }
+
+      option CYGHWR_HAL_ARM_LPC24XX_IDLE_PWRSAVE{
+        display "Stop clock in idle loop to save power"
+        default_value [is_active(CYGPKG_REDBOOT) ? 0 : 1 ]
+        flavor bool 
+      }
+
+      option CYGNUM_HAL_KERNEL_COUNTERS_CLOCK_ISR_DEFAULT_PRIORITY{
+        display "Default priority for system clock interrupts"
+        legal_values [0 to 15 ]
+        default_value [15 ]
+        flavor data 
+      }
+
+      package CYGPKG_HAL_ARM_LPC24XX_EA2468{
+        display "Embedded Artists LPC2468 OEM Board board HAL"
+        implements [CYGINT_DEVS_CAN_LPC2XXX_CAN0 ]
+        implements [CYGINT_DEVS_CAN_LPC2XXX_CAN1 ]
+        implements [CYGINT_IO_SERIAL_LPC24XX_UART0 ]
+        implements [CYGINT_IO_SERIAL_LPC24XX_UART1 ]
+        requires [CYGHWR_HAL_ARM_LPC24XX == "LPC2468" ]
+        requires [is_active(CYGPKG_DEVS_ETH_PHY) implies (1 == CYGHWR_DEVS_ETH_PHY_KSZ8001) ]
+
+        component CYG_HAL_STARTUP{
+          display "Startup type"
+          default_value ["ROM" ]
+          legal_values ["RAM" "ROM" ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS{
+          display "Number of communication channels on the board"
+          calculated [2 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_DEFAULT{
+          display "Default console channel."
+          active_if [CYGPRI_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_CONFIGURABLE ]
+          calculated [0 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL{
+          display "Debug serial port"
+          active_if [CYGPRI_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_CONFIGURABLE ]
+          legal_values [0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1 ]
+          default_value [0 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD{
+          display "GDB serial port baud rate"
+          legal_values [9600 19200 38400 57600 115200 ]
+          default_value [38400 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL{
+          display "Diagnostic serial port"
+          active_if [CYGPRI_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_CONFIGURABLE ]
+          legal_values [0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1 ]
+          default_value [0 ]
+          flavor data 
+        }
+
+        option CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD{
+          display "Diagnostic serial port baud rate"
+          legal_values [9600 19200 38400 57600 115200 ]
+          default_value [38400 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_ARM_LPC24XX_EA2468_DATA_BUS_WIDTH{
+          display "Data bus width"
+          default_value [16 ]
+          legal_values [16 32 ]
+          flavor data 
+        }
+
+        component CYGHWR_MEMORY_LAYOUT{
+          display "Memory layout"
+          calculated [(CYG_HAL_STARTUP == "RAM") ? "arm_lpc24xx_ea2468_ram" : "arm_lpc24xx_ea2468_rom" ]
+          flavor data 
+
+          option CYGHWR_MEMORY_LAYOUT_LDI{
+            display "Memory layout linker script fragment"
+            calculated [(CYG_HAL_STARTUP == "RAM") ? "<pkgconf/mlt_arm_lpc24xx_ea2468_ram.ldi>" : "<pkgconf/mlt_arm_lpc24xx_ea2468_rom.ldi>" ]
+            flavor data 
+          }
+
+          option CYGHWR_MEMORY_LAYOUT_H{
+            display "Memory layout header file"
+            calculated [(CYG_HAL_STARTUP == "RAM") ? "<pkgconf/mlt_arm_lpc24xx_ea2468_ram.h>" : "<pkgconf/mlt_arm_lpc24xx_ea2468_rom.h>" ]
+            flavor data 
+          }
+        }
+
+        option CYGPKG_HAL_ARM_LPC24XX_EA2468_TESTS{
+          display "Tests for LPC2468 OEM board HAL"
+          calculated ["tests/i2c_eeprom" ]
+          flavor data 
+        }
+      }
+    }
+  }
+}
+
+package CYGPKG_INFRA{
+  display "Infrastructure"
+
+  component CYGPKG_INFRA_DEBUG{
+    display "Asserts & Tracing"
+    default_value [0 ]
+
+    component CYGDBG_USE_ASSERTS{
+      display "Use asserts"
+      default_value [1 ]
+      requires [1 == CYGINT_INFRA_DEBUG_TRACE_IMPL ]
+
+      option CYGDBG_INFRA_DEBUG_PRECONDITIONS{
+        display "Preconditions"
+        default_value [1 ]
+      }
+
+      option CYGDBG_INFRA_DEBUG_POSTCONDITIONS{
+        display "Postconditions"
+        default_value [1 ]
+      }
+
+      option CYGDBG_INFRA_DEBUG_LOOP_INVARIANTS{
+        display "Loop invariants"
+        default_value [1 ]
+      }
+
+      option CYGDBG_INFRA_DEBUG_ASSERT_MESSAGE{
+        display "Use assert text"
+        default_value [1 ]
+      }
+    }
+
+    component CYGDBG_USE_TRACING{
+      display "Use tracing"
+      default_value [0 ]
+      requires [1 == CYGINT_INFRA_DEBUG_TRACE_IMPL ]
+
+      option CYGDBG_INFRA_DEBUG_FUNCTION_REPORTS{
+        display "Trace function reports"
+        default_value [1 ]
+      }
+
+      option CYGDBG_INFRA_DEBUG_TRACE_MESSAGE{
+        display "Use trace text"
+        default_value [1 ]
+      }
+    }
+
+    interface CYGINT_INFRA_DEBUG_TRACE_IMPL{
+      display "Trace output implementations"
+    }
+
+    option CYGDBG_INFRA_DEBUG_TRACE_ASSERT_NULL{
+      display "Null output"
+      default_value [0 ]
+      implements [CYGINT_INFRA_DEBUG_TRACE_IMPL ]
+    }
+
+    option CYGDBG_INFRA_DEBUG_TRACE_ASSERT_SIMPLE{
+      display "Simple output"
+      default_value [0 ]
+      implements [CYGINT_INFRA_DEBUG_TRACE_IMPL ]
+    }
+
+    option CYGDBG_INFRA_DEBUG_TRACE_ASSERT_FANCY{
+      display "Fancy output"
+      default_value [0 ]
+      implements [CYGINT_INFRA_DEBUG_TRACE_IMPL ]
+    }
+
+    component CYGDBG_INFRA_DEBUG_TRACE_ASSERT_BUFFER{
+      display "Buffered tracing"
+      default_value [1 ]
+      implements [CYGINT_INFRA_DEBUG_TRACE_IMPL ]
+
+      option CYGDBG_INFRA_DEBUG_TRACE_BUFFER_SIZE{
+        display "Trace buffer size"
+        active_if [CYGDBG_USE_TRACING ]
+        default_value [32 ]
+        legal_values [5 to 65535 ]
+        flavor data 
+      }
+
+      option CYGDBG_INFRA_DEBUG_TRACE_BUFFER_WRAP{
+        display "Wrap trace buffer when full"
+        active_if [CYGDBG_USE_TRACING ]
+        default_value [1 ]
+      }
+
+      option CYGDBG_INFRA_DEBUG_TRACE_BUFFER_HALT{
+        display "Halt trace buffer when full"
+        active_if [CYGDBG_USE_TRACING ]
+        default_value [0 ]
+      }
+
+      option CYGDBG_INFRA_DEBUG_TRACE_BUFFER_PRINT{
+        display "Print trace buffer when full"
+        active_if [CYGDBG_USE_TRACING ]
+        default_value [0 ]
+      }
+
+      option CYGDBG_INFRA_DEBUG_TRACE_BUFFER_PRINT_ON_ASSERT{
+        display "Print trace buffer on assert fail"
+        active_if [CYGDBG_USE_TRACING ]
+        default_value [1 ]
+      }
+    }
+
+    option CYGDBG_INFRA_DEBUG_FUNCTION_PSEUDOMACRO{
+      display "Use function names"
+      default_value [1 ]
+    }
+  }
+
+  component CYGPKG_INFRA_STARTUP{
+    display "Startup options"
+    flavor none 
+
+    option CYGSEM_START_UITRON_COMPATIBILITY{
+      display "Start uITRON subsystem"
+      default_value [0 ]
+      requires [CYGPKG_UITRON ]
+      active_if [CYGPKG_UITRON ]
+    }
+  }
+
+  option CYGIMP_INFRA_PREFER_SMALL_TO_FAST_MEMCPY{
+    display "Smaller slower memcpy()"
+    default_value [0 ]
+  }
+
+  option CYGIMP_INFRA_PREFER_SMALL_TO_FAST_MEMSET{
+    display "Smaller slower memset()"
+    default_value [0 ]
+  }
+
+  option CYGFUN_INFRA_EMPTY_DELETE_FUNCTIONS{
+    display "Provide empty C++ delete functions"
+    default_value [1 ]
+  }
+
+  option CYGNUM_INFRA_EMPTY_DELETE_THRESHOLD{
+    display "Threshold for valid number of delete calls"
+    default_value [100 ]
+    active_if [CYGPKG_INFRA_DEBUG ]
+    flavor data 
+  }
+
+  option CYGFUN_INFRA_DUMMY_ABORT{
+    display "Provide dummy abort() function"
+    requires [!CYGINT_ISO_EXIT ]
+    default_value [CYGINT_ISO_EXIT == 0 ]
+  }
+
+  option CYGSEM_INFRA_RESET_ON_TEST_EXIT{
+    display "Reset platform at end of test case execution"
+    default_value [0 ]
+  }
+
+  option CYGFUN_INFRA_DUMMY_STRLEN{
+    display "Provide dummy strlen() function"
+    requires [!CYGINT_ISO_STRING_STRFUNCS ]
+    default_value [CYGINT_ISO_STRING_STRFUNCS == 0 ]
+  }
+
+  option CYGBLD_INFRA_CFLAGS_WARNINGS_AS_ERRORS{
+    display "Make all compiler warnings show as errors"
+    requires [is_substr(CYGBLD_GLOBAL_CFLAGS, " -Werror") ]
+    default_value [0 ]
+  }
+
+  option CYGBLD_INFRA_CFLAGS_PIPE{
+    display "Make compiler and assembler communicate by pipe"
+    requires [is_substr(CYGBLD_GLOBAL_CFLAGS, " -pipe") ]
+    default_value [0 ]
+  }
+
+  component CYGPKG_INFRA_OPTIONS{
+    display "Infra build options"
+    flavor none 
+
+    option CYGPKG_INFRA_CFLAGS_ADD{
+      display "Additional compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+
+    option CYGPKG_INFRA_CFLAGS_REMOVE{
+      display "Suppressed compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+
+    option CYGPKG_INFRA_LDFLAGS_REMOVE{
+      display "Suppressed linker flags"
+      default_value ["-Wl,--gc-sections" ]
+      flavor data 
+    }
+
+    option CYGPKG_INFRA_LDFLAGS_ADD{
+      display "Additional linker flags"
+      default_value ["-Wl,--fatal-warnings" ]
+      flavor data 
+    }
+
+    component CYGPKG_INFRA_TESTS{
+      display "Infra package tests"
+      calculated ["tests/cxxsupp tests/diag_sprintf1 tests/diag_sprintf2" ]
+      flavor data 
+
+      option CYGNUM_TESTS_RUN_COUNT{
+        display "Number of times a test runs"
+        default_value [1 ]
+        flavor data 
+      }
+    }
+  }
+}
+
+package CYGPKG_REDBOOT{
+  display "Redboot ROM monitor"
+  requires [CYGIMP_HAL_COMMON_INTERRUPTS_USE_INTERRUPT_STACK == 0 ]
+
+  component CYGSEM_REDBOOT_ELF{
+    display "Include support for ELF file format"
+    default_value [1 ]
+    flavor bool 
+
+    option CYGOPT_REDBOOT_ELF_VIRTUAL_ADDRESS{
+      display "Use the virtual address in the ELF headers"
+      default_value [0 ]
+      flavor bool 
+    }
+  }
+
+  interface CYGINT_REDBOOT_LOAD_METHOD{
+    display "Methods of loading images using redboot"
+  }
+
+  component CYGBLD_BUILD_REDBOOT{
+    display "Build Redboot ROM ELF image"
+    default_value [0 ]
+    requires [CYGPKG_INFRA ]
+    requires [CYGPKG_ISOINFRA ]
+    requires [! CYGDBG_HAL_DEBUG_GDB_CTRLC_SUPPORT ]
+    requires [! CYGDBG_HAL_COMMON_INTERRUPTS_SAVE_MINIMUM_CONTEXT ]
+    requires [! CYGDBG_HAL_COMMON_CONTEXT_SAVE_MINIMUM ]
+    requires [CYGSEM_HAL_VIRTUAL_VECTOR_SUPPORT ]
+    requires [CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS ]
+    requires [CYGINT_ISO_STRING_MEMFUNCS ]
+    requires [CYGINT_ISO_STRING_STRFUNCS ]
+    requires [CYGINT_REDBOOT_LOAD_METHOD ]
+
+    option CYGBLD_BUILD_REDBOOT_WITH_GDB{
+      display "Include GDB support in RedBoot"
+      default_value [1 ]
+      active_if [CYGINT_HAL_DEBUG_GDB_STUBS ]
+      requires [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+      requires [CYGDBG_HAL_DEBUG_GDB_BREAK_SUPPORT ]
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_THREADS{
+      display "Threads debugging support"
+      active_if [CYG_HAL_STARTUP != "RAM" ]
+      requires [CYGDBG_HAL_DEBUG_GDB_THREAD_SUPPORT ]
+    }
+
+    option CYGDAT_REDBOOT_CUSTOM_VERSION{
+      display "Customized version string"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGNUM_REDBOOT_CMD_LINE_EDITING{
+      display "Enable command line editing"
+      default_value [16 ]
+      flavor data 
+    }
+
+    option CYGSEM_REDBOOT_CMD_LINE_ANSI_SEQUENCES{
+      display "Enable command line editing using ANSI arrows, etc"
+      default_value [1 ]
+      active_if [CYGNUM_REDBOOT_CMD_LINE_EDITING != 0 ]
+      flavor bool 
+    }
+
+    option CYGBLD_REDBOOT_CMD_LINE_HISTORY{
+      display "Enable history command and expansion"
+      requires [CYGNUM_REDBOOT_CMD_LINE_EDITING > 0 ]
+      default_value [1 ]
+      flavor bool 
+    }
+
+    option CYGBLD_REDBOOT_MAX_MEM_SEGMENTS{
+      display "Number of unique RAM segments on platform"
+      default_value [1 ]
+      flavor data 
+    }
+
+    component CYGBLD_BUILD_REDBOOT_WITH_ZLIB{
+      display "Include support gzip/zlib decompression"
+      active_if [CYGPKG_COMPRESS_ZLIB ]
+      default_value [1 ]
+      implements [CYGINT_COMPRESS_ZLIB_LOCAL_ALLOC ]
+
+      option CYGNUM_REDBOOT_LOAD_ZLIB_BUFFER{
+        display "Size of zlib decompression buffer"
+        default_value [64 ]
+        legal_values [5 to 256 ]
+        flavor data 
+      }
+
+      option CYGPRI_REDBOOT_ZLIB_FLASH{
+        display "Support compression of Flash images"
+        active_if [CYGPKG_REDBOOT_FLASH ]
+        active_if [!CYGSEM_IO_FLASH_READ_INDIRECT ]
+        calculated [1 ]
+      }
+
+      option CYGBLD_BUILD_REDBOOT_WITH_GUNZIP{
+        display "Include GZIP uncompress command"
+        default_value [0 ]
+      }
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_XYZMODEM{
+      display "Include support for xyzModem downloads"
+      default_value [1 ]
+      implements [CYGINT_REDBOOT_LOAD_METHOD ]
+    }
+
+    option CYGBLD_REDBOOT_LOAD_INTO_FLASH{
+      display "Allow the load-command write into Flash."
+      default_value [0 ]
+      active_if [CYGPKG_REDBOOT_FLASH ]
+      requires [CYGSEM_REDBOOT_VALIDATE_USER_RAM_LOADS ]
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_CKSUM{
+      display "Include POSIX checksum command"
+      default_value [1 ]
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_MFILL{
+      display "Include memory fill command"
+      default_value [1 ]
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_MCMP{
+      display "Include memory compare command"
+      default_value [1 ]
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_MCOPY{
+      display "Include memory copy command"
+      default_value [1 ]
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_DUMP{
+      display "Include memory dump command"
+      default_value [1 ]
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_CACHES{
+      display "Include cache command"
+      default_value [1 ]
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_EXEC{
+      display "Include exec command"
+      default_value [1 ]
+    }
+
+    option CYGBLD_BUILD_REDBOOT_WITH_IOMEM{
+      display "Include I/O Memory commands 'iopeek' and 'iopoke'"
+      default_value [0 ]
+    }
+
+    option CYGDBG_REDBOOT_TICK_GRANULARITY{
+      display "Granularity of timer/ticks"
+      legal_values [50 100 250 500 1000 ]
+      default_value [250 ]
+      flavor data 
+    }
+
+    component CYGPKG_REDBOOT_NETWORKING{
+      display "Redboot Networking"
+      active_if [CYGPKG_IO_ETH_DRIVERS ]
+      default_value [1 ]
+      implements [CYGINT_REDBOOT_LOAD_METHOD ]
+      flavor bool 
+
+      option CYGDBG_REDBOOT_NET_DEBUG{
+        display "Print net debug information"
+        default_value [0 ]
+        flavor bool 
+      }
+
+      option CYGSEM_REDBOOT_NET_TFTP_DOWNLOAD{
+        display "Support TFTP for download"
+        default_value [1 ]
+        flavor bool 
+      }
+
+      option CYGSEM_REDBOOT_NET_HTTP_DOWNLOAD{
+        display "Support HTTP for download"
+        default_value [1 ]
+        flavor bool 
+      }
+
+      component CYGDAT_REDBOOT_DEFAULT_IP_ADDR{
+        display "Default IP address"
+        default_value [CYGSEM_REDBOOT_FLASH_CONFIG ? 0 : "0, 0, 0, 0" ]
+        flavor booldata 
+
+        option CYGSEM_REDBOOT_DEFAULT_NO_BOOTP{
+          display "Do not try to use BOOTP"
+          default_value [0 ]
+          flavor bool 
+        }
+
+        option CYGDAT_REDBOOT_DEFAULT_BOOTP_SERVER_IP_ADDR{
+          display "Default bootp server"
+          default_value [CYGSEM_REDBOOT_FLASH_CONFIG ? 0 : "0, 0, 0, 0" ]
+          flavor booldata 
+        }
+      }
+
+      component CYGSEM_REDBOOT_NETWORKING_DHCP{
+        display "Use DHCP to get IP information"
+        default_value [1 ]
+        flavor bool 
+      }
+
+      component CYGSEM_REDBOOT_NETWORKING_USE_GATEWAY{
+        display "Use a gateway for non-local IP traffic"
+        default_value [1 ]
+        requires [CYGSEM_REDBOOT_NETWORKING_DHCP ]
+        flavor bool 
+
+        component CYGDAT_REDBOOT_DEFAULT_GATEWAY_IP_ADDR{
+          display "Default gateway IP address"
+          default_value [CYGSEM_REDBOOT_FLASH_CONFIG ? 0 : "0, 0, 0, 0" ]
+          flavor booldata 
+        }
+
+        component CYGDAT_REDBOOT_DEFAULT_IP_ADDR_MASK{
+          display "Default IP address mask"
+          default_value [CYGSEM_REDBOOT_FLASH_CONFIG ? 0 : "255, 255, 255, 0" ]
+          flavor booldata 
+        }
+      }
+
+      option CYGNUM_REDBOOT_NETWORKING_TCP_PORT{
+        display "TCP port to listen for incoming connections"
+        default_value [9000 ]
+        flavor data 
+      }
+
+      option CYGNUM_REDBOOT_NETWORKING_MAX_PKTBUF{
+        display "Number of [network] packet buffers"
+        default_value [4 ]
+        legal_values [3 to 8 ]
+        flavor data 
+      }
+
+      component CYGPKG_REDBOOT_NETWORKING_DNS{
+        display "DNS support"
+        default_value [1 ]
+        active_if [CYGPKG_NS_DNS ]
+        requires [!CYGPKG_NS_DNS_BUILD ]
+
+        option CYGPKG_REDBOOT_NETWORKING_DNS_IP{
+          display "Default DNS IP"
+          active_if [!CYGSEM_REDBOOT_FLASH_CONFIG ]
+          default_value ["0.0.0.0" ]
+          flavor data 
+        }
+
+        option CYGNUM_REDBOOT_NETWORKING_DNS_TIMEOUT{
+          display "Timeout in DNS lookup"
+          default_value [10 ]
+          flavor data 
+        }
+
+        component CYGPKG_REDBOOT_NETWORKING_DNS_WITH_DOMAIN{
+          display "Support the use of a domain name"
+          default_value [0 ]
+          flavor bool 
+
+          option CYGPKG_REDBOOT_NETWORKING_DNS_DEFAULT_DOMAIN{
+            display "Default DNS domain"
+            default_value [0 ]
+            flavor booldata 
+          }
+
+          option CYGPKG_REDBOOT_NETWORKING_DNS_FCONFIG_DOMAIN{
+            display "Get DNS domain from Flash"
+            active_if [CYGSEM_REDBOOT_FLASH_CONFIG ]
+            default_value [0 ]
+            flavor bool 
+          }
+
+          option CYGPKG_REDBOOT_NETWORKING_DNS_DHCP_DOMAIN{
+            display "Use DNS domain from DHCP"
+            default_value [0 ]
+            flavor bool 
+          }
+
+          option CYGNUM_REDBOOT_NETWORK_DNS_DOMAIN_BUFSIZE{
+            display "BOOTP/DHCP DNS domain buffer size"
+            default_value [32 ]
+            flavor data 
+          }
+        }
+      }
+
+      option CYGDAT_REDBOOT_DEFAULT_NETWORK_DEVICE{
+        display "Default network device driver"
+        active_if [CYGHWR_NET_DRIVERS > 1 ]
+        default_value ["\"\"" ]
+        flavor data 
+      }
+
+      option CYGSEM_REDBOOT_NETWORK_INIT_ONE_DEVICE{
+        display "Initialize only one net device"
+        active_if [CYGHWR_NET_DRIVERS > 1 ]
+        default_value [0 ]
+        flavor bool 
+      }
+    }
+
+    option CYGPKG_REDBOOT_ANY_CONSOLE{
+      display "Let RedBoot use any I/O channel for its console."
+      default_value [1 ]
+      flavor bool 
+    }
+
+    option CYGSEM_REDBOOT_VARIABLE_BAUD_RATE{
+      display "Let RedBoot adjust the baud off the serial console."
+      default_value [1 ]
+      active_if [CYGINT_HAL_VIRTUAL_VECTOR_COMM_BAUD_SUPPORT ]
+      flavor bool 
+    }
+
+    option CYGSEM_REDBOOT_PLF_STARTUP{
+      display "Run a platform specific startup function."
+      default_value [0 ]
+      flavor bool 
+    }
+
+    option CYGSEM_REDBOOT_PLF_ESA_VALIDATE{
+      display "Run a platform specific ESA validation function."
+      default_value [0 ]
+      flavor bool 
+    }
+
+    option CYGPKG_REDBOOT_MAX_CMD_LINE{
+      display "Maximum command line length"
+      default_value [256 ]
+      flavor data 
+    }
+
+    option CYGNUM_REDBOOT_CLI_IDLE_TIMEOUT{
+      display "Command processing idle timeout (ms)"
+      default_value [10 ]
+      flavor data 
+    }
+
+    option CYGSEM_REDBOOT_VALIDATE_USER_RAM_LOADS{
+      display "Validate RAM addresses during load"
+      default_value [1 ]
+      flavor bool 
+    }
+
+    option CYGNUM_REDBOOT_FLASH_BASE{
+      display "Base address of flash device redboot should use"
+      flavor booldata 
+    }
+
+    component CYGPKG_REDBOOT_FLASH{
+      display "Allow RedBoot to support FLASH programming"
+      default_value [1 ]
+      active_if [CYGHWR_IO_FLASH_DEVICE ]
+      flavor bool 
+
+      option CYGOPT_REDBOOT_FLASH_BYTEORDER{
+        display "Byte order used to store info in flash."
+        default_value ["NATURAL" ]
+        legal_values ["NATURAL" "MSBFIRST" "LSBFIRST" ]
+        flavor data 
+      }
+
+      option CYGOPT_REDBOOT_FIS{
+        display "RedBoot Flash Image System support"
+        default_value [1 ]
+      }
+
+      option CYGDAT_REDBOOT_FIS_MAX_FREE_CHUNKS{
+        display "Max number of chunks of free space to manage"
+        default_value [32 ]
+        flavor booldata 
+      }
+
+      component CYGPKG_REDBOOT_FIS_CONTENTS{
+        display "Flash Image System default directory contents"
+        active_if [CYGOPT_REDBOOT_FIS ]
+        calculated [1 ]
+
+        option CYGNUM_REDBOOT_FIS_DIRECTORY_BLOCK{
+          display "Flash block containing the Directory"
+          default_value [(-1) ]
+          flavor data 
+        }
+
+        component CYGOPT_REDBOOT_REDUNDANT_FIS{
+          display "Redundant Flash Image System Directory Support"
+          default_value [0 ]
+          requires [0 == CYGSEM_REDBOOT_FLASH_COMBINED_FIS_AND_CONFIG ]
+
+          option CYGNUM_REDBOOT_FIS_REDUNDANT_DIRECTORY_BLOCK{
+            display "Flash block containing the backup Directory"
+            default_value [(-3) ]
+            requires [CYGNUM_REDBOOT_FIS_REDUNDANT_DIRECTORY_BLOCK != CYGNUM_REDBOOT_FIS_DIRECTORY_BLOCK ]
+            flavor data 
+          }
+        }
+
+        option CYGOPT_REDBOOT_FIS_RESERVED_BASE{
+          display "Pseudo-file to describe reserved area"
+          active_if [0 != CYGNUM_REDBOOT_FLASH_RESERVED_BASE ]
+          default_value [1 ]
+        }
+
+        option CYGOPT_REDBOOT_FIS_REDBOOT{
+          display "File to describe RedBoot boot image"
+          default_value [1 ]
+        }
+
+        component CYGOPT_REDBOOT_FIS_REDBOOT_POST{
+          display "File to describe RedBoot POST-compatible image"
+          default_value [!CYGOPT_REDBOOT_FIS_REDBOOT ]
+
+          option CYGNUM_REDBOOT_FIS_REDBOOT_POST_OFFSET{
+            display "Offset of POST image from FLASH start"
+            default_value [0 ]
+            requires [CYGNUM_REDBOOT_FIS_REDBOOT_POST_OFFSET >= CYGBLD_REDBOOT_FLASH_BOOT_OFFSET ]
+            flavor booldata 
+          }
+        }
+
+        option CYGOPT_REDBOOT_FIS_REDBOOT_BACKUP{
+          display "File to describe RedBoot backup image"
+          default_value [0 ]
+        }
+
+        option CYGOPT_REDBOOT_FIS_DIRECTORY_ARM_SIB_ID{
+          display "Include ARM SIB ID in FIS"
+          default_value [0 ]
+        }
+
+        option CYGNUM_REDBOOT_FIS_DIRECTORY_ENTRY_SIZE{
+          display "Size of FIS directory entry"
+          default_value [256 ]
+          flavor data 
+        }
+
+        option CYGNUM_REDBOOT_FIS_DIRECTORY_ENTRY_COUNT{
+          display "Number of FIS directory entries"
+          default_value [8 ]
+          flavor data 
+        }
+
+        option CYGBLD_REDBOOT_MIN_IMAGE_SIZE{
+          display "Maximum RedBoot image size"
+          default_value [CYGOPT_REDBOOT_FIS_REDBOOT ? 0x20000 : 0 ]
+          flavor data 
+        }
+
+        option CYGBLD_REDBOOT_FLASH_BOOT_OFFSET{
+          display "Offset from start of FLASH to RedBoot boot image"
+          default_value [CYGNUM_REDBOOT_FLASH_RESERVED_BASE ]
+          requires [CYGNUM_REDBOOT_FLASH_RESERVED_BASE <= CYGBLD_REDBOOT_FLASH_BOOT_OFFSET ]
+          flavor data 
+        }
+
+        option CYGNUM_REDBOOT_FLASH_RESERVED_BASE{
+          display "Size of reserved area at start of FLASH"
+          default_value [0 ]
+          flavor data 
+        }
+
+        option CYGNUM_REDBOOT_FLASH_RESERVED_DEVICES{
+          display "List of Flash devices that are reserved"
+          default_value [0 ]
+          flavor booldata 
+        }
+      }
+
+      option CYGSEM_REDBOOT_FLASH_LOCK_SPECIAL{
+        display "Keep all RedBoot FLASH data blocks locked."
+        default_value [1 ]
+        active_if [CYGHWR_IO_FLASH_BLOCK_LOCKING != 0 ]
+        flavor bool 
+      }
+
+      option CYGSEM_REDBOOT_FIS_CRC_CHECK{
+        display "Use CRC checksums on FIS images."
+        default_value [1 ]
+        flavor bool 
+      }
+
+      interface CYGINT_REDBOOT_ARM_FLASH_SIB_SUPPORTED{
+        display "ARM FLASH drivers support SIB flash block structure"
+        active_if [CYGPKG_HAL_ARM ]
+      }
+
+      option CYGHWR_REDBOOT_ARM_FLASH_SIB{
+        display "Use ARM SIB flash block structure"
+        active_if [CYGINT_REDBOOT_ARM_FLASH_SIB_SUPPORTED ]
+        default_value [1 ]
+        flavor bool 
+      }
+    }
+
+    component CYGSEM_REDBOOT_FLASH_CONFIG{
+      display "Keep RedBoot configuration data in FLASH"
+      default_value [CYGPKG_IO_FLASH != 0 ]
+      flavor bool 
+
+      option CYGNUM_REDBOOT_FLASH_CONFIG_SIZE{
+        display "Length of configuration data in FLASH"
+        default_value [4096 ]
+        flavor data 
+      }
+
+      option CYGHWR_REDBOOT_FLASH_CONFIG_MEDIA{
+        display "Style of media used for persistent data storage"
+        legal_values ["FLASH" "EEPROM" ]
+        default_value ["FLASH" ]
+        flavor data 
+      }
+
+      option CYGSEM_REDBOOT_FLASH_COMBINED_FIS_AND_CONFIG{
+        display "Merged config data and FIS directory"
+        active_if [CYGOPT_REDBOOT_FIS && (CYGHWR_REDBOOT_FLASH_CONFIG_MEDIA == "FLASH") ]
+        default_value [1 ]
+        flavor bool 
+      }
+
+      option CYGNUM_REDBOOT_FLASH_CONFIG_BLOCK{
+        display "Which block of flash to use"
+        default_value [(-2) ]
+        flavor data 
+      }
+
+      option CYGSEM_REDBOOT_FLASH_ALIASES{
+        display "Support simple macros/aliases in FLASH"
+        default_value [1 ]
+        flavor bool 
+      }
+
+      option CYGNUM_REDBOOT_FLASH_STRING_SIZE{
+        display "Length of strings in FLASH configuration data"
+        default_value [128 ]
+        flavor data 
+      }
+
+      option CYGNUM_REDBOOT_FLASH_SCRIPT_SIZE{
+        display "Length of configuration script(s) in FLASH"
+        default_value [512 ]
+        flavor data 
+      }
+
+      option CYGSEM_REDBOOT_FLASH_CONFIG_READONLY_FALLBACK{
+        display "Fallback to read-only FLASH configuration"
+        default_value [(CYGHWR_REDBOOT_FLASH_CONFIG_MEDIA == "FLASH") ]
+        flavor bool 
+      }
+    }
+
+    component CYGPKG_REDBOOT_FILEIO{
+      display "Allow RedBoot to support fileio"
+      default_value [1 ]
+      active_if [CYGPKG_IO_FILEIO ]
+      flavor bool 
+
+      option CYGBLD_REDBOOT_FILEIO_WITH_LS{
+        display "Include an ls command"
+        default_value [1 ]
+        flavor bool 
+      }
+    }
+
+    component CYGPKG_REDBOOT_DISK{
+      display "Allow RedBoot to support disks"
+      default_value [1 ]
+      flavor bool 
+
+      option CYGSEM_REDBOOT_DISK{
+        display "Include Redboot commands for disk access"
+        default_value [CYGINT_REDBOOT_DISK_DRIVERS != 0 ]
+      }
+
+      interface CYGINT_REDBOOT_DISK_DRIVERS{
+        display "Hardware drivers for disk-type devices"
+      }
+
+      option CYGNUM_REDBOOT_MAX_DISKS{
+        display "Maximum number of supported disks"
+        default_value [4 ]
+        flavor data 
+      }
+
+      option CYGNUM_REDBOOT_MAX_PARTITIONS{
+        display "Maximum number of partitions per disk"
+        default_value [8 ]
+        flavor data 
+      }
+
+      component CYGSEM_REDBOOT_DISK_IDE{
+        display "Support IDE disks."
+        default_value [1 ]
+        active_if [CYGINT_HAL_PLF_IF_IDE != 0 ]
+        implements [CYGINT_REDBOOT_DISK_DRIVERS ]
+        flavor bool 
+
+        option CYGSEM_REDBOOT_DISK_IDE_VMWARE{
+          display "Work with VMware virtual disks"
+          default_value [0 ]
+          flavor bool 
+        }
+      }
+
+      component CYGSEM_REDBOOT_DISK_EXT2FS{
+        display "Support Linux second extended filesystems."
+        default_value [1 ]
+        flavor bool 
+      }
+
+      component CYGSEM_REDBOOT_DISK_ISO9660{
+        display "Support ISO9660 filesystems."
+        calculated [0 ]
+        flavor bool 
+      }
+    }
+
+    component CYGPKG_REDBOOT_BOOT_SCRIPT{
+      display "Boot scripting"
+      flavor none 
+
+      option CYGFUN_REDBOOT_BOOT_SCRIPT{
+        display "Boot scripting enabled"
+        active_if [CYGDAT_REDBOOT_DEFAULT_BOOT_SCRIPT || CYGSEM_REDBOOT_FLASH_CONFIG ]
+        calculated [1 ]
+        flavor bool 
+      }
+
+      option CYGDAT_REDBOOT_DEFAULT_BOOT_SCRIPT{
+        display "Use default RedBoot boot script"
+        default_value [0 ]
+        flavor booldata 
+      }
+
+      option CYGNUM_REDBOOT_BOOT_SCRIPT_TIMEOUT_RESOLUTION{
+        display "Resolution (in ms) for script timeout value."
+        default_value [1000 ]
+        flavor data 
+      }
+
+      option CYGNUM_REDBOOT_BOOT_SCRIPT_DEFAULT_TIMEOUT{
+        display "Script default timeout value"
+        default_value [10 ]
+        flavor data 
+      }
+    }
+
+    option CYGSEM_REDBOOT_RTC{
+      display "Support RTC for time & date functions"
+      active_if [CYGPKG_IO_WALLCLOCK ]
+      default_value [1 ]
+    }
+
+    option CYGPRI_REDBOOT_ROM_MONITOR{
+      display "Behave like a ROM monitor"
+      active_if [CYG_HAL_STARTUP == "ROM" || CYG_HAL_STARTUP == "ROMRAM" ]
+      requires [CYGSEM_HAL_ROM_MONITOR ]
+      calculated [1 ]
+    }
+
+    component CYGSEM_REDBOOT_BSP_SYSCALLS{
+      display "Allow RedBoot to handle GNUPro application 'syscalls'."
+      default_value [0 ]
+      flavor bool 
+
+      option CYGSEM_REDBOOT_BSP_SYSCALLS_GPROF{
+        display "Support additional syscalls for 'gprof' profiling"
+        default_value [1 ]
+        active_if [0 < CYGINT_REDBOOT_BSP_SYSCALLS_GPROF_SUPPORT ]
+        flavor bool 
+      }
+
+      interface CYGINT_REDBOOT_BSP_SYSCALLS_GPROF_SUPPORT{
+        display "Does the HAL support 'gprof' profiling?"
+      }
+
+      option CYGOPT_REDBOOT_BSP_SYSCALLS_EXIT_WITHOUT_TRAP{
+        display "Do not raise SIGTRAP when program exits"
+        default_value [0 ]
+      }
+    }
+
+    component CYGOPT_REDBOOT_FIS_ZLIB_COMMON_BUFFER{
+      display "Use a common buffer for Zlib and FIS"
+      active_if [CYGBLD_BUILD_REDBOOT_WITH_ZLIB && CYGOPT_REDBOOT_FIS ]
+      default_value [0 ]
+      flavor bool 
+
+      option CYGNUM_REDBOOT_FIS_ZLIB_COMMON_BUFFER_SIZE{
+        display "Size of Zlib/FIS common buffer"
+        default_value [0xc000 ]
+        legal_values [0x4000 to 0x80000000 ]
+        flavor data 
+      }
+    }
+
+    option CYGNUM_REDBOOT_GETC_BUFFER{
+      display "Buffer size in getc when loading images"
+      default_value [CYGPKG_REDBOOT_FILEIO ? 4096 : 256 ]
+      flavor data 
+    }
+  }
+
+  component CYGPKG_REDBOOT_ARM_OPTIONS{
+    display "Redboot for ARM options"
+    active_if [CYGPKG_REDBOOT ]
+    flavor none 
+
+    component CYGPKG_REDBOOT_ARM_LINUX_EXEC{
+      display "Provide the exec command in RedBoot"
+      active_if [CYGBLD_BUILD_REDBOOT_WITH_EXEC ]
+      flavor none 
+
+      option CYGHWR_REDBOOT_LINUX_EXEC_X_SWITCH{
+        display "Enable -x switch for exec command."
+        default_value [0 ]
+        flavor bool 
+      }
+
+      option CYGHWR_REDBOOT_ARM_LINUX_EXEC_ADDRESS{
+        display "Physical base address of linux kernel"
+        default_value [CYGHWR_REDBOOT_ARM_LINUX_EXEC_ADDRESS_DEFAULT ]
+        flavor data 
+      }
+
+      option CYGHWR_REDBOOT_ARM_LINUX_EXEC_ADDRESS_DEFAULT{
+        display "Default physical base address of linux kernel"
+        default_value [0x00008000 ]
+        flavor data 
+      }
+
+      option CYGHWR_REDBOOT_ARM_LINUX_TAGS_ADDRESS{
+        display "Base address of linux kernel parameter tags"
+        default_value [0x100 ]
+        flavor data 
+      }
+    }
+  }
+
+  component CYGPKG_REDBOOT_HAL_OPTIONS{
+    display "Redboot HAL options"
+    active_if [CYGPKG_REDBOOT ]
+    flavor none 
+
+    option CYGBLD_BUILD_REDBOOT_BIN{
+      display "Build Redboot ROM binary image"
+      active_if [CYGBLD_BUILD_REDBOOT ]
+      requires [!CYGBLD_BUILD_REDBOOT_WITH_EXEC ]
+      default_value [1 ]
+    }
+  }
+}
+
+package CYGPKG_ISOINFRA{
+  display "ISO C and POSIX infrastructure"
+
+  component CYGPKG_ISO_STARTUP{
+    display "Startup and termination"
+    flavor none 
+
+    interface CYGINT_ISO_MAIN_STARTUP{
+      display "main() startup implementations"
+      requires [1 >= CYGINT_ISO_MAIN_STARTUP ]
+    }
+
+    interface CYGINT_ISO_ENVIRON{
+      display "environ implementations"
+      requires [1 >= CYGINT_ISO_ENVIRON ]
+    }
+  }
+
+  component CYGPKG_ISO_CTYPE_H{
+    display "ctype.h functions"
+    flavor none 
+
+    interface CYGINT_ISO_CTYPE{
+      display "Number of implementations of ctype functions"
+      requires [1 >= CYGINT_ISO_CTYPE ]
+    }
+
+    option CYGBLD_ISO_CTYPE_HEADER{
+      display "Ctype implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_ERRNO{
+    display "Error handling"
+    flavor none 
+
+    interface CYGINT_ISO_ERRNO_CODES{
+      display "Number of implementations of error codes"
+      requires [1 >= CYGINT_ISO_ERRNO_CODES ]
+    }
+
+    option CYGBLD_ISO_ERRNO_CODES_HEADER{
+      display "Error codes implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_ERRNO{
+      display "Number of implementations of errno variable"
+      requires [1 >= CYGINT_ISO_ERRNO ]
+    }
+
+    option CYGBLD_ISO_ERRNO_HEADER{
+      display "errno variable implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_LOCALE{
+    display "Locale-related functions"
+    flavor none 
+
+    interface CYGINT_ISO_LOCALE{
+      display "Number of implementations of locale functions"
+      requires [1 >= CYGINT_ISO_LOCALE ]
+    }
+
+    option CYGBLD_ISO_LOCALE_HEADER{
+      display "Locale implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_STDIO{
+    display "Standard I/O-related functionality"
+    flavor none 
+
+    interface CYGINT_ISO_STDIO_FILETYPES{
+      display "Number of implementations of stdio file types"
+      requires [1 >= CYGINT_ISO_STDIO_FILETYPES ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_FILETYPES_HEADER{
+      display "Stdio file types implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDIO_STREAMS{
+      display "Stdio standard streams implementations"
+      requires [1 >= CYGINT_ISO_STDIO_STREAMS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_STREAMS_HEADER{
+      display "Stdio standard streams implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDIO_FILEOPS{
+      display "Number of implementations of stdio file operations"
+      requires [1 >= CYGINT_ISO_STDIO_FILEOPS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_FILEOPS_HEADER{
+      display "Stdio file operations implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDIO_FILEACCESS{
+      display "Number of implementations of stdio file access  functionals"
+      requires [1 >= CYGINT_ISO_STDIO_FILEACCESS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_FILEACCESS_HEADER{
+      display "Stdio file access implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDIO_FORMATTED_IO{
+      display "Number of implementations of stdio formatted I/O"
+      requires [1 >= CYGINT_ISO_STDIO_FORMATTED_IO ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_FORMATTED_IO_HEADER{
+      display "Stdio formatted I/O implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDIO_CHAR_IO{
+      display "Number of implementations of stdio character I/O"
+      requires [1 >= CYGINT_ISO_STDIO_CHAR_IO ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_CHAR_IO_HEADER{
+      display "Stdio character I/O implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDIO_DIRECT_IO{
+      display "Number of implementations of stdio direct I/O"
+      requires [1 >= CYGINT_ISO_STDIO_DIRECT_IO ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_DIRECT_IO_HEADER{
+      display "Stdio direct I/O implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDIO_FILEPOS{
+      display "Number of implementations of stdio file positioning"
+      requires [1 >= CYGINT_ISO_STDIO_FILEPOS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_FILEPOS_HEADER{
+      display "Stdio file positioning implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDIO_ERROR{
+      display "Number of implementations of stdio error handling"
+      requires [1 >= CYGINT_ISO_STDIO_ERROR ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_ERROR_HEADER{
+      display "Stdio error handling implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDIO_POSIX_FDFUNCS{
+      display "POSIX fd-related function implementations"
+      requires [1 >= CYGINT_ISO_STDIO_POSIX_FDFUNCS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDIO_POSIX_FDFUNCS_HEADER{
+      display "POSIX fd-related function implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_STDLIB{
+    display "Standard general utility functions"
+    flavor none 
+
+    interface CYGINT_ISO_STDLIB_STRCONV{
+      display "String conversion function implementations"
+      requires [1 >= CYGINT_ISO_STDLIB_STRCONV ]
+    }
+
+    option CYGBLD_ISO_STDLIB_STRCONV_HEADER{
+      display "String conversion function implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDLIB_STRCONV_FLOAT{
+      display "String to FP conversion function implementations"
+      requires [1 >= CYGINT_ISO_STDLIB_STRCONV_FLOAT ]
+    }
+
+    option CYGBLD_ISO_STDLIB_STRCONV_FLOAT_HEADER{
+      display "String to FP conversion function implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_RAND{
+      display "Random number generator implementations"
+      requires [1 >= CYGINT_ISO_RAND ]
+    }
+
+    option CYGBLD_ISO_RAND_HEADER{
+      display "Random number generator implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_MALLOC{
+      display "Malloc implementations"
+      requires [1 >= CYGINT_ISO_MALLOC ]
+    }
+
+    option CYGBLD_ISO_MALLOC_HEADER{
+      display "Malloc implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_MALLINFO{
+      display "Mallinfo() implementations"
+      requires [1 >= CYGINT_ISO_MALLINFO ]
+    }
+
+    option CYGBLD_ISO_MALLINFO_HEADER{
+      display "Mallinfo() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_EXIT{
+      display "Program exit functionality implementations"
+      requires [1 >= CYGINT_ISO_EXIT ]
+    }
+
+    option CYGBLD_ISO_EXIT_HEADER{
+      display "Program exit functionality implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDLIB_ENVIRON{
+      display "Program environment implementations"
+      requires [1 >= CYGINT_ISO_STDLIB_ENVIRON ]
+    }
+
+    option CYGBLD_ISO_STDLIB_ENVIRON_HEADER{
+      display "Program environment implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDLIB_SYSTEM{
+      display "system() implementations"
+      requires [1 >= CYGINT_ISO_STDLIB_SYSTEM ]
+    }
+
+    option CYGBLD_ISO_STDLIB_SYSTEM_HEADER{
+      display "system() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_BSEARCH{
+      display "bsearch() implementations"
+      requires [1 >= CYGINT_ISO_BSEARCH ]
+    }
+
+    option CYGBLD_ISO_BSEARCH_HEADER{
+      display "bsearch() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_QSORT{
+      display "qsort() implementations"
+      requires [1 >= CYGINT_ISO_STDLIB_QSORT ]
+    }
+
+    option CYGBLD_ISO_QSORT_HEADER{
+      display "qsort() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_ABS{
+      display "abs()/labs() implementations"
+      requires [1 >= CYGINT_ISO_STDLIB_ABS ]
+    }
+
+    option CYGBLD_ISO_STDLIB_ABS_HEADER{
+      display "abs()/labs() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_DIV{
+      display "div()/ldiv() implementations"
+      requires [1 >= CYGINT_ISO_STDLIB_DIV ]
+    }
+
+    option CYGBLD_ISO_STDLIB_DIV_HEADER{
+      display "div()/ldiv() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STDLIB_MB_CUR_MAX_HEADER{
+      display "Header defining the implementation's MB_CUR_MAX"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STDLIB_MULTIBYTE{
+      display "Multibyte character implementations"
+      requires [1 >= CYGINT_ISO_STDLIB_MULTIBYTE ]
+    }
+
+    option CYGBLD_ISO_STDLIB_MULTIBYTE_HEADER{
+      display "Multibyte character implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_STRING{
+    display "String functions"
+    flavor none 
+
+    interface CYGINT_ISO_STRERROR{
+      display "Number of implementations of strerror() function"
+      requires [1 >= CYGINT_ISO_STRERROR ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STRERROR_HEADER{
+      display "strerror() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_MEMCPY_HEADER{
+      display "memcpy() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_MEMSET_HEADER{
+      display "memset() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STRTOK_R{
+      display "Number of implementations of strtok_r() function"
+      requires [1 >= CYGINT_ISO_STRTOK_R ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STRTOK_R_HEADER{
+      display "strtok_r() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STRING_LOCALE_FUNCS{
+      display "Number of implementations of locale-specific string  functions"
+      requires [1 >= CYGINT_ISO_STRING_LOCALE_FUNCS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STRING_LOCALE_FUNCS_HEADER{
+      display "Locale-specific string functions' implementation  header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STRING_BSD_FUNCS{
+      display "Number of implementations of BSD string functions"
+      requires [1 >= CYGINT_ISO_STRING_BSD_FUNCS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STRING_BSD_FUNCS_HEADER{
+      display "BSD string functions' implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STRING_MEMFUNCS{
+      display "Number of implementations of other mem*() functions"
+      requires [1 >= CYGINT_ISO_STRING_MEMFUNCS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STRING_MEMFUNCS_HEADER{
+      display "Other mem*() functions' implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_STRING_STRFUNCS{
+      display "Number of implementations of other ISO C str*()  functions"
+      requires [1 >= CYGINT_ISO_STRING_STRFUNCS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STRING_STRFUNCS_HEADER{
+      display "Other ISO C str*() functions' implementation  header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_TIME{
+    display "Clock and time functionality"
+    flavor none 
+
+    option CYGBLD_ISO_TIME_T_HEADER{
+      display "time_t implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_CLOCK_T_HEADER{
+      display "clock_t implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_STRUCTTIMEVAL_HEADER{
+      display "struct timeval implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_FNMATCH_HEADER{
+      display "fnmatch implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_POSIX_TIMER_TYPES{
+      display "Number of implementations of POSIX timer types"
+      requires [1 >= CYGINT_ISO_POSIX_TIMER_TYPES ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_POSIX_TIMER_TYPES_HEADER{
+      display "POSIX timer types implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_POSIX_CLOCK_TYPES{
+      display "Number of implementations of POSIX clock types"
+      requires [1 >= CYGINT_ISO_POSIX_CLOCK_TYPES ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_POSIX_CLOCK_TYPES_HEADER{
+      display "POSIX clock types implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_C_TIME_TYPES{
+      display "Number of implementations of ISO C types"
+      requires [1 >= CYGINT_ISO_C_TIME_TYPES ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_C_TIME_TYPES_HEADER{
+      display "ISO C time types implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_POSIX_TIMERS{
+      display "Number of implementations of POSIX timers"
+      requires [1 >= CYGINT_ISO_POSIX_TIMERS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_POSIX_TIMERS_HEADER{
+      display "POSIX timer implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_POSIX_CLOCKS{
+      display "Number of implementations of POSIX clocks"
+      requires [1 >= CYGINT_ISO_POSIX_CLOCKS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_POSIX_CLOCKS_HEADER{
+      display "POSIX clocks implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_C_CLOCK_FUNCS{
+      display "Number of implementations of ISO C clock functions"
+      requires [1 >= CYGINT_ISO_C_CLOCK_FUNCS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_C_CLOCK_FUNCS_HEADER{
+      display "ISO C clock functions' implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_TZSET{
+      display "Number of implementations of tzset() function"
+      requires [1 >= CYGINT_ISO_TZSET ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_TZSET_HEADER{
+      display "tzset() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_SIGNAL{
+    display "Signal functionality"
+    flavor none 
+
+    interface CYGINT_ISO_SIGNAL_NUMBERS{
+      display "Number of implementations of signal numbers"
+      requires [1 >= CYGINT_ISO_SIGNAL_NUMBERS ]
+    }
+
+    option CYGBLD_ISO_SIGNAL_NUMBERS_HEADER{
+      display "Signal numbering implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_SIGNAL_IMPL{
+      display "Number of signal implementations"
+      requires [1 >= CYGINT_ISO_SIGNAL_IMPL ]
+    }
+
+    option CYGBLD_ISO_SIGNAL_IMPL_HEADER{
+      display "Signals implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_POSIX_REALTIME_SIGNALS{
+      display "POSIX real time signals feature test macro"
+      requires [1 >= CYGINT_POSIX_REALTIME_SIGNALS ]
+    }
+  }
+
+  component CYGPKG_ISO_SETJMP{
+    display "Non-local jumps functionality"
+    flavor none 
+
+    interface CYGINT_ISO_SETJMP{
+      display "setjmp() / longjmp() implementations"
+      requires [1 >= CYGINT_ISO_SETJMP ]
+    }
+
+    option CYGBLD_ISO_SETJMP_HEADER{
+      display "setjmp() / longjmp() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_SIGSETJMP{
+      display "sigsetjmp() / siglongjmp() implementations"
+      requires [1 >= CYGINT_ISO_SIGSETJMP ]
+    }
+
+    option CYGBLD_ISO_SIGSETJMP_HEADER{
+      display "sigsetjmp() / siglongjmp() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  option CYGBLD_ISO_ASSERT_HEADER{
+    display "Assertions implementation header"
+    default_value [0 ]
+    flavor booldata 
+  }
+
+  component CYGPKG_ISO_POSIX_FCNTL{
+    display "POSIX file control"
+    flavor none 
+
+    option CYGBLD_ISO_OFLAG_HEADER{
+      display "POSIX open flags implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_FCNTL{
+      display "POSIX fcntl() implementations"
+      requires [1 >= CYGINT_ISO_FCNTL ]
+    }
+
+    option CYGBLD_ISO_FCNTL_HEADER{
+      display "POSIX fcntl() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_OPEN{
+      display "POSIX file open implementations"
+      requires [1 >= CYGINT_ISO_OPEN ]
+    }
+
+    option CYGBLD_ISO_OPEN_HEADER{
+      display "POSIX file open implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  option CYGBLD_ISO_STAT_DEFS_HEADER{
+    display "<sys/stat.h> definitions implementation header"
+    default_value [0 ]
+    flavor booldata 
+  }
+
+  interface CYGINT_ISO_DIRENT{
+    display "POSIX directory reading implementation"
+    requires [1 >= CYGINT_ISO_DIRENT ]
+  }
+
+  option CYGBLD_ISO_DIRENT_HEADER{
+    display "<dirent.h> definitions implementation header"
+    default_value [0 ]
+    flavor booldata 
+  }
+
+  component CYGPKG_ISO_POSIX_TYPES{
+    display "POSIX <sys/types.h> contents"
+    flavor none 
+
+    interface CYGINT_ISO_PTHREADTYPES{
+      display "POSIX thread types implementations"
+      requires [1 >= CYGINT_ISO_PTHREADTYPES ]
+    }
+
+    option CYGBLD_ISO_PTHREADTYPES_HEADER{
+      display "POSIX thread types implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_PMUTEXTYPES{
+      display "POSIX mutex types implementations"
+      requires [1 >= CYGINT_ISO_PTHREADTYPES ]
+    }
+
+    option CYGBLD_ISO_PMUTEXTYPES_HEADER{
+      display "POSIX mutex types implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_SSIZE_T_HEADER{
+      display "ssize_t implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_FSTYPES_HEADER{
+      display "Filesystem types implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_SCHEDTYPES_HEADER{
+      display "gid_t, pid_t, uid_t implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_EXTRA_TYPES{
+    display "Non-POSIX <sys/types.h> contents"
+    flavor none 
+
+    interface CYGINT_ISO_BSDTYPES{
+      display "BSD compatible types"
+      requires [1 >= CYGINT_ISO_BSDTYPES ]
+    }
+
+    option CYGBLD_ISO_BSDTYPES_HEADER{
+      display "BSD types header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_UTSNAME{
+    display "Utsname structure"
+    flavor none 
+
+    option CYGBLD_ISO_UTSNAME_HEADER{
+      display "Utsname header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_SCHED{
+    display "POSIX scheduler"
+    flavor none 
+
+    interface CYGINT_ISO_SCHED_IMPL{
+      display "POSIX scheduler implementations"
+      requires [1 >= CYGINT_ISO_SCHED_IMPL ]
+    }
+
+    option CYGBLD_ISO_SCHED_IMPL_HEADER{
+      display "POSIX scheduler implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_SEMAPHORES{
+    display "POSIX semaphores"
+    flavor none 
+
+    interface CYGINT_ISO_SEMAPHORES{
+      display "POSIX semaphore implementations"
+      requires [1 >= CYGINT_ISO_SEMAPHORES ]
+    }
+
+    option CYGBLD_ISO_SEMAPHORES_HEADER{
+      display "POSIX semaphore implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_MQUEUE{
+    display "POSIX message queues"
+    flavor none 
+
+    interface CYGINT_ISO_MQUEUE{
+      display "Implementations"
+      requires [1 >= CYGINT_ISO_MQUEUE ]
+    }
+
+    option CYGBLD_ISO_MQUEUE_HEADER{
+      display "Implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGNUM_ISO_MQUEUE_OPEN_MAX{
+      display "Maximum number of open message queues"
+      active_if [CYGINT_ISO_MQUEUE ]
+      default_value [CYGNUM_POSIX_MQUEUE_OPEN_MAX > 0 ? CYGNUM_POSIX_MQUEUE_OPEN_MAX : 0 ]
+      flavor booldata 
+    }
+
+    option CYGNUM_ISO_MQUEUE_PRIO_MAX{
+      display "Maximum number of message priorities"
+      default_value [65535 ]
+      active_if [CYGINT_ISO_MQUEUE ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_PTHREAD{
+    display "POSIX threads"
+    flavor none 
+
+    interface CYGINT_ISO_PTHREAD_IMPL{
+      display "POSIX pthread implementations"
+      requires [1 >= CYGINT_ISO_PTHREAD_IMPL ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_PTHREAD_IMPL_HEADER{
+      display "POSIX pthread implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_PTHREAD_MUTEX{
+      display "POSIX mutex/cond var implementations"
+      requires [1 >= CYGINT_ISO_PTHREAD_MUTEX ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_PTHREAD_MUTEX_HEADER{
+      display "POSIX mutex/cond var implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_LIMITS{
+    display "Limits"
+    flavor none 
+
+    interface CYGINT_ISO_POSIX_LIMITS{
+      display "POSIX pthread limits implementations"
+      requires [1 >= CYGINT_ISO_POSIX_LIMITS ]
+    }
+
+    option CYGBLD_ISO_POSIX_LIMITS_HEADER{
+      display "POSIX pthread limits implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_OPEN_MAX_HEADER{
+      display "OPEN_MAX implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_LINK_MAX_HEADER{
+      display "LINK_MAX implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_NAME_MAX_HEADER{
+      display "NAME_MAX implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_PATH_MAX_HEADER{
+      display "PATH_MAX implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_TERMIOS{
+    display "POSIX termios"
+    flavor none 
+
+    interface CYGINT_ISO_TERMIOS{
+      display "POSIX termios implementations"
+      requires [1 >= CYGINT_ISO_TERMIOS ]
+    }
+
+    option CYGBLD_ISO_TERMIOS_HEADER{
+      display "POSIX termios implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_DLFCN{
+    display "Dynamic load API"
+    flavor none 
+
+    interface CYGINT_ISO_DLFCN{
+      display "Dynamic load implementations"
+      requires [1 >= CYGINT_ISO_DLFCN ]
+    }
+
+    option CYGBLD_ISO_DLFCN_HEADER{
+      display "Dynamic load implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_UNISTD{
+    display "UNIX standard functions"
+    flavor none 
+
+    interface CYGINT_ISO_POSIX_TIMER_OPS{
+      display "POSIX timer operations implementations"
+      requires [1 >= CYGINT_ISO_POSIX_TIMER_OPS ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_POSIX_TIMER_OPS_HEADER{
+      display "POSIX timer operations implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_POSIX_SLEEP{
+      display "POSIX sleep() implementations"
+      requires [1 >= CYGINT_ISO_POSIX_SLEEP ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_POSIX_SLEEP_HEADER{
+      display "POSIX sleep() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_SELECT{
+    display "select()/poll() functions"
+    flavor none 
+
+    interface CYGINT_ISO_SELECT{
+      display "select() implementations"
+      requires [1 >= CYGINT_ISO_SELECT ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_SELECT_HEADER{
+      display "select() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_POLL{
+      display "poll() implementations"
+      requires [1 >= CYGINT_ISO_POLL ]
+      flavor booldata 
+    }
+
+    option CYGBLD_ISO_POLL_HEADER{
+      display "poll() implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISO_NETDB{
+    display "NetDB utility functions"
+    flavor none 
+
+    interface CYGINT_ISO_DNS{
+      display "DNS implementations"
+      requires [1 >= CYGINT_ISO_DNS ]
+      flavor bool 
+    }
+
+    option CYGBLD_ISO_DNS_HEADER{
+      display "DNS implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_NETDB_PROTO{
+      display "Protocol network database implementations"
+      requires [1 >= CYGINT_ISO_NETDB_PROTO ]
+      flavor bool 
+    }
+
+    option CYGBLD_ISO_NETDB_PROTO_HEADER{
+      display "Protocol network database implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+
+    interface CYGINT_ISO_NETDB_SERV{
+      display "Services network database implementations"
+      requires [1 >= CYGINT_ISO_NETDB_SERV ]
+      flavor bool 
+    }
+
+    option CYGBLD_ISO_NETDB_SERV_HEADER{
+      display "Services network database implementation header"
+      default_value [0 ]
+      flavor booldata 
+    }
+  }
+
+  component CYGPKG_ISOINFRA_OPTIONS{
+    display "Build options"
+    flavor none 
+
+    option CYGPKG_ISOINFRA_CFLAGS_ADD{
+      display "Additional compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+
+    option CYGPKG_ISOINFRA_CFLAGS_REMOVE{
+      display "Suppressed compiler flags"
+      default_value ["" ]
+      flavor data 
+    }
+  }
+}
+
+package CYGPKG_CRC{
+  display "Compute CRCs"
+
+  option CYGPKG_CRC_TESTS{
+    display "POSIX CRC tests"
+    calculated ["tests/crc_test" ]
+    flavor data 
+  }
+}

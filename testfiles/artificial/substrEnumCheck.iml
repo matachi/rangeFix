@@ -1,0 +1,17 @@
+    component A{
+        display "LPC2XXX variant used"
+        calculated [C ]
+        flavor data 
+
+        option B{
+          display "LPC2XXX variant version"
+          calculated [is_substr(A, "LPC21") ? 1 : is_substr(A, "LPC22") ? 2 : is_substr(A, "LPC24") ? 4 : 0 ]
+          flavor data 
+        }
+	}
+    component C{
+        display "LPC24XX variant used"
+        default_value ["LPC216x" ]
+        legal_values ["LPC216x" "LPC2258" "LPC2460" "LPC2468" "LPC2470" "LPC2478" ]
+        flavor data 
+	}

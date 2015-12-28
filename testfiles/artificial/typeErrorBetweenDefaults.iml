@@ -1,0 +1,12 @@
+      option A{
+        display "Console device name"
+        default_value [2]
+        flavor data 
+      }
+
+    option B{
+      display "Default console device"
+      default_value ["a"]
+	  requires [B == A]
+      flavor data 
+    }

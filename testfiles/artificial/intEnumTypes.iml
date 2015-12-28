@@ -1,0 +1,11 @@
+  option A {
+      legal_values [ 1 2 3]
+	flavor data
+  }  
+
+  option B {
+	requires [B == A]
+	requires [B != 1]
+	flavor data
+  }
+  

@@ -1,0 +1,1 @@
+@java -Xmx512M -cp "%~dp0\target\scala-2.9.2\classes;%~dp0\lib\kiama_2.9.2-1.4.0.jar;%~dp0\lib\scala-library.jar" ca.uwaterloo.gsd.rangeFix.EccMain -annotation "%~dp0\testfiles\realworld\allModels.annotation" %1 %2 %3 %4 %5 %6 %7 %8 %9

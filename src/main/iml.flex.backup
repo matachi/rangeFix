@@ -1,0 +1,155 @@
+package ca.uwaterloo.gsd.rangeFix;
+import java.util.*;
+
+%%
+
+%class ImlLexer
+%public
+%implements ImlParser.Lexer
+%byaccj
+%line
+%column
+%unicode
+
+%{
+  
+  private StringBuffer _string = new StringBuffer();
+  
+  private Token _lastToken; 
+  
+  private int createToken(int type) {
+    return createToken(type, yytext());
+  }
+    
+  private int createToken(int type, String text) {
+    Token t = new Token(type, text, new Location(getStartPos(), getEndPos()));
+    _lastToken = t;
+    return type;
+  }
+  
+	@Override
+    public Object getLVal() {
+        return _lastToken;
+    }
+    
+    @Override
+    public Position getStartPos() {
+        return new Position(yyline + 1, yycolumn + 1);
+    }
+    
+    @Override
+    public Position getEndPos() {
+        return new Position(yyline + 1, yycolumn + yylength());
+    }
+    
+    @Override
+    public void yyerror(EccParser.Location loc, String s) {
+        yyerror(new Location(loc), s);
+    }
+    
+    public void yyerror(Location loc, String s) {
+        if (_reportError)
+            System.err.println(String.format("%1$d:%2$d-%3$d:%4$d:%5$s", 
+                loc.begin.getLine(), loc.begin.getColumn(),
+                loc.end.getLine(), loc.end.getColumn(),
+                s));
+        _allErrors.add(new CompileError(loc, s));
+            
+    }
+    
+    
+    private boolean _reportError;
+    public void setReportError(boolean report){
+        _reportError = report;
+    }
+    
+    Collection<CompileError> _allErrors = new LinkedList<CompileError>();
+    
+  
+  
+%}
+
+
+LINETERMINATOR = \r|\n|\r\n
+IDENTIFIER = [^ {};\-\"\#\t\n\r]+
+
+%state STRING
+
+%%
+
+
+<YYINITIAL> {
+
+    /* keywords */
+    "component"    { return createToken(EccParser.COMPONENT);}  
+    "option"    { return createToken(EccParser.OPTION);}  
+    "interface"    { return createToken(EccParser.INTERFACE);}  
+    "package"    { return createToken(EccParser.PACKAGE);}  
+    "display"    { return createToken(EccParser.DISPLAY);}  
+    "requires"     { return createToken(EccParser.REQUIRES);}
+    "active_if" { return createToken(EccParser.ACTIVEIF);}
+    "flavor" { return createToken(EccParser.FLAVOR);}
+	"legal_values" { return createToken(EccParser.LEGALVALUES);}
+	"implements" { return createToken(EccParser.IMPLEMENTS);}
+	"none" { return createToken(EccParser.NONE);}
+	"bool" { return createToken(EccParser.BOOL);}
+	"booldata" { return createToken(EccParser.BOOLDATA);}
+	"data" { return createToken(EccParser.DATA);}
+	"calculated" { return createToken(EccParser.CALCULATED);}
+	"default_value" { return createToken(EccParser.DEFAULT);}
+	"description" { return createToken(EccParser.DESCRIPTION);}
+	"to" { return createToken(EccParser.TO);}
+    
+    "{" | 
+    "}" |   
+    "[" |
+	"]" |
+	"(" |
+	")" |
+	"?" |
+	":" |
+	"||" |
+	"&&" |
+	"==" |
+	"!" |
+	"+" |
+	"-" |
+	"*" |
+	"/" |
+	"." 
+	{ return createToken((int) yycharat(0)); }
+
+	"!=" 	{ return createToken(EccParser.NEQ); }
+
+
+    "\""                             { yybegin(STRING); _string.setLength(0); }
+	
+    {IDENTIFIER} {  return createToken(EccParser.ID); }
+
+    /* whitespace */
+    [ \t\n\r]+ { }
+    
+}
+   
+<STRING> {
+  "\""                             { yybegin(YYINITIAL); return createToken(EccParser.STRING, _string.toString());}
+  
+  [^\n\r\"\\]+             { _string.append( yytext() ); }
+  
+  /* escape sequences */
+  "\\b"                          { _string.append( '\b' ); }
+  "\\t"                          { _string.append( '\t' ); }
+  "\\n"                          { _string.append( '\n' ); }
+  "\\f"                          { _string.append( '\f' ); }
+  "\\r"                          { _string.append( '\r' ); }
+  "\\\""                         { _string.append( '\"' ); }
+  "\\'"                          { _string.append( '\'' ); }
+  "\\\\"                         { _string.append( '\\' ); }
+  
+  /* error cases */
+  \\.                            { yyerror(new Location(getStartPos(), getEndPos()), "Illegal escape sequence \""+yytext()+"\""); return -1; }
+  [\n\r]               { yyerror(new Location(getStartPos(), getEndPos()), "Unterminated string at end of line"); return -1;}
+}
+ 
+/* error fallback */
+[^]    { yyerror(new Location(getStartPos(), getEndPos()), "Error: unexpected character '"+yytext()+"'"); return -1; } 

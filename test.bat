@@ -1,0 +1,1 @@
+call runKconfig src\test\resources\2.6.30.exconfig src\test\resources\2.6.30.config I7300_IDLE yes

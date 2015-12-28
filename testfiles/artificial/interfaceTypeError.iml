@@ -1,0 +1,10 @@
+    interface A{
+      display "DNS implementations"
+      requires [1 >= A ]
+      flavor bool 
+    }
+    interface B{
+      display "poll() implementations"
+      requires [1 >= B ]
+      flavor booldata 
+    }

@@ -1,0 +1,682 @@
+package gsd.iml.parser ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+import java.util.List ;
+import java.util.Arrays ;
+import java.util.LinkedList ;
+
+import gsd.iml.ast.feature.* ;
+import gsd.iml.ast.constraint.* ;
+import gsd.iml.ast.flavor.* ;
+import gsd.iml.ast.expression.* ;
+import gsd.iml.util.* ;
+
+import java_cup.runtime.* ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+parser code
+{:
+    public void report_error(String message, Object info) {
+       throw new RuntimeException
+        (ImlParseMessage.error
+            (message, ((Symbol) info).left, ((Symbol) info).right)) ;
+    }
+:}
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+nonterminal List<Feature> cdl ;
+nonterminal List<Feature> feature_list_opt ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+nonterminal String display_opt ;
+nonterminal String description_opt ;
+
+nonterminal FeatureType feature_type ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+nonterminal Feature         feature ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+
+nonterminal List<ImlConstraint>             constraint_list_opt ;
+nonterminal List<ImlConstraint>             constraint_list ;
+nonterminal ImlConstraint                   constraint ;
+nonterminal ImlConstraint                   active_if_constraint ;
+nonterminal ImlConstraint                   requires_constraint ;
+nonterminal ImlConstraint                   calculated_constraint ;
+nonterminal ImlConstraint                   implements_constraint ;
+nonterminal ImlConstraint                   legal_values_constraint ;
+nonterminal DefaultValueConstraint          default_value_constraint ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+nonterminal Flavor flavor_opt ;
+nonterminal Flavor flavor ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+
+nonterminal List<Feature>               feature_list ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+nonterminal Expression          expr ;
+nonterminal Expression          conditional_expr ;
+nonterminal Expression          implies_expr ;
+nonterminal Expression          or_expr ;
+nonterminal Expression          and_expr ;
+nonterminal Expression          btor_expr ;
+nonterminal Expression          bt_xor_expr ;
+nonterminal Expression          bt_and_expr ;
+nonterminal Expression          equality_expr ;
+nonterminal Expression          relational_expr ;
+nonterminal Expression          bt_shift_expr ;
+nonterminal Expression          additive_expr ;
+nonterminal Expression          multiplicative_expr ;
+nonterminal Expression          unary_expr ;
+nonterminal Expression          primary_expr;
+nonterminal Expression          function_call_expr ;
+nonterminal Expression          parenthesized_expr ;
+nonterminal Expression          atomic_expr ;
+
+nonterminal List<Expression>    domain ;
+nonterminal List<Expression>    expr_mm_list ;
+
+nonterminal minus_minus_opt ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+terminal LBRACE ;
+terminal RBRACE ;
+terminal LBRACK ;
+terminal RBRACK ;
+terminal LPAR ;
+terminal RPAR ;
+terminal DISPLAY ;
+terminal DESCRIPTION ;
+terminal OPTION ;
+terminal COMPONENT ;
+terminal PACKAGE ;
+terminal INTERFACE ;
+terminal NONE ;
+terminal DATA ;
+terminal BOOL ;
+terminal DEFAULT_VALUE ;
+terminal ACTIVE_IF ;
+terminal REQUIRES ;
+terminal CALCULATED ;
+terminal IMPLEMENTS ;
+terminal LEGAL_VALUES ;
+terminal TO ;
+terminal QUESTION ;
+terminal COLON ;
+terminal IMPLIES ;
+terminal OR ;
+terminal AND ;
+terminal BT_OR ;
+terminal BT_AND ;
+terminal BT_XOR ;
+terminal EQ ;
+terminal NEQ ;
+terminal LT ;
+terminal LTEQ ;
+terminal GT ;
+terminal GTEQ ;
+terminal BT_LEFT ;
+terminal BT_RIGHT ;
+terminal PLUS ;
+terminal MINUS ;
+terminal DOT ;
+terminal TIMES ;
+terminal DIVIDE ;
+terminal MOD ;
+terminal COMMA ;
+terminal IS_ACTIVE ;
+terminal IS_SUBSTRING ;
+terminal BOOLDATA ;
+terminal NOT ;
+terminal MINUS_MINUS ;
+terminal FLAVOR ;
+terminal IS_ENABLED ;
+terminal IS_LOADED ;
+
+terminal Long       LONG_LITERAL ;
+terminal Double     DOUBLE_FLOATING_POINT_LITERAL  ;
+terminal String     STRING_LITERAL ;
+terminal String     ID ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+/* Terminals used exclusively to give unary_expr a lower precedence
+   when compared to other expressions.
+*/
+terminal UNARY ;
+precedence nonassoc  UNARY ;
+
+/* Associativity is controlled by the grammar.
+   No need to make it left.
+*/
+precedence nonassoc  IMPLIES,
+                     QUESTION,
+                     NOT,
+                     OR,
+                     AND,
+                     BT_OR,
+                     BT_AND,
+                     BT_XOR,
+                     EQ,
+                     NEQ,
+                     LT,
+                     LTEQ,
+                     GT,
+                     GTEQ,
+                     BT_LEFT,
+                     BT_RIGHT,
+                     PLUS, MINUS,
+                     DOT,
+                     TIMES,
+                     DIVIDE,
+                     MOD ;
+
+/*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+
+cdl ::=
+    feature_list_opt:list
+    {: RESULT = list ; :}
+    ;
+
+feature_list_opt ::=
+    /* lambda */
+    {: RESULT = null ; :}
+
+ |  feature_list:list
+    {: RESULT = list ; :}
+ ;
+
+feature_list ::=
+    feature:f
+    {:
+       List<Feature> list = new LinkedList<Feature>() ;
+       list.add(f) ;
+       RESULT = list ;
+    :}
+
+ |  feature_list:list feature:f
+    {: list.add(f); RESULT = list ; :}
+ ;
+
+feature ::=
+    feature_type:type ID:id
+    LBRACE
+       display_opt:display
+       constraint_list_opt:constraints
+       flavor_opt:flavor
+       description_opt:description
+       feature_list_opt:subfeatures
+    RBRACE
+    {:
+       List<ActiveIfConstraint> activeIfs           = new LinkedList<ActiveIfConstraint>() ;
+       List<RequiresConstraint> requires            = new LinkedList<RequiresConstraint>() ;
+       List<ImplementsConstraint> impls             = new LinkedList<ImplementsConstraint>() ;
+
+       CalculatedConstraint calculated              = null ;
+       DefaultValueConstraint defaultValue          = null ;
+       LegalValuesConstraint legalValues            = null ;
+
+       if (! CollectionsUtils.isEmpty(constraints))
+        for(ImlConstraint constraint : constraints) {
+            if (constraint instanceof CalculatedConstraint) {
+
+                if (calculated != null)
+                  throw new RuntimeException("Error in feature " + id + ": can have at most one calculated constraint clause!") ;
+
+                calculated = (CalculatedConstraint) constraint ;
+                continue ;
+            }
+
+            if (constraint instanceof DefaultValueConstraint) {
+
+                if (defaultValue != null)
+                  throw new RuntimeException("Error in feature " + id + ": can have at most one default_values constraint clause!") ;
+
+                defaultValue = (DefaultValueConstraint) constraint ;
+                continue ;
+            }
+
+            if (constraint instanceof LegalValuesConstraint) {
+
+                 if (legalValues != null)
+                     throw new RuntimeException("Error in feature " + id + ": can have at most one legal_values constraint clause!") ;
+
+                legalValues = (LegalValuesConstraint) constraint ;
+                continue ;
+            }
+
+            if (constraint instanceof ImplementsConstraint) {
+                impls.add((ImplementsConstraint) constraint) ;
+                continue ;
+            }
+
+            if (constraint instanceof RequiresConstraint) {
+                requires.add((RequiresConstraint) constraint) ;
+                continue ;
+            }
+
+            if (constraint instanceof ActiveIfConstraint) {
+                activeIfs.add((ActiveIfConstraint) constraint) ;
+                continue ;
+            }
+        }
+
+        if (activeIfs.size() == 0)
+           activeIfs = null ;
+
+        if (requires.size() == 0)
+           requires = null ;
+
+        if (impls.size() == 0)
+           impls = null ;
+
+        if (flavor == null) {
+           if ((type instanceof ComponentFeatureType) ||
+               (type instanceof OptionFeatureType))
+              flavor = BoolFlavor.getInstance() ;
+
+           else if (type instanceof InterfaceFeatureType)
+              flavor = DataFlavor.getInstance() ;
+
+           else // type instanceof PackageFeatureType
+              flavor = BoolDataFlavor.getInstance() ;
+        }
+
+        RESULT =
+            new Feature(type,
+                        id,
+                        display,
+                        description,
+                        flavor,
+                        defaultValue,
+                        calculated,
+                        legalValues,
+                        requires,
+                        activeIfs,
+                        impls,
+                        subfeatures) ;
+    :}
+    ;
+
+feature_type ::=
+    OPTION
+    {: RESULT = OptionFeatureType.getInstance() ; :}
+
+ |  COMPONENT
+    {: RESULT = ComponentFeatureType.getInstance() ; :}
+
+ |  PACKAGE
+    {: RESULT = PackageFeatureType.getInstance() ; :}
+
+ |  INTERFACE
+    {: RESULT = InterfaceFeatureType.getInstance() ; :}
+ ;
+
+
+display_opt ::=
+    /* lambda */
+    {: RESULT = null ; :}
+
+ |  DISPLAY STRING_LITERAL:display
+    {: RESULT = display ; :}
+ ;
+
+constraint_list_opt ::=
+    /* lambda */
+   {: RESULT = null ; :}
+
+ |  constraint_list:list
+    {: RESULT = list ; :}
+ ;
+
+constraint_list ::=
+    constraint:c
+    {: 
+       List<ImlConstraint> list = new LinkedList<ImlConstraint>() ;
+       list.add(c) ;
+       RESULT = list ;
+    :}
+
+ |  constraint_list:list constraint:c
+    {: list.add(c); RESULT = list ; :}
+ ;
+
+flavor_opt ::=
+    /* lambda */
+    {: RESULT = null ; :}
+
+ |  FLAVOR flavor:f
+    {: RESULT = f ; :}
+ ;
+
+description_opt ::=
+    /* lambda */
+    {: RESULT = null ; :}
+
+ |  DESCRIPTION STRING_LITERAL:desc
+    {: RESULT = desc ; :}
+ ;
+
+flavor ::=
+    NONE
+    {: RESULT = NoneFlavor.getInstance() ; :}
+
+ |  DATA
+    {: RESULT = DataFlavor.getInstance() ; :}
+
+ |  BOOL
+    {: RESULT = BoolFlavor.getInstance() ; :}
+
+ |  BOOLDATA
+    {: RESULT = BoolDataFlavor.getInstance() ; :}
+ ;
+
+constraint ::=
+    default_value_constraint:defaultValueConstraint
+    {: RESULT = defaultValueConstraint ; :}
+
+ |  active_if_constraint:activeIfConstraint
+    {: RESULT = activeIfConstraint ; :}
+
+ |  requires_constraint:requiresConstraint
+    {: RESULT = requiresConstraint ; :}
+
+ |  calculated_constraint:calculatedConstraint
+    {: RESULT = calculatedConstraint ; :}
+
+ |  implements_constraint:implementsConstraint
+    {: RESULT = implementsConstraint ; :}
+
+ |  legal_values_constraint:legalValuesConstraint
+    {: RESULT = legalValuesConstraint ; :}
+ ;
+
+default_value_constraint ::=
+    DEFAULT_VALUE LBRACK minus_minus_opt expr:e RBRACK
+    {: RESULT = new DefaultValueConstraint(e) ; :}
+    ;
+
+active_if_constraint ::=
+    ACTIVE_IF LBRACK expr_mm_list:list RBRACK
+    {:
+        RESULT = new ActiveIfConstraint(CollectionsUtils.foldRight
+            (list,
+             new Function<Expression, Expression>() {
+                public Expression apply(Expression arg1, Expression arg2) {
+                  return new AndExpression(arg1, arg2) ;
+                }
+             })) ;
+    :}
+    ;
+
+requires_constraint ::=
+    REQUIRES LBRACK expr_mm_list:list RBRACK
+    {:
+        RESULT = new RequiresConstraint(CollectionsUtils.foldRight
+            (list,
+             new Function<Expression, Expression>() {
+                public Expression apply(Expression arg1, Expression arg2) {
+                  return new AndExpression(arg1, arg2) ;
+                }
+             })) ;
+    :}
+    ;
+
+calculated_constraint ::=
+    CALCULATED LBRACK expr:e RBRACK
+    {: RESULT = new CalculatedConstraint(e) ; ; :}
+    ;
+
+implements_constraint ::=
+    IMPLEMENTS LBRACK ID:id RBRACK
+    {: RESULT = new ImplementsConstraint(new IdentifierExpression(id)) ; :}
+    ;
+
+legal_values_constraint ::=
+    LEGAL_VALUES LBRACK domain:list RBRACK
+    {: RESULT = new LegalValuesConstraint(list) ; :}
+    ;
+
+domain ::=
+    minus_minus_opt expr:from TO expr:to
+    {: RESULT = Arrays.asList((Expression) new IntervalExpression(from, to)) ; :}
+
+ |  expr_mm_list:list
+    {: RESULT = list ; :}
+ ;
+
+expr_mm_list ::=
+    minus_minus_opt expr:e
+    {:
+       List<Expression> list = new LinkedList<Expression>() ;
+       list.add(e) ;
+       RESULT = list ;
+    :}
+
+ |  expr_mm_list:list minus_minus_opt expr:e
+    {:
+       list.add(e) ;
+       RESULT = list ;
+    :}
+ ;
+
+minus_minus_opt ::=
+    /* lambda */
+ |  MINUS_MINUS
+ ;
+
+expr ::=
+    conditional_expr:conditionalExp
+    {: RESULT = conditionalExp ; :}
+    ;
+
+conditional_expr ::=
+    implies_expr:cond QUESTION conditional_expr:pass COLON conditional_expr:fail
+    {: RESULT = new ConditionalExpression(cond, pass, fail) ; :}
+
+ |  implies_expr:impliesExp
+    {: RESULT = impliesExp ; :}
+ ;
+
+implies_expr ::=
+    implies_expr:e1 IMPLIES or_expr:e2
+    {: RESULT = new ImpliesExpression(e1, e2) ; :}
+
+ |  or_expr:orExp
+    {: RESULT = orExp ; :}
+ ;
+
+or_expr ::=
+    or_expr:e1 OR and_expr:e2
+    {: RESULT = new OrExpression(e1, e2) ; :}
+
+ |  and_expr:andExpression
+    {: RESULT = andExpression ; :}
+ ;
+
+and_expr ::=
+    and_expr:e1 AND btor_expr:e2
+    {: RESULT = new AndExpression(e1, e2) ; :}
+
+ |  btor_expr:bitwiseOrExp
+    {: RESULT = bitwiseOrExp ; :}
+ ;
+
+btor_expr ::=
+    btor_expr:e1 BT_OR bt_xor_expr:e2
+    {: RESULT = new BitwiseOrExpression(e1, e2) ; :}
+
+ |  bt_xor_expr:bitwiseXorExp
+    {: RESULT = bitwiseXorExp ; :}
+ ;
+
+bt_xor_expr ::=
+    bt_xor_expr:e1 BT_XOR bt_and_expr:e2
+    {: RESULT = new BitwiseXorExpression(e1, e2) ; :}
+
+ |  bt_and_expr:bitwiseAndExp
+    {: RESULT = bitwiseAndExp ; :}
+ ;
+
+bt_and_expr ::=
+    bt_and_expr:e1 BT_AND equality_expr:e2
+    {: RESULT = new BitwiseAndExpression(e1, e2) ; :}
+
+ |  equality_expr:equalityExp
+    {: RESULT = equalityExp ; :}
+
+ ;
+
+equality_expr ::=
+    equality_expr:eqE1 EQ  relational_expr:eqE2
+    {: RESULT = new EqualExpression(eqE1, eqE2); :}
+
+ |  equality_expr:nEq1 NEQ relational_expr:nEq2
+    {: RESULT = new NotEqualExpression(nEq1, nEq2); :}
+
+ |  relational_expr:relationalExp
+    {: RESULT = relationalExp ; :}
+ ;
+
+relational_expr ::=
+    relational_expr:ltE1 LT   bt_shift_expr:ltE2
+    {: RESULT = new LessThanExpression(ltE1, ltE2); :}
+
+ |  relational_expr:lteE1 LTEQ bt_shift_expr:lteE2
+    {: RESULT = new LessThanEqualExpression(lteE1, lteE2); :}
+
+ |  relational_expr:gtE1 GT   bt_shift_expr:gtE2
+    {: RESULT = new GreaterThanExpression(gtE1, gtE2); :}
+
+ |  relational_expr:gteE1 GTEQ bt_shift_expr:gteE2
+    {: RESULT = new GreaterThanEqualExpression(gteE1, gteE2); :}
+
+ |  bt_shift_expr:bitwiseShiftExp
+    {: RESULT = bitwiseShiftExp ; :}
+ ;
+
+bt_shift_expr ::=
+    bt_shift_expr:btlE1 BT_LEFT additive_expr:btlE2
+    {: RESULT = new BitwiseLeftShiftExpression(btlE1, btlE2); :}
+
+ |  bt_shift_expr:btrE1 BT_RIGHT additive_expr:btrE2
+    {: RESULT = new BitwiseRightShiftExpression(btrE1, btrE2); :}
+
+ |  additive_expr:additiveExp
+    {: RESULT = additiveExp ; :}
+ ;
+
+additive_expr ::=
+    additive_expr:pE1 PLUS multiplicative_expr:pE2
+    {: RESULT = new PlusExpression(pE1, pE2) ; :}
+
+ |  additive_expr:mE1 MINUS multiplicative_expr:mE2
+    {: RESULT = new MinusExpression(mE1, mE2) ; :}
+
+ |  additive_expr:dE1 DOT multiplicative_expr:dE2
+    {: RESULT = new DotExpression(dE1, dE2) ; :}
+
+ |  multiplicative_expr:multiplicativeExp
+    {: RESULT = multiplicativeExp ; :}
+ ;
+
+multiplicative_expr ::=
+    multiplicative_expr:tE1 TIMES unary_expr:tE2
+    {: RESULT = new TimesExpression(tE1, tE2) ; :}
+
+ |  multiplicative_expr:dE1 DIVIDE unary_expr:dE2
+    {: RESULT = new DivideExpression(dE1, dE2) ; :}
+
+ |  multiplicative_expr:mE1 MOD unary_expr:mE2
+    {: RESULT = new ModExpression(mE1, mE2) ; :}
+
+ |  unary_expr:unaryExp
+    {: RESULT = unaryExp ; :}
+ ;
+
+unary_expr ::=
+    PLUS  unary_expr:e
+    {: RESULT = e ; :}
+    %prec UNARY
+
+ |  MINUS unary_expr:e
+    {:
+        if (e instanceof LongLiteralExpression) {
+           LongLiteralExpression value = (LongLiteralExpression) e ;
+           RESULT = new LongLiteralExpression(-1 * value.get()) ;
+        }
+        else if (e instanceof DoubleLiteralExpression) {
+           DoubleLiteralExpression value = (DoubleLiteralExpression) e ;
+           RESULT = new DoubleLiteralExpression(-1 * value.get()) ;
+        }
+        else
+          RESULT = new MinusExpression(new LongLiteralExpression(0L), e) ;
+    :}
+    %prec UNARY
+
+ |  NOT unary_expr:unaryExp
+    {: RESULT = new NotExpression(unaryExp) ; :}
+
+ |  primary_expr:primaryExp
+    {: RESULT = primaryExp ; :}
+ ;
+
+primary_expr ::=
+    function_call_expr:functionCallExp
+    {: RESULT = functionCallExp ; :}
+
+ |  parenthesized_expr:parenthesizedExp
+    {: RESULT = parenthesizedExp ; :}
+
+ |  atomic_expr:atomicExp
+    {: RESULT = atomicExp ; :}
+ ;
+
+function_call_expr ::=
+    IS_SUBSTRING LPAR expr:e1 COMMA expr:e2 RPAR
+    {: RESULT = new IsSubstringFunctionCallExpression(e1, e2) ; :}
+
+ |  IS_ACTIVE LPAR expr:e RPAR
+    {: RESULT = new IsActiveFunctionCallExpression(e) ; :}
+
+ |  IS_ENABLED LPAR expr:e RPAR
+    {: RESULT = new IsEnabledFunctionCallExpression(e) ; :}
+
+ |  BOOL LPAR expr:e RPAR
+    {: RESULT = new BooleanFunctionCallExpression(e) ; :}
+
+ |  IS_LOADED LPAR expr:e RPAR
+    {: RESULT = new IsLoadedFunctionCallExpression(e) ; :}
+ ;
+
+parenthesized_expr ::=
+    LPAR expr:e RPAR
+    {: RESULT = e ; :}
+    ;
+
+atomic_expr ::=
+    DOUBLE_FLOATING_POINT_LITERAL:value
+    {: RESULT = new DoubleLiteralExpression(value) ; :}
+
+ |  LONG_LITERAL:value
+    {: RESULT = new LongLiteralExpression(value) ; :}
+
+ |  STRING_LITERAL:value
+    {: RESULT = new StringLiteralExpression(value) ; :}
+
+ |  ID:id
+    {: RESULT = new IdentifierExpression(id) ; :}
+ ;

@@ -1,0 +1,4 @@
+  option A{
+      display "a option to test"
+      default_value [1 ]
+  }  

@@ -1,0 +1,84 @@
+%define package "ca.uwaterloo.gsd.rangeFix"
+%define parser_class_name "ImlParser"
+%define public
+%file-prefix "ImlParser"
+%locations
+
+ 
+%code imports{
+  import java.io.*;
+  import java.util.*;
+  import scala.*;
+}
+
+%code
+{
+  private List<PackageRef> _packageRefs = new LinkedList<PackageRef>();
+  private Map<String, OptionValue> _values = new HashMap<String, OptionValue>();
+  
+  public EccFile parsedFile() {
+    return new EccFile(_packageRefs, _values);
+  }  
+  
+  public Collection<CompileError> errors() {
+	return ((EccLexer)yylexer)._allErrors;
+  }
+  
+  private boolean isInteger(String t) {
+	for (int i = 0; i < t.length(); i++) {
+		char c = t.charAt(i);
+		if (c > '9' || c < '0') return false;
+	}
+	return true;
+  }
+  
+}
+
+      
+%define stype "Object"
+%token <Token>  COMPONENT INTERFACE OPTION PACKAGE DISPLAY REQUIRES ACTIVEIF FLAVOR LEGALVALUES IMPLEMENTS NONE BOOL BOOLDATA DATA CALCULATED DEFAULT DESCRIPTION 
+%token <Token> TO NEQ
+%token <Token> ID STRING 
+
+%type <OptionValue> optional_value
+%type <SingleOptionValue> single_value
+%type <OptionValue> prefixed_value
+
+%%
+
+imlFile : nodes
+nodes : | nodes node
+node : cdl_type ID '{' 
+	optional_display
+	attributes
+	optional_flavor
+	optional_description
+	nodes '}'
+	
+optional_display : | DISPLAY STRING
+
+attributes : | attributes attribute
+
+attribute : default_value | active_if | req | calculated | implements | legal_values
+
+default_value : DEFAULTVALUE '[' expr ']' 
+active_if : ACTIVEIF '[' expr ']'
+req : REQUIRES '[' expr ']'
+calculated : CALCULATED '[' expr ']'
+implements : IMPLEMENTS '[' ID ']'
+legal_values : LEGALVALUES '[' ranges ']'
+ranges : expr | expr TO expr
+
+optional_flavor : FLAVOR flavor_type
+flavor_type : NONE | BOOL | BOOLDATA | DATA
+
+optional_descritpion : DESCRIPTION STRING
+
+expr : cond_expr
+cond_expr : or_expr | or_expr '?' cond_expr ':' cond_expr
+or_expr : and_expr | and_expr '|' or_expr
+and_expr : eq_expr | eq_expr '&' and_expr
+eq_expr : neg_expr | neg_expr '=' neg_expr
+neg_expr : 
+	
+%%

@@ -1,0 +1,143 @@
+CYGBLD_GLOBAL_CFLAGS
+>     # No user value
+<     user_value "-Wall -Wpointer-arith -Wstrict-prototypes -Winline -Wundef -Woverloaded-virtual -Os -mh -mint32 -fsigned-char -fdata-sections -fno-rtti -fno-exceptions -fvtable-gc -finit-priority"
+
+CYG_HAL_STARTUP
+>     # No user value
+<     user_value RAM
+
+CYGPKG_IO_ETH_DRIVERS_STAND_ALONE
+>     # No user value
+<     user_value 0
+
+CYGBLD_MEMALLOC_MALLOC_IMPLEMENTATION_HEADER
+>     # value_source default
+<     inferred_value <cyg/memalloc/memvar.hxx>
+
+CYGIMP_MEMALLOC_MALLOC_VARIABLE_SIMPLE
+>     # value_source default
+<     inferred_value 1
+
+CYGIMP_MEMALLOC_MALLOC_DLMALLOC
+>     # value_source default
+<     inferred_value 0
+
+CYGNUM_MEMALLOC_FALLBACK_MALLOC_POOL_SIZE
+>     # No user value
+<     user_value 0x100000
+
+CYGBLD_ISO_CTYPE_HEADER
+>     user_value 1 <cyg/libc/i18n/ctype.inl>
+<     inferred_value 1 <cyg/libc/i18n/ctype.inl>
+
+CYGBLD_ISO_ERRNO_CODES_HEADER
+>     user_value 1 <cyg/error/codes.h>
+<     inferred_value 1 <cyg/error/codes.h>
+
+CYGBLD_ISO_ERRNO_HEADER
+>     user_value 1 <cyg/error/errno.h>
+<     inferred_value 1 <cyg/error/errno.h>
+
+CYGBLD_ISO_STDIO_FILETYPES_HEADER
+>     user_value 1 <cyg/libc/stdio/stdio.h>
+<     inferred_value 1 <cyg/libc/stdio/stdio.h>
+
+CYGBLD_ISO_STDIO_STREAMS_HEADER
+>     user_value 1 <cyg/libc/stdio/stdio.h>
+<     inferred_value 1 <cyg/libc/stdio/stdio.h>
+
+CYGBLD_ISO_STDIO_FILEOPS_HEADER
+>     user_value 1 <cyg/libc/stdio/stdio.h>
+<     inferred_value 1 <cyg/libc/stdio/stdio.h>
+
+CYGBLD_ISO_STDIO_FILEACCESS_HEADER
+>     user_value 1 <cyg/libc/stdio/stdio.h>
+<     inferred_value 1 <cyg/libc/stdio/stdio.h>
+
+CYGBLD_ISO_STDIO_FORMATTED_IO_HEADER
+>     user_value 1 <cyg/libc/stdio/stdio.h>
+<     inferred_value 1 <cyg/libc/stdio/stdio.h>
+
+CYGBLD_ISO_STDIO_CHAR_IO_HEADER
+>     user_value 1 <cyg/libc/stdio/stdio.h>
+<     inferred_value 1 <cyg/libc/stdio/stdio.h>
+
+CYGBLD_ISO_STDIO_DIRECT_IO_HEADER
+>     user_value 1 <cyg/libc/stdio/stdio.h>
+<     inferred_value 1 <cyg/libc/stdio/stdio.h>
+
+CYGBLD_ISO_STDIO_FILEPOS_HEADER
+>     user_value 1 <cyg/libc/stdio/stdio.h>
+<     inferred_value 1 <cyg/libc/stdio/stdio.h>
+
+CYGBLD_ISO_STDIO_ERROR_HEADER
+>     user_value 1 <cyg/libc/stdio/stdio.h>
+<     inferred_value 1 <cyg/libc/stdio/stdio.h>
+
+CYGBLD_ISO_STDLIB_STRCONV_HEADER
+>     user_value 1 <cyg/libc/stdlib/atox.inl>
+<     inferred_value 1 <cyg/libc/stdlib/atox.inl>
+
+CYGBLD_ISO_STDLIB_ABS_HEADER
+>     user_value 1 <cyg/libc/stdlib/abs.inl>
+<     inferred_value 1 <cyg/libc/stdlib/abs.inl>
+
+CYGBLD_ISO_STDLIB_DIV_HEADER
+>     user_value 1 <cyg/libc/stdlib/div.inl>
+<     inferred_value 1 <cyg/libc/stdlib/div.inl>
+
+CYGBLD_ISO_STRERROR_HEADER
+>     user_value 1 <cyg/error/strerror.h>
+<     inferred_value 1 <cyg/error/strerror.h>
+
+CYGBLD_ISO_STRTOK_R_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_STRING_LOCALE_FUNCS_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_STRING_BSD_FUNCS_HEADER
+>     user_value 1 <cyg/libc/string/bsdstring.h>
+<     inferred_value 1 <cyg/libc/string/bsdstring.h>
+
+CYGBLD_ISO_STRING_MEMFUNCS_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_STRING_STRFUNCS_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_C_TIME_TYPES_HEADER
+>     user_value 1 <cyg/libc/time/time.h>
+<     inferred_value 1 <cyg/libc/time/time.h>
+
+CYGBLD_ISO_C_CLOCK_FUNCS_HEADER
+>     user_value 1 <cyg/libc/time/time.h>
+<     inferred_value 1 <cyg/libc/time/time.h>
+
+CYGBLD_ISO_SIGNAL_NUMBERS_HEADER
+>     user_value 1 <cyg/libc/signals/signal.h>
+<     inferred_value 1 <cyg/libc/signals/signal.h>
+
+CYGBLD_ISO_SIGNAL_IMPL_HEADER
+>     user_value 1 <cyg/libc/signals/signal.h>
+<     inferred_value 1 <cyg/libc/signals/signal.h>
+
+CYGBLD_ISO_SETJMP_HEADER
+>     user_value 1 <cyg/libc/setjmp/setjmp.h>
+<     inferred_value 1 <cyg/libc/setjmp/setjmp.h>
+
+CYGPKG_LWIP_DHCP
+>     # No user value
+<     user_value 1
+
+CYGFUN_LWIP_LOOPIF
+>     # No user value
+<     user_value 0
+
+CYGFUN_LWIP_RAW
+>     # No user value
+<     user_value 0

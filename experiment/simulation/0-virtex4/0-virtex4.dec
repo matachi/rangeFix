@@ -1,0 +1,195 @@
+CYGBLD_GLOBAL_CFLAGS
+>     # No user value (old)
+<     user_value "-I\$(HW_DESIGN)/include -I\$(RECONOS)/core/ecos/include -I\$(HW_DESIGN)/ppc405_0/include -I\$(ECOS_EXTRA) -DVIRTEX4 -DVIRTEX4 -msoft-float -mcpu=405 -Wall -Wpointer-arith -Wstrict-prototypes -Winline -Wundef -Woverloaded-virtual -g -O2 -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions -fvtable-gc -D__XUP__ -D__RECONOS__" (new)
+
+CYGBLD_GLOBAL_LDFLAGS
+>     # No user value
+<     user_value "-msoft-float -mcpu=405 -g -nostdlib -Wl,--gc-sections -Wl,-static"
+
+CYGHWR_HAL_POWERPC_PPC405_IO
+>     # No user value
+<     user_value 1
+
+CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD
+>     # No user value
+<     user_value 57600
+
+CYGHWR_HAL_VIRTEX_BOARD
+>     # No user value
+<     user_value XUP
+
+MNDHWR_VIRTEX4_CHARLCD
+>     user_value 1
+<     user_value 0
+
+MNDHWR_VIRTEX4_UART
+>     # No user value
+<     user_value 1
+
+MNDHWR_VIRTEX4_EMAC
+>     # No user value
+<     user_value 1
+
+MNDHWR_VIRTEX4_PS21
+>     # No user value
+<     user_value 0
+
+MNDHWR_VIRTEX4_TFT
+>     # No user value
+<     user_value 0
+
+UPBHWR_VIRTEX4_GPIOINTR
+>     # No user value
+<     user_value 0
+
+UPBHWR_VIRTEX4_RECONOS
+>     # No user value
+<     user_value 1
+
+UPBHWR_VIRTEX4_RECONOS_INTR
+>     # This option is not active
+<     user_value 1
+
+UPBDBG_VIRTEX4_RECONOS_OSIFPROFILE
+>     # This option is not active
+<     user_value 0
+
+CYGSEM_VIRTEX4_LCD_SUPPORT
+>     # No user value
+<     user_value 0
+
+CYGSEM_VIRTEX4_LCD_COMM
+>     # No user value
+<     user_value 0
+
+CYGSEM_VIRTEX4_GPIO_SUPPORT
+>     # No user value
+<     user_value 0
+
+CYGSEM_VIRTEX4_GPIO_CHAR_LCD
+>     # No user value
+<     user_value 0
+
+CYGDBG_IO_ETH_DRIVERS_DEBUG_VERBOSITY
+>     # No user value
+<     user_value 0
+
+CYGHWR_DEVS_ETH_PHY_DP83865
+>     # No user value
+<     user_value 1
+
+CYGHWR_DEVS_ETH_PHY_VIRTEX4
+>     # No user value
+<     user_value 0
+
+CYGHWR_DEVS_ETH_PHY_INLXT972
+>     # No user value
+<     user_value 0
+
+CYGPKG_INFRA_DEBUG
+>     # No user value
+<     user_value 1
+
+CYGDBG_USE_TRACING
+>     # No user value
+<     user_value 1
+
+CYGDAT_LIBC_STDIO_DEFAULT_CONSOLE
+>     # No user value
+<     user_value "\"/dev/ttydiag\""
+
+CYGPKG_NET_TFTP
+>     # No user value
+<     user_value 1
+
+CYGPKG_NET_DEBUG
+>     # No user value
+<     user_value 1
+
+CYGHWR_NET_DRIVER_ETH0_MANUAL
+>     # This option is not active
+<     user_value 0
+
+CYGHWR_NET_DRIVER_ETH0_BOOTP
+>     # This option is not active
+<     user_value 0
+
+CYGHWR_NET_DRIVER_ETH0_ADDRS
+>     # This option is not active
+<     user_value 1
+
+CYGHWR_NET_DRIVER_ETH0_ADDRS_IP
+>     # This option is not active
+<     user_value 192.168.1.7
+
+CYGHWR_NET_DRIVER_ETH0_ADDRS_BROADCAST
+>     # This option is not active
+<     user_value 192.168.1.255
+
+CYGPKG_NET_FORCE_SERIAL_CONSOLE
+>     # No user value
+<     user_value 1
+
+CYGPKG_NET_MEM_USAGE
+>     # No user value
+<     user_value 278528
+
+CYGPKG_NET_MEMPOOL_SIZE
+>     # No user value
+<     user_value 69632
+
+UPBFUN_RECONOS_HWTHREADS
+>     user_value 0
+<     user_value 1
+
+UPBDBG_RECONOS_DEBUG
+>     # This option is not active
+<     user_value 0
+
+UPBFUN_RECONOS_POSIX
+>     # This option is not active
+<     user_value 1
+
+UPBFUN_RECONOS_PARTIAL
+>     # This option is not active
+<     user_value 1
+
+UPBFUN_RECONOS_CHECK_HWTHREAD_SIGNATURE
+>     # This option is not active
+<     user_value 1
+
+UPBFUN_RECONOS_ECAP_NET
+>     # This option is not active
+<     user_value 1
+
+UPBFUN_RECONOS_ECAP_HOST
+>     # This option is not active
+<     user_value 192.168.1.101
+
+UPBFUN_RECONOS_ECAP_PORT
+>     # This option is not active
+<     user_value 42424
+
+CYGPKG_IO_SERIAL_TTY
+>     # No user value
+<     user_value 1
+
+CYGPKG_IO_SERIAL_TTY_TTY0
+>     # No user value
+<     user_value 0
+
+CYGPKG_IO_SERIAL_TERMIOS
+>     # No user value
+<     user_value 0
+
+CYGPKG_IO_SERIAL_DEVICES
+>     # No user value
+<     user_value 0
+
+CYGNUM_IO_SERIAL_POWERPC_VIRTEX4_SERIAL0_BAUD
+>     # No user value
+<     user_value 57600
+
+CYGBLD_IO_SERIAL_EXTRA_TESTS
+>     # No user value
+<     user_value 0

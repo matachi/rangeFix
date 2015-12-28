@@ -1,0 +1,928 @@
+# eCos saved configuration
+
+# ---- commands --------------------------------------------------------
+# This section contains information about the savefile format.
+# It should not be edited. Any modifications made to this section
+# may make it impossible for the configuration tools to read
+# the savefile.
+
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+# ---- toplevel --------------------------------------------------------
+# This section defines the toplevel configuration object. The only
+# values that can be changed are the name of the configuration and
+# the description field. It is not possible to modify the target,
+# the template or the set of packages simply by editing the lines
+# below because these changes have wide-ranging effects. Instead
+# the appropriate tools should be used to make such modifications.
+
+cdl_configuration eCos {
+    description "" ;
+
+    # These fields should not be modified.
+    hardware    x86 ;
+    template    all ;
+    package -hardware PC v3_0 ;
+};
+
+# ---- conflicts -------------------------------------------------------
+# There are 4 conflicts.
+#
+# option DISK2
+#   Property Requires
+#   "requires" constraint not satisfied:  DISK2 > 0 
+#
+# option DISK3
+#   Property Requires
+#   "requires" constraint not satisfied:  DISK3 > 0 
+#
+# option DISK4
+#   Property Requires
+#   "requires" constraint not satisfied:  DISK4 > 0 
+#
+# option RAID5
+#   Property Requires
+#   "requires" constraint not satisfied:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+
+
+# ---- contents --------------------------------------------------------
+# >
+# Personal computer
+#
+cdl_package PC {
+    # Packages cannot be added or removed, nor can their version be changed,
+    # simply by editing their value. Instead the appropriate configuration
+    # should be used to perform these actions.
+
+    # This value cannot be modified here.
+    # Flavor: booldata
+    # Current value: 1 v3_0
+};
+
+# >
+# Operating System
+#
+cdl_component OS {
+    # There is no associated value.
+    # Requires:  NUMBER_OF_DISKS > 0 
+    #     NUMBER_OF_DISKS == 4
+    #   --> 1
+};
+
+# >
+# Server
+#
+cdl_component SERVER {
+    # Flavor: bool
+    user_value 1
+    # value_source user
+    # Default value: 0
+    # Requires:  RAID 
+    #     RAID == 1
+    #   --> 1
+    # Requires:  MEMORY >= 4 
+    #     MEMORY == 4
+    #   --> 1
+    # Requires:  ! GNOME 
+    #     GNOME == 0
+    #   --> 1
+};
+
+# >
+# Ubuntu server 10.04 (32 bits)
+#
+cdl_option UBUNTU_SERVER_10_04x32 {
+    # Flavor: bool
+    user_value 0
+    # value_source user
+    # Default value: 1
+    # Requires:  ! SEPARATE_DIES 
+    #     SEPARATE_DIES (unknown) == 0
+    #   --> 1
+    # Requires:  CPU_CLOCK >= 2000 
+    #     CPU_CLOCK == 2000
+    #   --> 1
+};
+
+# Ubuntu server 11.10 (32 bits)
+#
+cdl_option UBUNTU_SERVER_11_10x32 {
+    # Flavor: bool
+    user_value 1
+    # value_source user
+    # Default value: 0
+    # Requires:  ! SEPARATE_DIES 
+    #     SEPARATE_DIES (unknown) == 0
+    #   --> 1
+    # Requires:  CPU_CLOCK >= 2000 
+    #     CPU_CLOCK == 2000
+    #   --> 1
+};
+
+# Ubuntu server 10.04 (64 bits)
+#
+cdl_option UBUNTU_SERVER_10_04x64 {
+    # Flavor: bool
+    user_value 0
+    # value_source user
+    # Default value: 0
+    # Requires:  SEPARATE_DIES 
+    #     SEPARATE_DIES (unknown) == 0
+    #   --> 0
+    # Requires:  CPU_CLOCK >= 1000 
+    #     CPU_CLOCK == 2000
+    #   --> 1
+};
+
+# Ubuntu server 11.10 (64 bits)
+#
+cdl_option UBUNTU_SERVER_11_10x64 {
+    # Flavor: bool
+    user_value 0
+    # value_source user
+    # Default value: 0
+    # Requires:  SEPARATE_DIES 
+    #     SEPARATE_DIES (unknown) == 0
+    #   --> 0
+    # Requires:  CPU_CLOCK >= 1000 
+    #     CPU_CLOCK == 2000
+    #   --> 1
+};
+
+#
+cdl_interface OS_SERVER {
+    # Implemented by UBUNTU_SERVER_10_04x32, active, disabled
+    # Implemented by UBUNTU_SERVER_11_10x32, active, enabled
+    # Implemented by UBUNTU_SERVER_10_04x64, active, disabled
+    # Implemented by UBUNTU_SERVER_11_10x64, active, disabled
+    # This value cannot be modified here.
+    # Flavor: data
+    # Current_value: 1
+    # Requires: OS_SERVER == 1
+    #     OS_SERVER == 1
+    #   --> 1
+
+    # The following properties are affected by this value
+    # interface OS_SERVER
+    #     Requires: OS_SERVER == 1
+};
+
+# <
+# Desktop
+#
+cdl_component DESKTOP {
+    # Flavor: bool
+    user_value 0
+    # value_source user
+    # Default value: 1
+};
+
+# >
+# Ubuntu desktop 10.04 (32 bits)
+#
+cdl_option UBUNTU_DESKTOP_10_04x32 {
+    # This option is not active
+    # The parent DESKTOP is disabled
+
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 1
+    # value_source default
+    # Default value: 1
+    # Requires:  ! SEPARATE_DIES  
+    #     SEPARATE_DIES (unknown) == 0
+    #   --> 1
+    # Requires:  CPU_CLOCK >= 1500 
+    #     CPU_CLOCK == 2000
+    #   --> 1
+};
+
+# Ubuntu desktop 11.10 (32 bits)
+#
+cdl_option UBUNTU_DESKTOP_11_10x32 {
+    # This option is not active
+    # The parent DESKTOP is disabled
+
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+    # Requires:  ! SEPARATE_DIES  
+    #     SEPARATE_DIES (unknown) == 0
+    #   --> 1
+    # Requires:  CPU_CLOCK >= 1500 
+    #     CPU_CLOCK == 2000
+    #   --> 1
+};
+
+# Ubuntu desktop 10.04 (64 bits)
+#
+cdl_option UBUNTU_DESKTOP_10_04x64 {
+    # This option is not active
+    # The parent DESKTOP is disabled
+
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+    # Requires:  SEPARATE_DIES  
+    #     SEPARATE_DIES (unknown) == 0
+    #   --> 0
+    # Requires:  CPU_CLOCK >= 1000 
+    #     CPU_CLOCK == 2000
+    #   --> 1
+};
+
+# Ubuntu desktop 11.10 (64 bits)
+#
+cdl_option UBUNTU_DESKTOP_11_10x64 {
+    # This option is not active
+    # The parent DESKTOP is disabled
+
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+    # Requires:  SEPARATE_DIES  
+    #     SEPARATE_DIES (unknown) == 0
+    #   --> 0
+    # Requires:  CPU_CLOCK >= 1000 
+    #     CPU_CLOCK == 2000
+    #   --> 1
+};
+
+#
+cdl_interface OS_DESKTOP {
+    # Implemented by UBUNTU_DESKTOP_10_04x32, inactive, enabled
+    # Implemented by UBUNTU_DESKTOP_11_10x32, inactive, disabled
+    # Implemented by UBUNTU_DESKTOP_10_04x64, inactive, disabled
+    # Implemented by UBUNTU_DESKTOP_11_10x64, inactive, disabled
+    # This option is not active
+    # The parent DESKTOP is disabled
+
+    # This value cannot be modified here.
+    # Flavor: data
+    # Current_value: 0
+    # Requires: OS_DESKTOP == 1
+    #     OS_DESKTOP == 0
+    #   --> 0
+
+    # The following properties are affected by this value
+    # interface OS_DESKTOP
+    #     Requires: OS_DESKTOP == 1
+};
+
+# <
+#
+cdl_interface OS_TYPE {
+    # Implemented by SERVER, active, enabled
+    # Implemented by DESKTOP, active, disabled
+    # This value cannot be modified here.
+    # Flavor: data
+    # Current_value: 1
+    # Requires: OS_TYPE == 1
+    #     OS_TYPE == 1
+    #   --> 1
+
+    # The following properties are affected by this value
+    # interface OS_TYPE
+    #     Requires: OS_TYPE == 1
+};
+
+# <
+# Window Manager
+#
+cdl_component WINDOW_MANAGER {
+    # Flavor: bool
+    user_value 0
+    # value_source user
+    # Default value: 1
+};
+
+# >
+# Gnome
+#
+cdl_option GNOME {
+    # This option is not active
+    # The parent WINDOW_MANAGER is disabled
+
+    # Flavor: bool
+    user_value 1
+    # value_source user
+    # Default value: 1
+    # Requires:  MEMORY >= 2 
+    #     MEMORY == 4
+    #   --> 1
+    # Requires:  SEPARATE_DIES implies (CPU_CLOCK >= 2000) 
+    #     SEPARATE_DIES (unknown) == 0
+    #     CPU_CLOCK == 2000
+    #   --> 1
+    # Requires:  (! SEPARATE_DIES) implies (CPU_CLOCK >= 1000)  
+    #     SEPARATE_DIES (unknown) == 0
+    #     CPU_CLOCK == 2000
+    #   --> 1
+
+    # The following properties are affected by this value
+    # component SERVER
+    #     Requires:  ! GNOME 
+};
+
+# Xfce
+#
+cdl_option XFCE {
+    # This option is not active
+    # The parent WINDOW_MANAGER is disabled
+
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 1
+    # value_source default
+    # Default value: 1
+    # Requires: (MEMORY >= 1) && (CPU_CLOCK >= 1000)
+    #     MEMORY == 4
+    #     CPU_CLOCK == 2000
+    #   --> 1
+};
+
+#
+cdl_interface X_WINDOW_MANAGER {
+    # Implemented by GNOME, inactive, enabled
+    # Implemented by XFCE, inactive, enabled
+    # This option is not active
+    # The parent WINDOW_MANAGER is disabled
+
+    # This value cannot be modified here.
+    # Flavor: data
+    # Current_value: 0
+
+    # The following properties are affected by this value
+};
+
+# <
+# Persistent storage
+#
+cdl_component PERSISTANT_STORAGE {
+    # There is no associated value.
+};
+
+# >
+# Real storage size (Gb) 
+#
+cdl_option REAL_STORAGE {
+    # Flavor: data
+    user_value 750
+    # value_source user
+    # Default value: 0
+
+    # The following properties are affected by this value
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+};
+
+# Number of disks
+#
+cdl_component NUMBER_OF_DISKS {
+    # Calculated value: DISK
+    #     DISK == 4
+    # Flavor: data
+    # Current_value: 4
+    # Requires:  (DISK1 + DISK2 + DISK3 + DISK4) >= MINIMAL_STORAGE 
+    #     DISK1 == 200
+    #     DISK2 == 0
+    #     DISK3 == 0
+    #     DISK4 == 0
+    #     MINIMAL_STORAGE (unknown) == 0
+    #   --> 1
+
+    # The following properties are affected by this value
+    # component OS
+    #     Requires:  NUMBER_OF_DISKS > 0 
+    # component RAID
+    #     Requires:  NUMBER_OF_DISKS > 1 
+};
+
+# >
+# Disk 1 size (Gb)
+#
+cdl_option DISK1 {
+    # Flavor: booldata
+    # No user value, uncomment the following line to provide one.
+    # user_value 1 200
+    # value_source default
+    # Default value: 1 200
+    # Requires:  DISK1 > 0 
+    #     DISK1 == 200
+    #   --> 1
+
+    # The following properties are affected by this value
+    # component NUMBER_OF_DISKS
+    #     Requires:  (DISK1 + DISK2 + DISK3 + DISK4) >= MINIMAL_STORAGE 
+    # option DISK1
+    #     Requires:  DISK1 > 0 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+};
+
+# Disk 2 size (Gb)
+#
+cdl_option DISK2 {
+    # Flavor: booldata
+    user_value 1 0
+    # value_source user
+    # Default value: 0 0
+    # Requires:  DISK2 > 0 
+    #     DISK2 == 0
+    #   --> 0
+
+    # The following properties are affected by this value
+    # component NUMBER_OF_DISKS
+    #     Requires:  (DISK1 + DISK2 + DISK3 + DISK4) >= MINIMAL_STORAGE 
+    # option DISK2
+    #     Requires:  DISK2 > 0 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+};
+
+# Disk 3 size (Gb)
+#
+cdl_option DISK3 {
+    # Flavor: booldata
+    user_value 1 0
+    # value_source user
+    # Default value: 0 0
+    # Requires:  DISK3 > 0 
+    #     DISK3 == 0
+    #   --> 0
+
+    # The following properties are affected by this value
+    # component NUMBER_OF_DISKS
+    #     Requires:  (DISK1 + DISK2 + DISK3 + DISK4) >= MINIMAL_STORAGE 
+    # option DISK3
+    #     Requires:  DISK3 > 0 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+};
+
+# Disk 4 size (Gb)
+#
+cdl_option DISK4 {
+    # Flavor: booldata
+    user_value 1 0
+    # value_source user
+    # Default value: 0 0
+    # Requires:  DISK4 > 0 
+    #     DISK4 == 0
+    #   --> 0
+
+    # The following properties are affected by this value
+    # component NUMBER_OF_DISKS
+    #     Requires:  (DISK1 + DISK2 + DISK3 + DISK4) >= MINIMAL_STORAGE 
+    # option DISK4
+    #     Requires:  DISK4 > 0 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID0
+    #     Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID1
+    #     Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    # option RAID5
+    #     Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+};
+
+# <
+#
+cdl_interface DISK {
+    # Implemented by DISK1, active, enabled
+    # Implemented by DISK2, active, enabled
+    # Implemented by DISK3, active, enabled
+    # Implemented by DISK4, active, enabled
+    # This value cannot be modified here.
+    # Flavor: data
+    # Current_value: 4
+
+    # The following properties are affected by this value
+    # component NUMBER_OF_DISKS
+    #     Calculated: DISK
+};
+
+# RAID
+#
+cdl_component RAID {
+    # Flavor: bool
+    user_value 1
+    # value_source user
+    # Default value: 0
+    # Requires:  NUMBER_OF_DISKS > 1 
+    #     NUMBER_OF_DISKS == 4
+    #   --> 1
+
+    # The following properties are affected by this value
+    # component SERVER
+    #     Requires:  RAID 
+};
+
+# >
+# RAID 0
+#
+cdl_option RAID0 {
+    # Flavor: bool
+    user_value 0
+    # value_source user
+    # Default value: 1
+    # Requires:  2 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    #     DISK1 == 200
+    #     DISK2 == 0
+    #     DISK1 == 200
+    #     DISK3 == 0
+    #     DISK1 == 200
+    #     DISK4 == 0
+    #     DISK1 == 200
+    #     DISK2 == 0
+    #     DISK3 == 0
+    #     DISK2 == 0
+    #     DISK4 == 0
+    #     DISK2 == 0
+    #     DISK3 == 0
+    #     DISK4 == 0
+    #     DISK3 == 0
+    #     DISK4 == 0
+    #     REAL_STORAGE == 750
+    #   --> 0
+};
+
+# RAID 1
+#
+cdl_option RAID1 {
+    # Flavor: bool
+    user_value 0
+    # value_source user
+    # Default value: 0
+    # Requires:  (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    #     DISK1 == 200
+    #     DISK2 == 0
+    #     DISK1 == 200
+    #     DISK3 == 0
+    #     DISK1 == 200
+    #     DISK4 == 0
+    #     DISK1 == 200
+    #     DISK2 == 0
+    #     DISK3 == 0
+    #     DISK2 == 0
+    #     DISK4 == 0
+    #     DISK2 == 0
+    #     DISK3 == 0
+    #     DISK4 == 0
+    #     DISK3 == 0
+    #     DISK4 == 0
+    #     REAL_STORAGE == 750
+    #   --> 0
+};
+
+# RAID 5
+#
+cdl_option RAID5 {
+    # Flavor: bool
+    user_value 1
+    # value_source user
+    # Default value: 0
+    # Requires:  3 * (((DISK1 < DISK2) && (DISK1 < DISK3) && (DISK1 < DISK4)) ? DISK1 : (((DISK2 < DISK3) && (DISK2 < DISK4)) ? DISK2 : ((DISK3 < DISK4) ? DISK3 : DISK4))) >= REAL_STORAGE 
+    #     DISK1 == 200
+    #     DISK2 == 0
+    #     DISK1 == 200
+    #     DISK3 == 0
+    #     DISK1 == 200
+    #     DISK4 == 0
+    #     DISK1 == 200
+    #     DISK2 == 0
+    #     DISK3 == 0
+    #     DISK2 == 0
+    #     DISK4 == 0
+    #     DISK2 == 0
+    #     DISK3 == 0
+    #     DISK4 == 0
+    #     DISK3 == 0
+    #     DISK4 == 0
+    #     REAL_STORAGE == 750
+    #   --> 0
+};
+
+#
+cdl_interface RAID_SCHEME {
+    # Implemented by RAID0, active, disabled
+    # Implemented by RAID1, active, disabled
+    # Implemented by RAID5, active, enabled
+    # This value cannot be modified here.
+    # Flavor: data
+    # Current_value: 1
+    # Requires: RAID_SCHEME == 1
+    #     RAID_SCHEME == 1
+    #   --> 1
+
+    # The following properties are affected by this value
+    # interface RAID_SCHEME
+    #     Requires: RAID_SCHEME == 1
+};
+
+# <
+# <
+# Amount of memory (Gb)
+#
+cdl_component MEMORY {
+    # Flavor: data
+    user_value 4
+    # value_source user
+    # Default value: 2
+    # Legal values:  1 to 1024 
+
+    # The following properties are affected by this value
+    # component SERVER
+    #     Requires:  MEMORY >= 4 
+    # option GNOME
+    #     Requires:  MEMORY >= 2 
+    # option XFCE
+    #     Requires: (MEMORY >= 1) && (CPU_CLOCK >= 1000)
+};
+
+# Processor
+#
+cdl_component PROCESSOR {
+    # There is no associated value.
+};
+
+# >
+# Clock
+#
+cdl_component CPU_CLOCK {
+    # Calculated value: PROCESSOR_64BITS ? (INTEL_I3_2100T ? 2500 : ((INTEL_I5_2300 || INTEL_I7_2600S) ? 2800 : 3400)) : ((INTEL_PENTIUM_M_723 ? 1000 : (INTEL_PENTIUM_M_738 ? 1400 : (INTEL_CORE2DUO_T2450 ? 2000 : 2330))))
+    #     PROCESSOR_64BITS (unknown) == 0
+    #     INTEL_I3_2100T == 0
+    #     INTEL_I5_2300 == 0
+    #     INTEL_I7_2600S == 0
+    #     INTEL_PENTIUM_M_723 == 0
+    #     INTEL_PENTIUM_M_738 == 0
+    #     INTEL_CORE2DUO_T2450 == 1
+    # Flavor: data
+    # Current_value: 2000
+
+    # The following properties are affected by this value
+    # option UBUNTU_SERVER_10_04x32
+    #     Requires:  CPU_CLOCK >= 2000 
+    # option UBUNTU_SERVER_11_10x32
+    #     Requires:  CPU_CLOCK >= 2000 
+    # option UBUNTU_SERVER_10_04x64
+    #     Requires:  CPU_CLOCK >= 1000 
+    # option UBUNTU_SERVER_11_10x64
+    #     Requires:  CPU_CLOCK >= 1000 
+    # option UBUNTU_DESKTOP_10_04x32
+    #     Requires:  CPU_CLOCK >= 1500 
+    # option UBUNTU_DESKTOP_11_10x32
+    #     Requires:  CPU_CLOCK >= 1500 
+    # option UBUNTU_DESKTOP_10_04x64
+    #     Requires:  CPU_CLOCK >= 1000 
+    # option UBUNTU_DESKTOP_11_10x64
+    #     Requires:  CPU_CLOCK >= 1000 
+    # option GNOME
+    #     Requires:  SEPARATE_DIES implies (CPU_CLOCK >= 2000) 
+    # option GNOME
+    #     Requires:  (! SEPARATE_DIES) implies (CPU_CLOCK >= 1000)  
+    # option XFCE
+    #     Requires: (MEMORY >= 1) && (CPU_CLOCK >= 1000)
+};
+
+# Intel Pentium M 723
+#
+cdl_option INTEL_PENTIUM_M_723 {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+
+    # The following properties are affected by this value
+    # component CPU_CLOCK
+    #     Calculated: PROCESSOR_64BITS ? (INTEL_I3_2100T ? 2500 : ((INTEL_I5_2300 || INTEL_I7_2600S) ? 2800 : 3400)) : ((INTEL_PENTIUM_M_723 ? 1000 : (INTEL_PENTIUM_M_738 ? 1400 : (INTEL_CORE2DUO_T2450 ? 2000 : 2330))))
+};
+
+# Intel Pentium M 738
+#
+cdl_option INTEL_PENTIUM_M_738 {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+
+    # The following properties are affected by this value
+    # component CPU_CLOCK
+    #     Calculated: PROCESSOR_64BITS ? (INTEL_I3_2100T ? 2500 : ((INTEL_I5_2300 || INTEL_I7_2600S) ? 2800 : 3400)) : ((INTEL_PENTIUM_M_723 ? 1000 : (INTEL_PENTIUM_M_738 ? 1400 : (INTEL_CORE2DUO_T2450 ? 2000 : 2330))))
+};
+
+# Intel Core Duo T2450
+#
+cdl_option INTEL_CORE2DUO_T2450 {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 1
+    # value_source default
+    # Default value: 1
+
+    # The following properties are affected by this value
+    # component CPU_CLOCK
+    #     Calculated: PROCESSOR_64BITS ? (INTEL_I3_2100T ? 2500 : ((INTEL_I5_2300 || INTEL_I7_2600S) ? 2800 : 3400)) : ((INTEL_PENTIUM_M_723 ? 1000 : (INTEL_PENTIUM_M_738 ? 1400 : (INTEL_CORE2DUO_T2450 ? 2000 : 2330))))
+};
+
+# Intel Core Duo T2700
+#
+cdl_option INTEL_CORE2DUO_T2700 {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+};
+
+# Intel i3 i3-2100T
+#
+cdl_option INTEL_I3_2100T {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+
+    # The following properties are affected by this value
+    # component CPU_CLOCK
+    #     Calculated: PROCESSOR_64BITS ? (INTEL_I3_2100T ? 2500 : ((INTEL_I5_2300 || INTEL_I7_2600S) ? 2800 : 3400)) : ((INTEL_PENTIUM_M_723 ? 1000 : (INTEL_PENTIUM_M_738 ? 1400 : (INTEL_CORE2DUO_T2450 ? 2000 : 2330))))
+};
+
+# Intel i5 i5-2500S
+#
+cdl_option INTEL_I5_2500S {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+};
+
+# Intel i5-2300
+#
+cdl_option INTEL_I5_2300 {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+
+    # The following properties are affected by this value
+    # component CPU_CLOCK
+    #     Calculated: PROCESSOR_64BITS ? (INTEL_I3_2100T ? 2500 : ((INTEL_I5_2300 || INTEL_I7_2600S) ? 2800 : 3400)) : ((INTEL_PENTIUM_M_723 ? 1000 : (INTEL_PENTIUM_M_738 ? 1400 : (INTEL_CORE2DUO_T2450 ? 2000 : 2330))))
+};
+
+# Intel i7-2600S
+#
+cdl_component INTEL_I7_2600S {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+
+    # The following properties are affected by this value
+    # component CPU_CLOCK
+    #     Calculated: PROCESSOR_64BITS ? (INTEL_I3_2100T ? 2500 : ((INTEL_I5_2300 || INTEL_I7_2600S) ? 2800 : 3400)) : ((INTEL_PENTIUM_M_723 ? 1000 : (INTEL_PENTIUM_M_738 ? 1400 : (INTEL_CORE2DUO_T2450 ? 2000 : 2330))))
+};
+
+# Intel i7-2600
+#
+cdl_component INTEL_I7_2600 {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 0
+    # value_source default
+    # Default value: 0
+};
+
+#
+cdl_interface SINGLE_PROCESSOR {
+    # Implemented by INTEL_PENTIUM_M_723, active, disabled
+    # Implemented by INTEL_PENTIUM_M_738, active, disabled
+    # Implemented by INTEL_CORE2DUO_T2450, active, enabled
+    # Implemented by INTEL_CORE2DUO_T2700, active, disabled
+    # Implemented by INTEL_I3_2100T, active, disabled
+    # Implemented by INTEL_I5_2500S, active, disabled
+    # Implemented by INTEL_I5_2300, active, disabled
+    # Implemented by INTEL_I7_2600S, active, disabled
+    # Implemented by INTEL_I7_2600, active, disabled
+    # This value cannot be modified here.
+    # Flavor: data
+    # Current_value: 1
+    # Requires: SINGLE_PROCESSOR == 1
+    #     SINGLE_PROCESSOR == 1
+    #   --> 1
+
+    # The following properties are affected by this value
+    # interface SINGLE_PROCESSOR
+    #     Requires: SINGLE_PROCESSOR == 1
+};
+
+# <
+# <
+# <
+

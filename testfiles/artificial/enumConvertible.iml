@@ -1,0 +1,12 @@
+        component A{
+          display "CAN clock speed"
+          calculated [1 / B ]
+          flavor data 
+
+          option B{
+            display "CAN clock divider"
+            legal_values [1 2 4 6 ]
+            default_value [1 ]
+            flavor data 
+          }
+        }

@@ -1,0 +1,3023 @@
+Terminals unused in grammar
+
+   COMMAND
+   ISXSUBSTR
+   VERSIONCMP
+   CALCULATIONINDICATOR
+   DEFAULTTEXT
+   FOLLOWINDICATOR
+   LINETEXT
+
+
+State 74 conflicts: 1 shift/reduce
+State 92 conflicts: 1 shift/reduce
+State 166 conflicts: 1 shift/reduce
+State 173 conflicts: 1 shift/reduce
+State 179 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: eccFile $end
+
+    1 eccFile: version toplevel contents level_changes
+
+    2 version: VERSION INT ';'
+
+    3 toplevel: CONFIGURATION ID '{' description hardware template packages '}' ';'
+
+    4 description: DESCRIPTION STRING ';'
+
+    5 hardware: ID name ';'
+
+    6 template: ID name ';'
+
+    7 name: ID
+    8     | '-'
+    9     | name ID
+   10     | name '-'
+
+   11 packages: /* empty */
+   12         | packages package
+
+   13 package: PACKAGE optional_source_specifier ID ID ';'
+   14        | PACKAGE optional_source_specifier ID ';'
+
+   15 optional_source_specifier: /* empty */
+   16                          | hardware_or_template
+
+   17 hardware_or_template: HARDWARE
+   18                     | TEMPLATE
+
+   19 contents: /* empty */
+   20         | contents level_changes content
+
+   21 level_changes: /* empty */
+   22              | level_changes level_change
+
+   23 level_change: LEVELDOWN
+   24             | LEVELUP
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';'
+
+   26 header: CDLPACKAGE
+   27       | COMPONENT
+   28       | INTERFACE
+   29       | OPTION
+
+   30 implemented_bys: /* empty */
+   31                | implemented_bys implemented_by
+
+   32 implemented_by: IMPLEMENTEDBY ID ',' active_state ',' enabled_state
+
+   33 active_state: ACTIVE
+   34             | INACTIVE
+
+   35 enabled_state: ENABLED
+   36              | DISABLED
+
+   37 active_ifs: /* empty */
+   38           | active_ifs active_if
+
+   39 active_if: ACTIVEIF exprs
+
+   40 calculated: /* empty */
+   41           | CALCULATED expr
+
+   42 flavor: /* empty */
+   43       | FLAVOR flavor_type
+
+   44 flavor_type: BOOL
+   45            | BOOLDATA
+   46            | DATA
+
+   47 user_value: /* empty */
+   48           | USERVALUE one_or_two_values
+
+   49 inferred_value: /* empty */
+   50               | INFERREDVALUE one_or_two_values
+
+   51 derived_user_value: /* empty */
+   52                   | DERIVEDUSERVALUE one_or_two_values
+
+   53 one_or_two_values: single_value
+   54                  | single_value single_value
+
+   55 single_value: STRING
+   56             | ID
+   57             | int
+   58             | REAL
+
+   59 default_value: /* empty */
+   60              | DEFAULT expr
+   61              | DEFAULT INT expr
+
+   62 legal_values: /* empty */
+   63             | LEGALVALUES legal_value_list
+
+   64 legal_value_list: legal_value
+   65                 | legal_value_list legal_value
+
+   66 legal_value: expr
+   67            | expr TO expr
+
+   68 requireses: /* empty */
+   69           | requireses requires
+
+   70 requires: REQUIRES exprs
+
+   71 noneflavor: /* empty */
+   72           | NONEFLAVOR
+
+   73 exprs: expr
+   74      | exprs expr
+
+   75 expr: expr '?' expr ':' expr
+   76     | expr '|' expr
+   77     | expr '&' expr
+   78     | expr '=' expr
+   79     | expr NEQ expr
+   80     | expr GEQ expr
+   81     | expr LEQ expr
+   82     | expr '>' expr
+   83     | expr '<' expr
+   84     | expr '+' expr
+   85     | expr '-' expr
+   86     | expr '*' expr
+   87     | expr '/' expr
+   88     | expr '.' expr
+   89     | expr '%' expr
+   90     | expr IMPLIES expr
+   91     | '!' expr
+   92     | GETDATA '(' ID ')'
+   93     | ISACTIVE '(' ID ')'
+   94     | ISENABLED '(' ID ')'
+   95     | ISLOADED '(' ID ')'
+   96     | ISSUBSTR '(' expr ',' expr ')'
+   97     | '(' expr ')'
+   98     | ID
+   99     | int
+  100     | REAL
+  101     | STRING
+
+  102 int: INT
+  103    | '-' INT
+  104    | HEXINT
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'!' (33) 91
+'%' (37) 89
+'&' (38) 77
+'(' (40) 92 93 94 95 96 97
+')' (41) 92 93 94 95 96 97
+'*' (42) 86
+'+' (43) 84
+',' (44) 32 96
+'-' (45) 8 10 85 103
+'.' (46) 88
+'/' (47) 87
+':' (58) 75
+';' (59) 2 3 4 5 6 13 14 25
+'<' (60) 83
+'=' (61) 78
+'>' (62) 82
+'?' (63) 75
+'{' (123) 3 25
+'|' (124) 76
+'}' (125) 3 25
+error (256)
+VERSION (258) 2
+COMMAND (259)
+CONFIGURATION (260) 3
+CDLPACKAGE (261) 26
+COMPONENT (262) 27
+INTERFACE (263) 28
+OPTION (264) 29
+DESCRIPTION (265) 4
+HARDWARE (266) 17
+TEMPLATE (267) 18
+PACKAGE (268) 13 14
+USERVALUE (269) 48
+INFERREDVALUE (270) 50
+FLAVOR (271) 43
+DEFAULT (272) 60 61
+REQUIRES (273) 70
+ACTIVEIF (274) 39
+LEGALVALUES (275) 63
+CALCULATED (276) 41
+IMPLEMENTEDBY (277) 32
+NONEFLAVOR (278) 72
+DATA (279) 46
+BOOL (280) 44
+BOOLDATA (281) 45
+ACTIVE (282) 33
+INACTIVE (283) 34
+ENABLED (284) 35
+DISABLED (285) 36
+NEQ (286) 79
+GEQ (287) 80
+LEQ (288) 81
+TO (289) 67
+IMPLIES (290) 90
+GETDATA (291) 92
+ISACTIVE (292) 93
+ISENABLED (293) 94
+ISLOADED (294) 95
+ISSUBSTR (295) 96
+ISXSUBSTR (296)
+VERSIONCMP (297)
+CALCULATIONINDICATOR (298)
+DEFAULTTEXT (299)
+FOLLOWINDICATOR (300)
+LINETEXT (301)
+LEVELUP (302) 24
+LEVELDOWN (303) 23
+DERIVEDUSERVALUE (304) 52
+ID (305) 3 5 6 7 9 13 14 25 32 56 92 93 94 95 98
+STRING (306) 4 55 101
+INT (307) 2 61 102 103
+HEXINT (308) 104
+REAL (309) 58 100
+
+
+Nonterminals, with rules where they appear
+
+$accept (75)
+    on left: 0
+eccFile (76)
+    on left: 1, on right: 0
+version (77)
+    on left: 2, on right: 1
+toplevel (78)
+    on left: 3, on right: 1
+description (79)
+    on left: 4, on right: 3
+hardware (80)
+    on left: 5, on right: 3
+template (81)
+    on left: 6, on right: 3
+name (82)
+    on left: 7 8 9 10, on right: 5 6 9 10
+packages (83)
+    on left: 11 12, on right: 3 12
+package (84)
+    on left: 13 14, on right: 12
+optional_source_specifier (85)
+    on left: 15 16, on right: 13 14
+hardware_or_template (86)
+    on left: 17 18, on right: 16
+contents (87)
+    on left: 19 20, on right: 1 20
+level_changes (88)
+    on left: 21 22, on right: 1 20 22
+level_change (89)
+    on left: 23 24, on right: 22
+content (90)
+    on left: 25, on right: 20
+header (91)
+    on left: 26 27 28 29, on right: 25
+implemented_bys (92)
+    on left: 30 31, on right: 25 31
+implemented_by (93)
+    on left: 32, on right: 31
+active_state (94)
+    on left: 33 34, on right: 32
+enabled_state (95)
+    on left: 35 36, on right: 32
+active_ifs (96)
+    on left: 37 38, on right: 25 38
+active_if (97)
+    on left: 39, on right: 38
+calculated (98)
+    on left: 40 41, on right: 25
+flavor (99)
+    on left: 42 43, on right: 25
+flavor_type (100)
+    on left: 44 45 46, on right: 43
+user_value (101)
+    on left: 47 48, on right: 25
+inferred_value (102)
+    on left: 49 50, on right: 25
+derived_user_value (103)
+    on left: 51 52, on right: 25
+one_or_two_values (104)
+    on left: 53 54, on right: 48 50 52
+single_value (105)
+    on left: 55 56 57 58, on right: 53 54
+default_value (106)
+    on left: 59 60 61, on right: 25
+legal_values (107)
+    on left: 62 63, on right: 25
+legal_value_list (108)
+    on left: 64 65, on right: 63 65
+legal_value (109)
+    on left: 66 67, on right: 64 65
+requireses (110)
+    on left: 68 69, on right: 25 69
+requires (111)
+    on left: 70, on right: 69
+noneflavor (112)
+    on left: 71 72, on right: 25
+exprs (113)
+    on left: 73 74, on right: 39 70 74
+expr (114)
+    on left: 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92
+    93 94 95 96 97 98 99 100 101, on right: 41 60 61 66 67 73 74 75
+    76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 96 97
+int (115)
+    on left: 102 103 104, on right: 57 99
+
+
+state 0
+
+    0 $accept: . eccFile $end
+
+    VERSION  shift, and go to state 1
+
+    eccFile  go to state 2
+    version  go to state 3
+
+
+state 1
+
+    2 version: VERSION . INT ';'
+
+    INT  shift, and go to state 4
+
+
+state 2
+
+    0 $accept: eccFile . $end
+
+    $end  shift, and go to state 5
+
+
+state 3
+
+    1 eccFile: version . toplevel contents level_changes
+
+    CONFIGURATION  shift, and go to state 6
+
+    toplevel  go to state 7
+
+
+state 4
+
+    2 version: VERSION INT . ';'
+
+    ';'  shift, and go to state 8
+
+
+state 5
+
+    0 $accept: eccFile $end .
+
+    $default  accept
+
+
+state 6
+
+    3 toplevel: CONFIGURATION . ID '{' description hardware template packages '}' ';'
+
+    ID  shift, and go to state 9
+
+
+state 7
+
+    1 eccFile: version toplevel . contents level_changes
+
+    $default  reduce using rule 19 (contents)
+
+    contents  go to state 10
+
+
+state 8
+
+    2 version: VERSION INT ';' .
+
+    $default  reduce using rule 2 (version)
+
+
+state 9
+
+    3 toplevel: CONFIGURATION ID . '{' description hardware template packages '}' ';'
+
+    '{'  shift, and go to state 11
+
+
+state 10
+
+    1 eccFile: version toplevel contents . level_changes
+   20 contents: contents . level_changes content
+
+    $default  reduce using rule 21 (level_changes)
+
+    level_changes  go to state 12
+
+
+state 11
+
+    3 toplevel: CONFIGURATION ID '{' . description hardware template packages '}' ';'
+
+    DESCRIPTION  shift, and go to state 13
+
+    description  go to state 14
+
+
+state 12
+
+    1 eccFile: version toplevel contents level_changes .
+   20 contents: contents level_changes . content
+   22 level_changes: level_changes . level_change
+
+    CDLPACKAGE  shift, and go to state 15
+    COMPONENT   shift, and go to state 16
+    INTERFACE   shift, and go to state 17
+    OPTION      shift, and go to state 18
+    LEVELUP     shift, and go to state 19
+    LEVELDOWN   shift, and go to state 20
+
+    $default  reduce using rule 1 (eccFile)
+
+    level_change  go to state 21
+    content       go to state 22
+    header        go to state 23
+
+
+state 13
+
+    4 description: DESCRIPTION . STRING ';'
+
+    STRING  shift, and go to state 24
+
+
+state 14
+
+    3 toplevel: CONFIGURATION ID '{' description . hardware template packages '}' ';'
+
+    ID  shift, and go to state 25
+
+    hardware  go to state 26
+
+
+state 15
+
+   26 header: CDLPACKAGE .
+
+    $default  reduce using rule 26 (header)
+
+
+state 16
+
+   27 header: COMPONENT .
+
+    $default  reduce using rule 27 (header)
+
+
+state 17
+
+   28 header: INTERFACE .
+
+    $default  reduce using rule 28 (header)
+
+
+state 18
+
+   29 header: OPTION .
+
+    $default  reduce using rule 29 (header)
+
+
+state 19
+
+   24 level_change: LEVELUP .
+
+    $default  reduce using rule 24 (level_change)
+
+
+state 20
+
+   23 level_change: LEVELDOWN .
+
+    $default  reduce using rule 23 (level_change)
+
+
+state 21
+
+   22 level_changes: level_changes level_change .
+
+    $default  reduce using rule 22 (level_changes)
+
+
+state 22
+
+   20 contents: contents level_changes content .
+
+    $default  reduce using rule 20 (contents)
+
+
+state 23
+
+   25 content: header . ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';'
+
+    ID  shift, and go to state 27
+
+
+state 24
+
+    4 description: DESCRIPTION STRING . ';'
+
+    ';'  shift, and go to state 28
+
+
+state 25
+
+    5 hardware: ID . name ';'
+
+    ID   shift, and go to state 29
+    '-'  shift, and go to state 30
+
+    name  go to state 31
+
+
+state 26
+
+    3 toplevel: CONFIGURATION ID '{' description hardware . template packages '}' ';'
+
+    ID  shift, and go to state 32
+
+    template  go to state 33
+
+
+state 27
+
+   25 content: header ID . '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';'
+
+    '{'  shift, and go to state 34
+
+
+state 28
+
+    4 description: DESCRIPTION STRING ';' .
+
+    $default  reduce using rule 4 (description)
+
+
+state 29
+
+    7 name: ID .
+
+    $default  reduce using rule 7 (name)
+
+
+state 30
+
+    8 name: '-' .
+
+    $default  reduce using rule 8 (name)
+
+
+state 31
+
+    5 hardware: ID name . ';'
+    9 name: name . ID
+   10     | name . '-'
+
+    ID   shift, and go to state 35
+    '-'  shift, and go to state 36
+    ';'  shift, and go to state 37
+
+
+state 32
+
+    6 template: ID . name ';'
+
+    ID   shift, and go to state 29
+    '-'  shift, and go to state 30
+
+    name  go to state 38
+
+
+state 33
+
+    3 toplevel: CONFIGURATION ID '{' description hardware template . packages '}' ';'
+
+    $default  reduce using rule 11 (packages)
+
+    packages  go to state 39
+
+
+state 34
+
+   25 content: header ID '{' . implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';'
+
+    $default  reduce using rule 30 (implemented_bys)
+
+    implemented_bys  go to state 40
+
+
+state 35
+
+    9 name: name ID .
+
+    $default  reduce using rule 9 (name)
+
+
+state 36
+
+   10 name: name '-' .
+
+    $default  reduce using rule 10 (name)
+
+
+state 37
+
+    5 hardware: ID name ';' .
+
+    $default  reduce using rule 5 (hardware)
+
+
+state 38
+
+    6 template: ID name . ';'
+    9 name: name . ID
+   10     | name . '-'
+
+    ID   shift, and go to state 35
+    '-'  shift, and go to state 36
+    ';'  shift, and go to state 41
+
+
+state 39
+
+    3 toplevel: CONFIGURATION ID '{' description hardware template packages . '}' ';'
+   12 packages: packages . package
+
+    PACKAGE  shift, and go to state 42
+    '}'      shift, and go to state 43
+
+    package  go to state 44
+
+
+state 40
+
+   25 content: header ID '{' implemented_bys . active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';'
+   31 implemented_bys: implemented_bys . implemented_by
+
+    IMPLEMENTEDBY  shift, and go to state 45
+
+    $default  reduce using rule 37 (active_ifs)
+
+    implemented_by  go to state 46
+    active_ifs      go to state 47
+
+
+state 41
+
+    6 template: ID name ';' .
+
+    $default  reduce using rule 6 (template)
+
+
+state 42
+
+   13 package: PACKAGE . optional_source_specifier ID ID ';'
+   14        | PACKAGE . optional_source_specifier ID ';'
+
+    HARDWARE  shift, and go to state 48
+    TEMPLATE  shift, and go to state 49
+
+    $default  reduce using rule 15 (optional_source_specifier)
+
+    optional_source_specifier  go to state 50
+    hardware_or_template       go to state 51
+
+
+state 43
+
+    3 toplevel: CONFIGURATION ID '{' description hardware template packages '}' . ';'
+
+    ';'  shift, and go to state 52
+
+
+state 44
+
+   12 packages: packages package .
+
+    $default  reduce using rule 12 (packages)
+
+
+state 45
+
+   32 implemented_by: IMPLEMENTEDBY . ID ',' active_state ',' enabled_state
+
+    ID  shift, and go to state 53
+
+
+state 46
+
+   31 implemented_bys: implemented_bys implemented_by .
+
+    $default  reduce using rule 31 (implemented_bys)
+
+
+state 47
+
+   25 content: header ID '{' implemented_bys active_ifs . calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';'
+   38 active_ifs: active_ifs . active_if
+
+    ACTIVEIF    shift, and go to state 54
+    CALCULATED  shift, and go to state 55
+
+    $default  reduce using rule 40 (calculated)
+
+    active_if   go to state 56
+    calculated  go to state 57
+
+
+state 48
+
+   17 hardware_or_template: HARDWARE .
+
+    $default  reduce using rule 17 (hardware_or_template)
+
+
+state 49
+
+   18 hardware_or_template: TEMPLATE .
+
+    $default  reduce using rule 18 (hardware_or_template)
+
+
+state 50
+
+   13 package: PACKAGE optional_source_specifier . ID ID ';'
+   14        | PACKAGE optional_source_specifier . ID ';'
+
+    ID  shift, and go to state 58
+
+
+state 51
+
+   16 optional_source_specifier: hardware_or_template .
+
+    $default  reduce using rule 16 (optional_source_specifier)
+
+
+state 52
+
+    3 toplevel: CONFIGURATION ID '{' description hardware template packages '}' ';' .
+
+    $default  reduce using rule 3 (toplevel)
+
+
+state 53
+
+   32 implemented_by: IMPLEMENTEDBY ID . ',' active_state ',' enabled_state
+
+    ','  shift, and go to state 59
+
+
+state 54
+
+   39 active_if: ACTIVEIF . exprs
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    exprs  go to state 73
+    expr   go to state 74
+    int    go to state 75
+
+
+state 55
+
+   41 calculated: CALCULATED . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 76
+    int   go to state 75
+
+
+state 56
+
+   38 active_ifs: active_ifs active_if .
+
+    $default  reduce using rule 38 (active_ifs)
+
+
+state 57
+
+   25 content: header ID '{' implemented_bys active_ifs calculated . flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';'
+
+    FLAVOR  shift, and go to state 77
+
+    $default  reduce using rule 42 (flavor)
+
+    flavor  go to state 78
+
+
+state 58
+
+   13 package: PACKAGE optional_source_specifier ID . ID ';'
+   14        | PACKAGE optional_source_specifier ID . ';'
+
+    ID   shift, and go to state 79
+    ';'  shift, and go to state 80
+
+
+state 59
+
+   32 implemented_by: IMPLEMENTEDBY ID ',' . active_state ',' enabled_state
+
+    ACTIVE    shift, and go to state 81
+    INACTIVE  shift, and go to state 82
+
+    active_state  go to state 83
+
+
+state 60
+
+   92 expr: GETDATA . '(' ID ')'
+
+    '('  shift, and go to state 84
+
+
+state 61
+
+   93 expr: ISACTIVE . '(' ID ')'
+
+    '('  shift, and go to state 85
+
+
+state 62
+
+   94 expr: ISENABLED . '(' ID ')'
+
+    '('  shift, and go to state 86
+
+
+state 63
+
+   95 expr: ISLOADED . '(' ID ')'
+
+    '('  shift, and go to state 87
+
+
+state 64
+
+   96 expr: ISSUBSTR . '(' expr ',' expr ')'
+
+    '('  shift, and go to state 88
+
+
+state 65
+
+   98 expr: ID .
+
+    $default  reduce using rule 98 (expr)
+
+
+state 66
+
+  101 expr: STRING .
+
+    $default  reduce using rule 101 (expr)
+
+
+state 67
+
+  102 int: INT .
+
+    $default  reduce using rule 102 (int)
+
+
+state 68
+
+  104 int: HEXINT .
+
+    $default  reduce using rule 104 (int)
+
+
+state 69
+
+  100 expr: REAL .
+
+    $default  reduce using rule 100 (expr)
+
+
+state 70
+
+   91 expr: '!' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 89
+    int   go to state 75
+
+
+state 71
+
+  103 int: '-' . INT
+
+    INT  shift, and go to state 90
+
+
+state 72
+
+   97 expr: '(' . expr ')'
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 91
+    int   go to state 75
+
+
+state 73
+
+   39 active_if: ACTIVEIF exprs .
+   74 exprs: exprs . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    $default  reduce using rule 39 (active_if)
+
+    expr  go to state 92
+    int   go to state 75
+
+
+state 74
+
+   73 exprs: expr .
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+
+    '-'       [reduce using rule 73 (exprs)]
+    $default  reduce using rule 73 (exprs)
+
+
+state 75
+
+   99 expr: int .
+
+    $default  reduce using rule 99 (expr)
+
+
+state 76
+
+   41 calculated: CALCULATED expr .
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+
+    $default  reduce using rule 41 (calculated)
+
+
+state 77
+
+   43 flavor: FLAVOR . flavor_type
+
+    DATA      shift, and go to state 109
+    BOOL      shift, and go to state 110
+    BOOLDATA  shift, and go to state 111
+
+    flavor_type  go to state 112
+
+
+state 78
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor . user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';'
+
+    USERVALUE  shift, and go to state 113
+
+    $default  reduce using rule 47 (user_value)
+
+    user_value  go to state 114
+
+
+state 79
+
+   13 package: PACKAGE optional_source_specifier ID ID . ';'
+
+    ';'  shift, and go to state 115
+
+
+state 80
+
+   14 package: PACKAGE optional_source_specifier ID ';' .
+
+    $default  reduce using rule 14 (package)
+
+
+state 81
+
+   33 active_state: ACTIVE .
+
+    $default  reduce using rule 33 (active_state)
+
+
+state 82
+
+   34 active_state: INACTIVE .
+
+    $default  reduce using rule 34 (active_state)
+
+
+state 83
+
+   32 implemented_by: IMPLEMENTEDBY ID ',' active_state . ',' enabled_state
+
+    ','  shift, and go to state 116
+
+
+state 84
+
+   92 expr: GETDATA '(' . ID ')'
+
+    ID  shift, and go to state 117
+
+
+state 85
+
+   93 expr: ISACTIVE '(' . ID ')'
+
+    ID  shift, and go to state 118
+
+
+state 86
+
+   94 expr: ISENABLED '(' . ID ')'
+
+    ID  shift, and go to state 119
+
+
+state 87
+
+   95 expr: ISLOADED '(' . ID ')'
+
+    ID  shift, and go to state 120
+
+
+state 88
+
+   96 expr: ISSUBSTR '(' . expr ',' expr ')'
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 121
+    int   go to state 75
+
+
+state 89
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+   91     | '!' expr .
+
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 91 (expr)
+
+
+state 90
+
+  103 int: '-' INT .
+
+    $default  reduce using rule 103 (int)
+
+
+state 91
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+   97     | '(' expr . ')'
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+    ')'      shift, and go to state 122
+
+
+state 92
+
+   74 exprs: exprs expr .
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+
+    '-'       [reduce using rule 74 (exprs)]
+    $default  reduce using rule 74 (exprs)
+
+
+state 93
+
+   79 expr: expr NEQ . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 123
+    int   go to state 75
+
+
+state 94
+
+   80 expr: expr GEQ . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 124
+    int   go to state 75
+
+
+state 95
+
+   81 expr: expr LEQ . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 125
+    int   go to state 75
+
+
+state 96
+
+   90 expr: expr IMPLIES . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 126
+    int   go to state 75
+
+
+state 97
+
+   75 expr: expr '?' . expr ':' expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 127
+    int   go to state 75
+
+
+state 98
+
+   76 expr: expr '|' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 128
+    int   go to state 75
+
+
+state 99
+
+   77 expr: expr '&' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 129
+    int   go to state 75
+
+
+state 100
+
+   78 expr: expr '=' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 130
+    int   go to state 75
+
+
+state 101
+
+   82 expr: expr '>' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 131
+    int   go to state 75
+
+
+state 102
+
+   83 expr: expr '<' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 132
+    int   go to state 75
+
+
+state 103
+
+   84 expr: expr '+' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 133
+    int   go to state 75
+
+
+state 104
+
+   85 expr: expr '-' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 134
+    int   go to state 75
+
+
+state 105
+
+   88 expr: expr '.' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 135
+    int   go to state 75
+
+
+state 106
+
+   86 expr: expr '*' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 136
+    int   go to state 75
+
+
+state 107
+
+   87 expr: expr '/' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 137
+    int   go to state 75
+
+
+state 108
+
+   89 expr: expr '%' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 138
+    int   go to state 75
+
+
+state 109
+
+   46 flavor_type: DATA .
+
+    $default  reduce using rule 46 (flavor_type)
+
+
+state 110
+
+   44 flavor_type: BOOL .
+
+    $default  reduce using rule 44 (flavor_type)
+
+
+state 111
+
+   45 flavor_type: BOOLDATA .
+
+    $default  reduce using rule 45 (flavor_type)
+
+
+state 112
+
+   43 flavor: FLAVOR flavor_type .
+
+    $default  reduce using rule 43 (flavor)
+
+
+state 113
+
+   48 user_value: USERVALUE . one_or_two_values
+
+    ID      shift, and go to state 139
+    STRING  shift, and go to state 140
+    INT     shift, and go to state 67
+    HEXINT  shift, and go to state 68
+    REAL    shift, and go to state 141
+    '-'     shift, and go to state 71
+
+    one_or_two_values  go to state 142
+    single_value       go to state 143
+    int                go to state 144
+
+
+state 114
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value . derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';'
+
+    DERIVEDUSERVALUE  shift, and go to state 145
+
+    $default  reduce using rule 51 (derived_user_value)
+
+    derived_user_value  go to state 146
+
+
+state 115
+
+   13 package: PACKAGE optional_source_specifier ID ID ';' .
+
+    $default  reduce using rule 13 (package)
+
+
+state 116
+
+   32 implemented_by: IMPLEMENTEDBY ID ',' active_state ',' . enabled_state
+
+    ENABLED   shift, and go to state 147
+    DISABLED  shift, and go to state 148
+
+    enabled_state  go to state 149
+
+
+state 117
+
+   92 expr: GETDATA '(' ID . ')'
+
+    ')'  shift, and go to state 150
+
+
+state 118
+
+   93 expr: ISACTIVE '(' ID . ')'
+
+    ')'  shift, and go to state 151
+
+
+state 119
+
+   94 expr: ISENABLED '(' ID . ')'
+
+    ')'  shift, and go to state 152
+
+
+state 120
+
+   95 expr: ISLOADED '(' ID . ')'
+
+    ')'  shift, and go to state 153
+
+
+state 121
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+   96     | ISSUBSTR '(' expr . ',' expr ')'
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+    ','      shift, and go to state 154
+
+
+state 122
+
+   97 expr: '(' expr ')' .
+
+    $default  reduce using rule 97 (expr)
+
+
+state 123
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   79     | expr NEQ expr .
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 79 (expr)
+
+
+state 124
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   80     | expr GEQ expr .
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 80 (expr)
+
+
+state 125
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   81     | expr LEQ expr .
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 81 (expr)
+
+
+state 126
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+   90     | expr IMPLIES expr .
+
+    NEQ  shift, and go to state 93
+    GEQ  shift, and go to state 94
+    LEQ  shift, and go to state 95
+    '|'  shift, and go to state 98
+    '&'  shift, and go to state 99
+    '='  shift, and go to state 100
+    '>'  shift, and go to state 101
+    '<'  shift, and go to state 102
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 90 (expr)
+
+
+state 127
+
+   75 expr: expr . '?' expr ':' expr
+   75     | expr '?' expr . ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    ':'      shift, and go to state 155
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+
+
+state 128
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   76     | expr '|' expr .
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ  shift, and go to state 93
+    GEQ  shift, and go to state 94
+    LEQ  shift, and go to state 95
+    '&'  shift, and go to state 99
+    '='  shift, and go to state 100
+    '>'  shift, and go to state 101
+    '<'  shift, and go to state 102
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 76 (expr)
+
+
+state 129
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   77     | expr '&' expr .
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ  shift, and go to state 93
+    GEQ  shift, and go to state 94
+    LEQ  shift, and go to state 95
+    '='  shift, and go to state 100
+    '>'  shift, and go to state 101
+    '<'  shift, and go to state 102
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 77 (expr)
+
+
+state 130
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   78     | expr '=' expr .
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 78 (expr)
+
+
+state 131
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   82     | expr '>' expr .
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 82 (expr)
+
+
+state 132
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   83     | expr '<' expr .
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    '+'  shift, and go to state 103
+    '-'  shift, and go to state 104
+    '.'  shift, and go to state 105
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 83 (expr)
+
+
+state 133
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   84     | expr '+' expr .
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 84 (expr)
+
+
+state 134
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   85     | expr '-' expr .
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 85 (expr)
+
+
+state 135
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   88     | expr '.' expr .
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    '*'  shift, and go to state 106
+    '/'  shift, and go to state 107
+    '%'  shift, and go to state 108
+
+    $default  reduce using rule 88 (expr)
+
+
+state 136
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   86     | expr '*' expr .
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    $default  reduce using rule 86 (expr)
+
+
+state 137
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   87     | expr '/' expr .
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    $default  reduce using rule 87 (expr)
+
+
+state 138
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   89     | expr '%' expr .
+   90     | expr . IMPLIES expr
+
+    $default  reduce using rule 89 (expr)
+
+
+state 139
+
+   56 single_value: ID .
+
+    $default  reduce using rule 56 (single_value)
+
+
+state 140
+
+   55 single_value: STRING .
+
+    $default  reduce using rule 55 (single_value)
+
+
+state 141
+
+   58 single_value: REAL .
+
+    $default  reduce using rule 58 (single_value)
+
+
+state 142
+
+   48 user_value: USERVALUE one_or_two_values .
+
+    $default  reduce using rule 48 (user_value)
+
+
+state 143
+
+   53 one_or_two_values: single_value .
+   54                  | single_value . single_value
+
+    ID      shift, and go to state 139
+    STRING  shift, and go to state 140
+    INT     shift, and go to state 67
+    HEXINT  shift, and go to state 68
+    REAL    shift, and go to state 141
+    '-'     shift, and go to state 71
+
+    $default  reduce using rule 53 (one_or_two_values)
+
+    single_value  go to state 156
+    int           go to state 144
+
+
+state 144
+
+   57 single_value: int .
+
+    $default  reduce using rule 57 (single_value)
+
+
+state 145
+
+   52 derived_user_value: DERIVEDUSERVALUE . one_or_two_values
+
+    ID      shift, and go to state 139
+    STRING  shift, and go to state 140
+    INT     shift, and go to state 67
+    HEXINT  shift, and go to state 68
+    REAL    shift, and go to state 141
+    '-'     shift, and go to state 71
+
+    one_or_two_values  go to state 157
+    single_value       go to state 143
+    int                go to state 144
+
+
+state 146
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value . inferred_value default_value legal_values noneflavor requireses '}' ';'
+
+    INFERREDVALUE  shift, and go to state 158
+
+    $default  reduce using rule 49 (inferred_value)
+
+    inferred_value  go to state 159
+
+
+state 147
+
+   35 enabled_state: ENABLED .
+
+    $default  reduce using rule 35 (enabled_state)
+
+
+state 148
+
+   36 enabled_state: DISABLED .
+
+    $default  reduce using rule 36 (enabled_state)
+
+
+state 149
+
+   32 implemented_by: IMPLEMENTEDBY ID ',' active_state ',' enabled_state .
+
+    $default  reduce using rule 32 (implemented_by)
+
+
+state 150
+
+   92 expr: GETDATA '(' ID ')' .
+
+    $default  reduce using rule 92 (expr)
+
+
+state 151
+
+   93 expr: ISACTIVE '(' ID ')' .
+
+    $default  reduce using rule 93 (expr)
+
+
+state 152
+
+   94 expr: ISENABLED '(' ID ')' .
+
+    $default  reduce using rule 94 (expr)
+
+
+state 153
+
+   95 expr: ISLOADED '(' ID ')' .
+
+    $default  reduce using rule 95 (expr)
+
+
+state 154
+
+   96 expr: ISSUBSTR '(' expr ',' . expr ')'
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 160
+    int   go to state 75
+
+
+state 155
+
+   75 expr: expr '?' expr ':' . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 161
+    int   go to state 75
+
+
+state 156
+
+   54 one_or_two_values: single_value single_value .
+
+    $default  reduce using rule 54 (one_or_two_values)
+
+
+state 157
+
+   52 derived_user_value: DERIVEDUSERVALUE one_or_two_values .
+
+    $default  reduce using rule 52 (derived_user_value)
+
+
+state 158
+
+   50 inferred_value: INFERREDVALUE . one_or_two_values
+
+    ID      shift, and go to state 139
+    STRING  shift, and go to state 140
+    INT     shift, and go to state 67
+    HEXINT  shift, and go to state 68
+    REAL    shift, and go to state 141
+    '-'     shift, and go to state 71
+
+    one_or_two_values  go to state 162
+    single_value       go to state 143
+    int                go to state 144
+
+
+state 159
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value . default_value legal_values noneflavor requireses '}' ';'
+
+    DEFAULT  shift, and go to state 163
+
+    $default  reduce using rule 59 (default_value)
+
+    default_value  go to state 164
+
+
+state 160
+
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+   96     | ISSUBSTR '(' expr ',' expr . ')'
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+    ')'      shift, and go to state 165
+
+
+state 161
+
+   75 expr: expr . '?' expr ':' expr
+   75     | expr '?' expr ':' expr .
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+
+    $default  reduce using rule 75 (expr)
+
+
+state 162
+
+   50 inferred_value: INFERREDVALUE one_or_two_values .
+
+    $default  reduce using rule 50 (inferred_value)
+
+
+state 163
+
+   60 default_value: DEFAULT . expr
+   61              | DEFAULT . INT expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 166
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 167
+    int   go to state 75
+
+
+state 164
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value . legal_values noneflavor requireses '}' ';'
+
+    LEGALVALUES  shift, and go to state 168
+
+    $default  reduce using rule 62 (legal_values)
+
+    legal_values  go to state 169
+
+
+state 165
+
+   96 expr: ISSUBSTR '(' expr ',' expr ')' .
+
+    $default  reduce using rule 96 (expr)
+
+
+state 166
+
+   61 default_value: DEFAULT INT . expr
+  102 int: INT .
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    '-'       [reduce using rule 102 (int)]
+    $default  reduce using rule 102 (int)
+
+    expr  go to state 170
+    int   go to state 75
+
+
+state 167
+
+   60 default_value: DEFAULT expr .
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+
+    $default  reduce using rule 60 (default_value)
+
+
+state 168
+
+   63 legal_values: LEGALVALUES . legal_value_list
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    legal_value_list  go to state 171
+    legal_value       go to state 172
+    expr              go to state 173
+    int               go to state 75
+
+
+state 169
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values . noneflavor requireses '}' ';'
+
+    NONEFLAVOR  shift, and go to state 174
+
+    $default  reduce using rule 71 (noneflavor)
+
+    noneflavor  go to state 175
+
+
+state 170
+
+   61 default_value: DEFAULT INT expr .
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+
+    $default  reduce using rule 61 (default_value)
+
+
+state 171
+
+   63 legal_values: LEGALVALUES legal_value_list .
+   65 legal_value_list: legal_value_list . legal_value
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    $default  reduce using rule 63 (legal_values)
+
+    legal_value  go to state 176
+    expr         go to state 173
+    int          go to state 75
+
+
+state 172
+
+   64 legal_value_list: legal_value .
+
+    $default  reduce using rule 64 (legal_value_list)
+
+
+state 173
+
+   66 legal_value: expr .
+   67            | expr . TO expr
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    TO       shift, and go to state 177
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+
+    '-'       [reduce using rule 66 (legal_value)]
+    $default  reduce using rule 66 (legal_value)
+
+
+state 174
+
+   72 noneflavor: NONEFLAVOR .
+
+    $default  reduce using rule 72 (noneflavor)
+
+
+state 175
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor . requireses '}' ';'
+
+    $default  reduce using rule 68 (requireses)
+
+    requireses  go to state 178
+
+
+state 176
+
+   65 legal_value_list: legal_value_list legal_value .
+
+    $default  reduce using rule 65 (legal_value_list)
+
+
+state 177
+
+   67 legal_value: expr TO . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    expr  go to state 179
+    int   go to state 75
+
+
+state 178
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses . '}' ';'
+   69 requireses: requireses . requires
+
+    REQUIRES  shift, and go to state 180
+    '}'       shift, and go to state 181
+
+    requires  go to state 182
+
+
+state 179
+
+   67 legal_value: expr TO expr .
+   75 expr: expr . '?' expr ':' expr
+   76     | expr . '|' expr
+   77     | expr . '&' expr
+   78     | expr . '=' expr
+   79     | expr . NEQ expr
+   80     | expr . GEQ expr
+   81     | expr . LEQ expr
+   82     | expr . '>' expr
+   83     | expr . '<' expr
+   84     | expr . '+' expr
+   85     | expr . '-' expr
+   86     | expr . '*' expr
+   87     | expr . '/' expr
+   88     | expr . '.' expr
+   89     | expr . '%' expr
+   90     | expr . IMPLIES expr
+
+    NEQ      shift, and go to state 93
+    GEQ      shift, and go to state 94
+    LEQ      shift, and go to state 95
+    IMPLIES  shift, and go to state 96
+    '?'      shift, and go to state 97
+    '|'      shift, and go to state 98
+    '&'      shift, and go to state 99
+    '='      shift, and go to state 100
+    '>'      shift, and go to state 101
+    '<'      shift, and go to state 102
+    '+'      shift, and go to state 103
+    '-'      shift, and go to state 104
+    '.'      shift, and go to state 105
+    '*'      shift, and go to state 106
+    '/'      shift, and go to state 107
+    '%'      shift, and go to state 108
+
+    '-'       [reduce using rule 67 (legal_value)]
+    $default  reduce using rule 67 (legal_value)
+
+
+state 180
+
+   70 requires: REQUIRES . exprs
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    exprs  go to state 183
+    expr   go to state 74
+    int    go to state 75
+
+
+state 181
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' . ';'
+
+    ';'  shift, and go to state 184
+
+
+state 182
+
+   69 requireses: requireses requires .
+
+    $default  reduce using rule 69 (requireses)
+
+
+state 183
+
+   70 requires: REQUIRES exprs .
+   74 exprs: exprs . expr
+
+    GETDATA    shift, and go to state 60
+    ISACTIVE   shift, and go to state 61
+    ISENABLED  shift, and go to state 62
+    ISLOADED   shift, and go to state 63
+    ISSUBSTR   shift, and go to state 64
+    ID         shift, and go to state 65
+    STRING     shift, and go to state 66
+    INT        shift, and go to state 67
+    HEXINT     shift, and go to state 68
+    REAL       shift, and go to state 69
+    '!'        shift, and go to state 70
+    '-'        shift, and go to state 71
+    '('        shift, and go to state 72
+
+    $default  reduce using rule 70 (requires)
+
+    expr  go to state 92
+    int   go to state 75
+
+
+state 184
+
+   25 content: header ID '{' implemented_bys active_ifs calculated flavor user_value derived_user_value inferred_value default_value legal_values noneflavor requireses '}' ';' .
+
+    $default  reduce using rule 25 (content)

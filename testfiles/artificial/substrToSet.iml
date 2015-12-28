@@ -1,0 +1,16 @@
+    component A{
+        display "LPC2XXX variant used"
+        default_value ["LPC216 abc" ]
+        flavor data 
+
+        option B{
+          display "LPC2XXX variant version"
+          requires [is_substr(B, C)]
+          flavor data 
+        }
+	}
+    component C{
+        display "LPC24XX variant used"
+        default_value ["LPC216 abc" ]
+        flavor data 
+	}

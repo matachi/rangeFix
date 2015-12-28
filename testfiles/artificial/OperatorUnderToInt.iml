@@ -1,0 +1,9 @@
+  option A{
+      display "a option to test"
+      calculated [ B * 1000 ]
+	  flavor data
+  }  
+  option B {
+	legal_values [ 2 3 4]
+	flavor data
+  }

@@ -1,0 +1,55 @@
+CYGFUN_LIBC_STRING_BSD_FUNCS
+>     user_value 0
+<     inferred_value 0
+
+CYGIMP_HAL_COMMON_INTERRUPTS_USE_INTERRUPT_STACK
+>     user_value 0
+<     inferred_value 0
+
+CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE
+>     # No user value
+<     user_value 4096
+
+CYGDBG_HAL_COMMON_INTERRUPTS_SAVE_MINIMUM_CONTEXT
+>     # No user value
+<     user_value 0
+
+CYGDBG_HAL_COMMON_CONTEXT_SAVE_MINIMUM
+>     # No user value
+<     inferred_value 0
+
+CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS
+>     # No user value
+<     inferred_value 1
+
+CYGHWR_HAL_ARM_LPC24XX
+>     user_value LPC2468
+<     inferred_value LPC2468
+
+CYGBLD_BUILD_REDBOOT
+>     # No user value
+<     user_value 1
+
+CYGBLD_BUILD_REDBOOT_WITH_EXEC
+>     # This option is not active
+<     inferred_value 0
+
+CYGBLD_ISO_STRTOK_R_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_STRING_LOCALE_FUNCS_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_STRING_BSD_FUNCS_HEADER
+>     user_value 1 <cyg/libc/string/bsdstring.h>
+<     inferred_value 1 <cyg/libc/string/bsdstring.h>
+
+CYGBLD_ISO_STRING_MEMFUNCS_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
+
+CYGBLD_ISO_STRING_STRFUNCS_HEADER
+>     user_value 1 <cyg/libc/string/string.h>
+<     inferred_value 1 <cyg/libc/string/string.h>
