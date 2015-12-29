@@ -67,13 +67,13 @@ object MyBuild extends Build
 			// executeIfNewer(imlParserSrc, imlParserTgt, callCup(imlParserSrc, "ca.uwaterloo.gsd.rangeFix", "Iml"))
 			Seq(new File(eccLexerTgt), new File(eccParserTgt), new File(eccFullLexerTgt), new File(eccFullParserTgt), new File(eccFullValuesLexerTgt), new File(annLexerTgt), new File(annParserTgt)/*, new File(imlLexerTgt), new File(imlParserTgt), new File(imlParserTgt2)*/)
 		},
-		scalaVersion := "2.9.2",
+		scalaVersion := "2.11.7",
 		compileOrder := CompileOrder.Mixed
 	)
 	
 	val rootSettings = Defaults.defaultSettings ++ Seq[Setting[_]](
 		unmanagedSourceDirectories in Compile <+= baseDirectory(_ / "generated"),
-		scalaVersion := "2.9.2",
+		scalaVersion := "2.11.7",
 		compileOrder := CompileOrder.Mixed,
 		parallelExecution in Test := true,
 		scalacOptions ++= Seq("-unchecked", "-deprecation"),
