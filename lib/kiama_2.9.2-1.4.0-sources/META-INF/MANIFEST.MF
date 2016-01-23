@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Specification-Vendor: com.googlecode.kiama
-Specification-Title: kiama
-Specification-Version: 1.4.0
-
