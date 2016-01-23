@@ -198,22 +198,22 @@ object FixGenerator {
         // val ruleCommonRule=rule{case x => x}
         // replacedConstraints.foreach(rewrite(MyRewriter.everywheretdWithGuard(ruleFunctionDef, ruleCommonRule)))
 
-        assert(Expression.collectGlobalVars(slicedSMTConstraints).toSet ++ Expression.collectGlobalVars(userFunctions).toSet ==changeableVars,
-               "vars are not properly sliced. replacedConstraints: %s \n changeableVars %s".format(
-                  Expression.collectGlobalVars(slicedSMTConstraints).toSet ++ Expression.collectGlobalVars(userFunctions).toSet,
-                  changeableVars)
-             )
-        assert(
-          org.kiama.rewriting.Rewriter.collects {
-            case x: SMTVarRef => x.id
-          }(slicedSMTConstraints) ++
-            userFunctions.map { 
-            case SMTFuncDefine(name, params, retType, body) =>
-              val paramNames = params.map(_._1).toSet
-              org.kiama.rewriting.Rewriter.collects {
-                case SMTVarRef(id) if ! paramNames.contains(id) => id
-              }(body)
-          }.flatten.toSet == changeableVars)
+        //assert(Expression.collectGlobalVars(slicedSMTConstraints).toSet ++ Expression.collectGlobalVars(userFunctions).toSet ==changeableVars,
+        //       "vars are not properly sliced. replacedConstraints: %s \n changeableVars %s".format(
+        //          Expression.collectGlobalVars(slicedSMTConstraints).toSet ++ Expression.collectGlobalVars(userFunctions).toSet,
+        //          changeableVars)
+        //     )
+        //assert(
+        //  org.kiama.rewriting.Rewriter.collects {
+        //    case x: SMTVarRef => x.id
+        //  }(slicedSMTConstraints) ++
+        //    userFunctions.map { 
+        //    case SMTFuncDefine(name, params, retType, body) =>
+        //      val paramNames = params.map(_._1).toSet
+        //      org.kiama.rewriting.Rewriter.collects {
+        //        case SMTVarRef(id) if ! paramNames.contains(id) => id
+        //      }(body)
+        //  }.flatten.toSet == changeableVars)
         if (printDetailedTime) print("sliced size " + (slicedSMTConstraints.size.toDouble / allConstraints.size.toDouble * 100.0) + "%--")
         val slicedConfig = config.filterKeys(changeableVars.contains)
         val slicedSMTConfig = slicedConfig.mapValues(translator.convert).asInstanceOf[Map[String, SMTLiteral]]
@@ -225,21 +225,21 @@ object FixGenerator {
         val slicedSMTTypesToDecl = typesInExprPair._1 ++ slicedSMTTypes.values
         val slicedSMTFuncsToDecl:Seq[SMTFuncDefine] = (slicedSMTFuncsInVars ++ typesInExprPair._2.flatten).distinct
         assert(slicedSMTFuncsToDecl.map(_.name).toSet.size == slicedSMTFuncsToDecl.size)
-        (slicedConfig, slicedSMTConfig, slicedConstraints, slicedSMTConstraints, slicedSMTTypes, slicedSMTFuncsToDecl++userFunctions, slicedSMTTypesToDecl)
+        (slicedConfig, slicedSMTConfig, slicedConstraints, slicedSMTConstraints, slicedSMTTypes, slicedSMTFuncsToDecl++userFunctions.asInstanceOf[Iterable[Expression]], slicedSMTTypesToDecl)
       }
       val diagnoses = printDetailedTime("Generating diagnoses") {
         SMTFixGenerator.generateSimpleDiagnoses(
-          slicedSMTConfig,
+          slicedSMTConfig.asInstanceOf[Map[String, SMTLiteral]],
           changeableVars,
-          slicedSMTConstraints,
-          slicedSMTTypes,
-          slicedSMTFuncsToDecl,
-          slicedSMTTypesToDecl)
+          slicedSMTConstraints.asInstanceOf[Iterable[SMTExpression]],
+          slicedSMTTypes.asInstanceOf[Map[String, SMTType]],
+          slicedSMTFuncsToDecl.asInstanceOf[Seq[SMTFuncDefine]],
+          slicedSMTTypesToDecl.asInstanceOf[Set[SMTType]])
       }
       val fixes = printDetailedTime("Converting to fixes") {
         def getRelatedVars(cons:Expression):Set[String] = constraint2varsMap.getOrElse(allConstraints.indexOf(cons),Set())
         //SMTFixGenerator.simpleDiagnoses2Fixes(slicedConfig, slicedConstraints, types, diagnoses,getRelatedVars)
-        SMTFixGenerator.simpleDiagnoses2Fixes(config.filterKeys(id=>unchangeableVars.contains(id)||changeableVars.contains(id)), slicedConstraints, types, diagnoses,getRelatedVars)
+        SMTFixGenerator.simpleDiagnoses2Fixes(config.filterKeys(id=>unchangeableVars.contains(id)||changeableVars.contains(id)), slicedConstraints.asInstanceOf[Set[Expression]], types, diagnoses,getRelatedVars)
       }
       fixes
     }

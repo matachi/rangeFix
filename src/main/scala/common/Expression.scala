@@ -10,6 +10,7 @@ object Expression {
   type Configuration = collection.Map[String, Literal]
 
   import org.kiama.rewriting.Rewriter._
+  import org.kiama.rewriting.Strategy
   import MyRewriter._
   // private def rememberFuncDef(s:mutable.Map[String, Term], f: =>Strategy):Strategy =
   //   new Strategy {
@@ -29,7 +30,7 @@ object Expression {
   //   case x:GFunctionDef[_] if (s.contains(x.name)) => s(x.name)
   // }
 
-  private def bypassFuncDef() = rule {
+  private def bypassFuncDef() = rule[GFunctionDef[_]] {
     case x:GFunctionDef[_] => x
   }
 
@@ -38,7 +39,7 @@ object Expression {
 
   def everywheretd(s : => Strategy,
                    fs : GFunctionDef[_] => Strategy,
-                   buffer : mutable.Map[String, Term] = mutable.Map()):Strategy =
+                   buffer : mutable.Map[String, Any] = mutable.Map()):Strategy =
     everywhereConstructor(s, fs,
                         (top, children) => attempt(top) <* all(children), buffer)
 
@@ -47,7 +48,7 @@ object Expression {
 
   def everywherebu(s : => Strategy,
                    fs : GFunctionDef[_] => Strategy,
-                   buffer : mutable.Map[String, Term] = mutable.Map()):Strategy =
+                   buffer : mutable.Map[String, Any] = mutable.Map()):Strategy =
     everywhereConstructor(s, fs,
                         (top, children) => all(children) <* attempt(top), buffer)
 
@@ -56,19 +57,19 @@ object Expression {
     s : => Strategy,
     fs : GFunctionDef[_] => Strategy,
     constructEverywhere : (Strategy, Strategy) => Strategy,
-    buffer : mutable.Map[String, Term]):Strategy =
-    new Strategy {
-      override def apply(t: Term) : Option[Term] = {
-        t match {
+    buffer : mutable.Map[String, Any]):Strategy =
+    new Strategy("Test") {
+      override val body : Any => Option[Any] = (r : Any) => {
+        r match {
           case f:GFunctionDef[_] =>
             if (buffer.contains(f.name)) Some(buffer(f.name))
             else {
               val newS = fs(f)
-              val result = rewrite(constructEverywhere(s, everywhereConstructor(newS, fs, constructEverywhere, buffer)))(t)
+              val result = rewrite(constructEverywhere(s, everywhereConstructor(newS, fs, constructEverywhere, buffer)))(r)
               buffer += f.name -> result
               Some(result)
             }
-          case _ => constructEverywhere(s, everywhereConstructor(s, fs, constructEverywhere, buffer))(t)
+          case _ => constructEverywhere(s, everywhereConstructor(s, fs, constructEverywhere, buffer))(r)
         }
       }
     }
@@ -107,10 +108,10 @@ object Expression {
 
   class GlobalVarCollector {
     private var func2varsMap = Map[String, Set[String]]()
-    private def collectVars(lvars:Set[String],ex:Term):Set[String] = {
+    private def collectVars(lvars:Set[String],ex:Any):Set[String] = {
       val vars = mutable.Set[String]()
-      val captureFuncDef = rule {
-        case f:GFunctionDef[_] =>
+      val captureFuncDef = rule[GFunctionDef[_]] {
+        case f:GFunctionDef[Any] =>
           if (func2varsMap.contains(f.name))
             vars ++= func2varsMap(f.name)
           else {
@@ -120,7 +121,7 @@ object Expression {
             }
           f
       }
-      val storeVars = rule {
+      val storeVars = rule[GIdentifierRef] {
         case i:GIdentifierRef =>
           if (!(lvars contains i.id)) vars += i.id
           i
@@ -129,7 +130,7 @@ object Expression {
       vars
     }
 
-    def allGlobalVars(e:Term):Set[String] = {
+    def allGlobalVars(e:Any):Set[String] = {
       collectVars(Set(), e)
     }
   }
@@ -139,7 +140,7 @@ object Expression {
    * @param e: Expression
    * @return a set contains all the global variebles
    */
-  def collectGlobalVars(e:Term):Set[String] = new GlobalVarCollector().allGlobalVars(e)
+  def collectGlobalVars(e:Any):Set[String] = new GlobalVarCollector().allGlobalVars(e)
   // def collectGlobalVars(e:Term):Set[String]={
   //   var func2varsMap = Set[String]()
   //   def collectVars(lvars:Set[String],ex:Term):Set[String]={
@@ -167,7 +168,7 @@ object Expression {
 
   def replaceVars[T](replace:String => Option[T], localVars:Iterable[String] = Iterable()):Strategy = {
     val func2ResultMap = mutable.Map[String, GFunctionDef[_]]()
-    val captureFuncDef = rule {
+    val captureFuncDef = rule[GFunctionDef[_]] {
         case f:GFunctionDef[_] =>
           if (func2ResultMap.contains(f.name))
             func2ResultMap(f.name)
@@ -178,7 +179,7 @@ object Expression {
             result
           }
       }
-    val storeVars = rule {
+    val storeVars = rule[Any] {
       case i:GIdentifierRef if !localVars.exists(_ == i.id)=>
         replace(i.id).getOrElse(i)
     }
@@ -190,7 +191,7 @@ object Expression {
     types:Types,
     replace:String=>Option[Expression] = (_)=>None):Strategy = {
     val buffer = mutable.Map[(String, Seq[Expression]), Expression]()
-    val captureFuncCall = rule {
+    val captureFuncCall = rule[Expression] {
       case f:UserFunctionCall =>
         assert(f.func.params.size == f.args.size)
         println(f.args)
@@ -211,10 +212,10 @@ object Expression {
           result
         }
     }
-    val replaceParams = rule {
+    val replaceParams = rule[Expression] {
       case x@IdentifierRef(id) => replace(id).getOrElse(x)
     }
-    def simplify = rule {
+    def simplify = rule[Expression] {
       case x:Expression => ExpressionHelper.simplifyWithReplacement(x, types)
     }
     everywherebuWithGuard(captureFuncCall, replaceParams) <* simplify
@@ -235,10 +236,10 @@ object Expression {
     var nextC:Int = 0
     var list:List[(String,Expression)] = List[(String,Expression)]()
     import org.kiama.rewriting.Rewriter._
-    val ruleFuncDef=rule{
+    val ruleFuncDef=rule[FunctionDef]{
       case x:FunctionDef => x
     }
-    def commonRule:Strategy=rule{
+    def commonRule:Strategy=rule[Expression]{
      case IdentifierRef(vname)=>{
         val rlt = assign(vname)
         if (rlt isEmpty) IdentifierRef(vname) else rlt get
@@ -251,7 +252,7 @@ object Expression {
         else{
          var funcDef = x.func
           assert(funcDef.params.size == x.args.size)
-          var ruleParas=rule{
+          var ruleParas=rule[Expression]{
             case IdentifierRef(vname) if (funcDef.params.exists(A=>{A._1==vname}))=>{
               val index = funcDef.params.toIndexedSeq.indexWhere(A=>{A._1==vname})
               x.args(index)
@@ -279,12 +280,12 @@ object Expression {
     rlt
   }
 
-  class CollectorS[T](f: PartialFunction[Term, T]) {
+  class CollectorS[T](f: PartialFunction[Any, T]) {
     var func2TMap = Map[String, Set[T]]()
-    def collect(ex:Term):Set[T]={
+    def collect(ex:Any):Set[T]={
       val result = mutable.Set[T]()
-      def captureFuncDef() = rule {
-        case x:GFunctionDef[_] =>
+      def captureFuncDef() = rule[GFunctionDef[_]] {
+        case x:GFunctionDef[Any] =>
           if (func2TMap.contains(x.name)) {
             result ++= func2TMap(x.name)
           }
@@ -295,20 +296,20 @@ object Expression {
           }
           x
       }
-      val add = (v:T) => result += v
+      val add: (T) => Unit = (v:T) => result += v
       val qs:Strategy = query(f andThen add)
       rewrite(MyRewriter.everywheretdWithGuard(captureFuncDef, qs))(ex)
       result
     }    
   }
 
-  class CollectorL[T](f: PartialFunction[Term, T]) {
+  class CollectorL[T](f: PartialFunction[Any, T]) {
     var func2TMap = Map[String, List[T]]()
-    def collect(ex:Term):List[T]={
+    def collect(ex:Any):List[T]={
       val result = mutable.ListBuffer[T]()
       val visitedFuncs = mutable.Set[String]()
-      def captureFuncDef() = rule {
-        case x:GFunctionDef[_] =>
+      def captureFuncDef() = rule[GFunctionDef[_]] {
+        case x:GFunctionDef[Any] =>
           if (func2TMap.contains(x.name)) {
             if (!visitedFuncs.contains(x.name)) result ++= func2TMap(x.name)
           }
@@ -320,7 +321,7 @@ object Expression {
           visitedFuncs += x.name
           x
       }
-      val add = (v:T) => result += v
+      val add : (T) => Unit = (v:T) => result += v
       val qs:Strategy = query(f andThen add)
       rewrite(MyRewriter.everywheretdWithGuard(captureFuncDef, qs))(ex)
       result.toList
@@ -335,38 +336,38 @@ object Expression {
   //   b
   // }
 
-  private def collectConstructor[T](s:PartialFunction[Term, T],
-                            fs:GFunctionDef[_]=>PartialFunction[Term, T],
+  private def collectConstructor[T](s:PartialFunction[Any, T],
+                            fs:GFunctionDef[_]=>PartialFunction[Any, T],
                             b:collection.generic.Growable[T]):Strategy = {
-    val add = (v:T) => b += v 
+    val add : (T) => Unit = (v:T) => b += v 
     val qs:Strategy = query(s andThen add)
     def newFs(f:GFunctionDef[_]):Strategy = query(fs(f) andThen add)
     this.everywheretd(qs, newFs)
   }
 
-  def collectl[T](s: PartialFunction[Term, T],
-                  fs:GFunctionDef[_]=>PartialFunction[Term, T])(e:Term):List[T] = {
+  def collectl[T](s: PartialFunction[Any, T],
+                  fs:GFunctionDef[_]=>PartialFunction[Any, T])(e:Any):List[T] = {
     val b = mutable.ListBuffer[T]()
     collectConstructor(s, fs, b)(e)
     b.toList    
   }
 
-  def collectl[T](f: PartialFunction[Term, T])(e:Term):List[T] = {
+  def collectl[T](f: PartialFunction[Any, T])(e:Any):List[T] = {
     collectl(f, _ => f)(e)
   }
   
-  def collects[T](s: PartialFunction[Term, T],
-                  fs:GFunctionDef[_]=>PartialFunction[Term, T])(e:Term):Set[T] = {
+  def collects[T](s: PartialFunction[Any, T],
+                  fs:GFunctionDef[_]=>PartialFunction[Any, T])(e:Any):Set[T] = {
     val b = mutable.Set[T]()
     collectConstructor(s, fs, b)(e)
     b    
   }
 
-  def collects[T](f: PartialFunction[Term, T])(e:Term):Set[T] = {
+  def collects[T](f: PartialFunction[Any, T])(e:Any):Set[T] = {
     collects(f, _ => f)(e)
   }
 
-  // def collectl[T](f: PartialFunction[Term, T])(e:Term):List[T] = {
+  // def collectl[T](f: PartialFunction[Any, T])(e:Any):List[T] = {
   //   val b = mutable.ListBuffer[T]()
   //   val add = (v:T) => b += v 
   //   val qs:Strategy = query(f andThen add)
@@ -374,17 +375,17 @@ object Expression {
   //   b.toList
   // } 
 
-  def collectsNoDef[T](f: PartialFunction[Term, T])(e:Term):Set[T] = {
+  def collectsNoDef[T](f: PartialFunction[Any, T])(e:Any):Set[T] = {
     val b = mutable.Set[T]()
-    val add = (v:T) => b += v 
+    val add : (T) => Unit = (v:T) => b += v 
     val qs:Strategy = query(f andThen add)
     this.everywheretdNoDef(qs)(e)
     b
   } 
 
-  def collectlNoDef[T](f: PartialFunction[Term, T])(e:Term):List[T] = {
+  def collectlNoDef[T](f: PartialFunction[Any, T])(e:Any):List[T] = {
     val b = mutable.ListBuffer[T]()
-    val add = (v:T) => b += v 
+    val add : (T) => Unit = (v:T) => b += v 
     val qs:Strategy = query(f andThen add)
     this.everywheretdNoDef(qs)(e)
     b.toList
@@ -420,7 +421,7 @@ object Expression {
   //   es.map(allGlobalVars(_, Set(), func2varsMap)).flatten(x => x).toSet
   // }
 
-  def sortFuncDef(cs:Term):Seq[FunctionDef] = {
+  def sortFuncDef(cs:Any):Seq[FunctionDef] = {
     val nodeMap = mutable.Map[String, Node]()
     val rootNodes = mutable.Set[Node]()
     case class Node(func:FunctionDef) {
@@ -452,11 +453,11 @@ object Expression {
     })
     
 
-    val rootRule = query{
+    val rootRule = query[UserFunctionCall]{
       case f:UserFunctionCall => get(f.func)
     }
 
-    def childrenRule(p:GFunctionDef[_]):Strategy = query{
+    def childrenRule(p:GFunctionDef[_]):Strategy = query[UserFunctionCall] {
       case f:UserFunctionCall =>
         f.func.addOutgoing(p.asInstanceOf[FunctionDef])
     }
@@ -939,7 +940,7 @@ object ExpressionHelper {
   private def containsIdentifier(expr: Expression) = {
     import org.kiama.rewriting.Rewriter._
     var result = false
-    rewrite(everywhere(query {
+    rewrite(everywhere(query[Expression] {
       case a: IdentifierRef =>
         result = true
     }))(expr)
@@ -949,7 +950,7 @@ object ExpressionHelper {
   // only apply to type corrected expr
   def removeToBool(expr: Expression, types: Expression.Types): Expression = {
     import org.kiama.rewriting.Rewriter._
-    rewrite(everywherebu(rule {
+    rewrite(everywherebu(rule[Expression] {
       case ToBool(e) => Not(e === TypeHelper.ZeroToType {
         val t = getType(e, types)
         assert(t.isInstanceOf[SingleType], e.toString + ":" + t)
@@ -972,10 +973,9 @@ object ExpressionHelper {
       object ContainsConditional {
         def unapply(expr: Expression): Option[Conditional] = {
           var r: Option[Conditional] = None
-          val isConditional: PartialFunction[Any, Conditional] = {
+          everywheretd(query[Conditional]{
             case x: Conditional if r == None => { r = Some(x); x }
-          }
-          everywheretd(query(isConditional))(t)
+          })(t)
           r
         }
       }
@@ -1004,7 +1004,7 @@ object ExpressionHelper {
 
   def removeBooleanEq(expr: Expression, types: Expression.Types): Expression = {
     import org.kiama.rewriting.Rewriter._
-    rewrite(everywherebu(rule {
+    rewrite(everywherebu(rule[Expression] {
       case Eq(x, y) if getType(x, types) == BoolType && getType(y, types) == BoolType =>
         (x & y) | (Not(x) & Not(y))
     }))(expr)
@@ -1036,7 +1036,7 @@ object ExpressionHelper {
 
   import org.kiama.rewriting.Rewriter._
   def simplify(expr: Expression): Expression = {
-    rewrite(Expression.everywherebu(rule {
+    rewrite(Expression.everywherebu(rule[Expression] {
       case And(_, BoolLiteral(false)) => BoolLiteral(false)
       case And(BoolLiteral(false), _) => BoolLiteral(false)
       case And(BoolLiteral(true), e) => e

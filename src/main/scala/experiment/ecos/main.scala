@@ -83,7 +83,7 @@ object MainEcosExperiment {
 
   	def countOperators(c:Expression):Int = {
       var result = 0
-      rewrite{everywhere{query{
+      rewrite{everywhere{query[Any]{
         case _:BinaryExpression => result += 1
         case _:Conditional => result += 1
         case _:UnaryExpression => result += 1

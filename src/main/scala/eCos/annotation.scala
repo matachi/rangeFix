@@ -146,7 +146,7 @@ class NodeAnnotations {
 	
 	def apply(ns:Iterable[Node], file:String):Iterable[Node] = {
 		import org.kiama.rewriting.Rewriter._ 
-		rewrite(everywherebu ( rule {
+		rewrite(everywherebu ( rule[Any] {
 			case n : Node => 
 				val applied = apply(n, file, annotations.getOrElse(n.id, List(NullAnnotation)))
 				applied

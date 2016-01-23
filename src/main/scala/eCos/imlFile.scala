@@ -121,7 +121,7 @@ object NodeHelper {
 
     def rewriteExpression(e:Expression):Expression = {
       import org.kiama.rewriting.Rewriter._ 
-      rewrite(everywherebu(rule{
+      rewrite(everywherebu(rule[Any]{
 	case GetData(id) => 
 	  assert(allNodes.keySet.contains(id))
 	  data(allNodes(id))
@@ -309,7 +309,7 @@ object NodeHelper {
   def EccNodes2Nodes(nodes:Iterable[EccNode]) = {
     import ConditionalCompilation._
     import org.kiama.rewriting.Rewriter._
-    def removeReal[T]:T=>T = rewrite(everywheretd(rule{
+    def removeReal[T]:T=>T = rewrite(everywheretd(rule[Any]{
       case RealLiteral(r) => IntLiteral(r.toLong)
       case LegalValuesOption(rs) => LegalValuesOption(List() ++ rs)
     } )) _

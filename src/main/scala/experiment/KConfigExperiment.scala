@@ -239,7 +239,7 @@ object KConfigExperiment{
                   case u:RangeUnit => {
                     import org.kiama.rewriting.Rewriter._
                     ExpressionHelper.simplify(
-                      rewrite(everywheretd(rule{ case IdentifierRef(id) => currentEvaluation(id) })) (u.constraint)
+                      rewrite(everywheretd(rule[Any]{ case IdentifierRef(id) => currentEvaluation(id) })) (u.constraint)
                     ) == BoolLiteral(true)
                   }
                   case _ =>false

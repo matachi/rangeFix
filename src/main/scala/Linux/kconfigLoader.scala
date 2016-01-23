@@ -1,5 +1,5 @@
 package ca.uwaterloo.gsd.rangeFix
-import gsd.linux._
+import gsd.linux.KConfigParser
 import Kconfig._
 
 class KconfigLoader(modelFile:String, configPath:String) extends ModelLoader {
@@ -10,7 +10,7 @@ class KconfigLoader(modelFile:String, configPath:String) extends ModelLoader {
   private[this] val indexedIds = kc.varTypes.keys.toIndexedSeq
   private[this] val allEffectives = indexedIds.map(x =>  EffectiveExpr(kc.effective(x).toExpression, x))
   private val _effectiveMap = indexedIds zip (0 until indexedIds.size) toMap
-  private val _allExpressions = choices.toIndexedSeq[ConstraintWithSource] ++ domains ++ allEffectives
+  private val _allExpressions = choices.toIndexedSeq ++ domains ++ allEffectives
   private val _reqConstraintSize = choices.size + domains.size
   def defaults(t:Type) = t match {
     case _:EnumType => Kconfig.tristateNo

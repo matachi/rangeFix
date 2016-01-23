@@ -81,17 +81,19 @@ object Kconfig {
 
   
   import MyRewriter._
-  import Rewriter._
+  import Rewriter.rule
+  import org.kiama.rewriting
+  import org.kiama.rewriting.Rewriter.rewrite
 
   private lazy val bypassFuncDef = 
-    rule {
+    rule[Any] {
       case x:TFuncDef => x
     }
   
-  def rewritetdBypassingFuncDefs[T](s : => Rewriter.Strategy):T=>T = {
+  def rewritetdBypassingFuncDefs[T](s : => rewriting.Strategy):T=>T = {
     rewrite(everywheretdWithGuard(bypassFuncDef, s))
   }
-  def rewritebuBypassingFuncDefs[T](s : => Rewriter.Strategy):T=>T = {
+  def rewritebuBypassingFuncDefs[T](s : => rewriting.Strategy):T=>T = {
     rewrite(everywherebuWithGuard(bypassFuncDef, s))
   }
 
@@ -387,7 +389,7 @@ class ExpressionTypeChecker {
   import Rewriter._
 
   lazy val fixEq =
-    rule {
+    rule[Any] {
       // TODO
       case BEq(l, TString("")) if l.t == TIntType =>
         warn("Mismatch BEq (null) %s:%s = \"\"".format(l, l.t))
@@ -463,11 +465,11 @@ class ExpressionTypeChecker {
 }
 
 class Kconfig2(val ak: AbstractKConfig) {
-  private val akMap = ak.configs.map { case x @ AConfig(name, _, _, _, _, _, _) => name -> x }.toMap
+  private val akMap = ak.configs.map { case x @ AConfig(_, name, _, _, _, _, _, _, _) => name -> x }.toMap
 
   private val configTypes: Map[String, TType] = {
     ak.configs map {
-      case AConfig(name, ktype, _, _, _, _, _) =>
+      case AConfig(_, name, ktype, _, _, _, _, _, _) =>
 
         val configType: TType = ktype match {
           case KBoolType => TBoolType
@@ -871,7 +873,7 @@ class Kconfig2(val ak: AbstractKConfig) {
 
   lazy val configDomains: Map[String, Expression] = {
     ak.configs map {
-      case AConfig(name, ktype, _, _, _, _, _) =>
+      case AConfig(_, name, ktype, _, _, _, _, _, _) =>
         name -> {
           ktype match {
               //case KBoolType => IdentifierRef(encode(name)) !== tristateMod
@@ -886,7 +888,7 @@ class Kconfig2(val ak: AbstractKConfig) {
   }
 
   lazy val visibilityConstraints: Map[String, BoolExpr] = ak.configs map {
-    case AConfig(name, ktype, inherited, prompt, _, _, _) =>
+    case AConfig(_, name, ktype, inherited, prompt, _, _, _, _) =>
       name -> (translate(inherited) bneq TNo)
   } toMap
 
@@ -902,7 +904,7 @@ class Kconfig(val ak: AbstractKConfig, checker: ExpressionTypeChecker = new Expr
 
   val configTypes: Map[String, TType] = {
     ak.configs map {
-      case AConfig(name, ktype, _, _, _, _, _) =>
+      case AConfig(_, name, ktype, _, _, _, _, _, _) =>
 
         val configType: TType = ktype match {
           case KBoolType => TBoolType
@@ -998,7 +1000,7 @@ class Kconfig(val ak: AbstractKConfig, checker: ExpressionTypeChecker = new Expr
 
     // this function should be called after all IDs have been generated
     def simplifyAll(allConstraintsWithGenIds: Traversable[BoolExpr]): Traversable[BoolExpr] = {
-      val idSubs = rule {
+      val idSubs = rule[Any] {
         case x @ TId(n, _) if isGenRef(n) => {
           val i = n.substring(GEN_PREFIX.size).toInt
           val expr = equivBuffer(i)
@@ -1018,7 +1020,7 @@ class Kconfig(val ak: AbstractKConfig, checker: ExpressionTypeChecker = new Expr
   // Reverse dependencies are ignored for non-tristate features
   val configConstraints: List[BoolExpr] =
     ak.configs flatMap {
-      case AConfig(name, ktype, inherited, prompt, defaults, revs, ranges) =>
+      case AConfig(_, name, ktype, inherited, prompt, defaults, revs, ranges, _) =>
         // println("Working on: " + name)
         // println("prompt:" + prompt)
         // println("defaults:" + defaults)
@@ -1134,14 +1136,14 @@ class Kconfig(val ak: AbstractKConfig, checker: ExpressionTypeChecker = new Expr
   }
 
   val visibilityConstraints: Map[String, BoolExpr] = ak.configs map {
-    case AConfig(name, ktype, inherited, prompt, _, _, _) =>
+    case AConfig(_, name, ktype, inherited, prompt, _, _, _, _) =>
       //Yingfei's change here. Original: name -> (translate(prompt) bneq TNo)
       name -> (translate(inherited) bneq TNo)
   } toMap
 
   val configDomains: Map[String, Expression] = {
     ak.configs map {
-      case AConfig(name, ktype, _, _, _, _, _) =>
+      case AConfig(_, name, ktype, _, _, _, _, _, _) =>
         name -> {
           ktype match {
             case KBoolType => IdentifierRef(name) !== tristateMod
@@ -1174,32 +1176,32 @@ object Simplifier {
   import Rewriter._
 
   lazy val subsOr =
-    rule {
+    rule[Any] {
       case BOr(BoolFalse, y) => y
       case BOr(x, BoolFalse) => x
     }
 
   lazy val subsEq =
-    rule {
+    rule[Any] {
       case BEq(x, y) if (x == y) => BoolTrue
       case BEq(x: TLiteral, y: TLiteral) if (x != y) => BoolFalse
     }
 
   lazy val subsNeq =
-    rule {
+    rule[Any] {
       case BNeq(x, y) if (x == y) => BoolFalse
       case BNeq(x: TLiteral, y: TLiteral) if (x != y) => BoolTrue
     }
 
   lazy val subsNot =
-    rule {
+    rule[Any] {
       case TNot(TYes) => TNo
       case TNot(TMod) => TMod
       case TNot(TNo) => TYes
     }
 
   lazy val subsGt =
-    rule {
+    rule[Any] {
       case BGt(x, y) if x == y => BoolFalse
       case BGt(TNo, y) if y.t == TTristateType => BoolFalse
       case BGt(y, TYes) if y.t == TTristateType => BoolFalse
@@ -1217,7 +1219,7 @@ object Simplifier {
     }
 
   lazy val subsLt =
-    rule {
+    rule[Any] {
       case BLt(x, y) if x == y => BoolFalse
       case BLt(TYes, y) if y.t == TTristateType => BoolFalse
       case BLt(y, TNo) if y.t == TTristateType => BoolFalse
@@ -1235,7 +1237,7 @@ object Simplifier {
     }
 
   lazy val subsMax =
-    rule {
+    rule[Any] {
       case TMax(x, y) if x == y => x
       case TMax(TYes, y) => TYes
       case TMax(x, TYes) => TYes
@@ -1244,7 +1246,7 @@ object Simplifier {
     }
 
   lazy val subsMin =
-    rule {
+    rule[Any] {
       case TMin(x, y) if x == y => x
       case TMin(TYes, y) => y
       case TMin(x, TYes) => x
@@ -1253,7 +1255,7 @@ object Simplifier {
     }
 
   lazy val subsConditional =
-    rule {
+    rule[Any] {
       case BConditional(BoolTrue, success, _) => success
       case BConditional(BoolFalse, _, fail) => fail
       case TConditional(BoolTrue, success, _) => success

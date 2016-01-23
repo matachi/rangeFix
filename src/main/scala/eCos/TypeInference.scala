@@ -684,11 +684,11 @@ object TypeHelper {
 				if (i.value == 0) new DisjunctiveType(NumberType, StringType, BoolType, SetType)
 				else if (i.value == 1) new DisjunctiveType(NumberType, BoolType) 
 				else NumberType
-			val optEnums = literals2enumTypes.get(i)
-			optEnums.flatten.foldLeft(noEnumType)((l, r) => l | r)
+			val optEnums : Option[List[EnumType]] = literals2enumTypes.get(i)
+			optEnums.toList.flatten.foldLeft(noEnumType)((l, r) => l | r)
 		case s:StringLiteral =>
 			val optEnums = literals2enumTypes.get(s)
-			optEnums.flatten.foldLeft((new DisjunctiveType(StringType, SetType)):Type)((l, r) => l | r)
+			optEnums.toList.flatten.foldLeft((new DisjunctiveType(StringType, SetType)):Type)((l, r) => l | r)
 		case _:RealLiteral => NumberType
 		case EnumLiteral(v, t) => t
 		case _:BoolLiteral => BoolType

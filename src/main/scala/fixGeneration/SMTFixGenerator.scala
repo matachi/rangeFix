@@ -274,12 +274,12 @@ object SMTFixGenerator {
                                 else 
                                  resultIndex=0
                                 if(resultIndex==1) count=count+1//统计result(1)尚有多少变量
-                                if(variableType(i)=="Bool") result(resultIndex)= ExpressionHelper.simplify(rewrite(everywherebu(rule {  case IdentifierRef(a) if a==variableName(i) =>BoolLiteral(variableValue(i).toBoolean)}))(result(resultIndex)))
-                                else if(variableType(i)=="Int")   result(resultIndex)= ExpressionHelper.simplify(rewrite(everywherebu(rule {  case IdentifierRef(a) if a==variableName(i) =>IntLiteral(variableValue(i).toInt)}))(result(resultIndex)))
+                                if(variableType(i)=="Bool") result(resultIndex)= ExpressionHelper.simplify(rewrite(everywherebu(rule[Expression] {  case IdentifierRef(a) if a==variableName(i) =>BoolLiteral(variableValue(i).toBoolean)}))(result(resultIndex)))
+                                else if(variableType(i)=="Int")   result(resultIndex)= ExpressionHelper.simplify(rewrite(everywherebu(rule[Expression] {  case IdentifierRef(a) if a==variableName(i) =>IntLiteral(variableValue(i).toInt)}))(result(resultIndex)))
                                 else if(variableType(i)=="BitVec")//如果返回的是BitVec类型
-                                  result(resultIndex)= ExpressionHelper.simplify(rewrite(everywherebu(rule {  case IdentifierRef(a) if a==variableName(i) =>SetLiteral(translator.bitVector2Set(BitVecToBoolean(variableValue(i)))) }))(result(resultIndex)))
+                                  result(resultIndex)= ExpressionHelper.simplify(rewrite(everywherebu(rule[Expression] {  case IdentifierRef(a) if a==variableName(i) =>SetLiteral(translator.bitVector2Set(BitVecToBoolean(variableValue(i)))) }))(result(resultIndex)))
                                 else //scalar类型
-                                  result(resultIndex)= ExpressionHelper.simplify(rewrite(everywherebu(rule {  case IdentifierRef(a) if a==variableName(i) => ScalarToEnumLiteral(variableValue(i),variableType(i),translator) }))(result(resultIndex)))
+                                  result(resultIndex)= ExpressionHelper.simplify(rewrite(everywherebu(rule[Expression] {  case IdentifierRef(a) if a==variableName(i) => ScalarToEnumLiteral(variableValue(i),variableType(i),translator) }))(result(resultIndex)))
                            }
                          if(checkDivide(z3,result,constraint,translator))//表示可以拆分
                          {
@@ -484,8 +484,8 @@ object SMTFixGenerator {
                     import org.kiama.rewriting.Rewriter._ 
                     for(i <- 0 to 1)//只考虑拆分成两个表达式
                     {
-                        if(variableType(i)=="Bool")  result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule {  case IdentifierRef(a) if a==variableName(i) =>BoolLiteral(variableValue(i).toBoolean)}))(constraint))
-                        else if(variableType(i)=="Int")  result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule {  case IdentifierRef(a) if a==variableName(i) =>IntLiteral(variableValue(i).toInt)}))(constraint))
+                        if(variableType(i)=="Bool")  result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule[Expression] {  case IdentifierRef(a) if a==variableName(i) =>BoolLiteral(variableValue(i).toBoolean)}))(constraint))
+                        else if(variableType(i)=="Int")  result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule[Expression] {  case IdentifierRef(a) if a==variableName(i) =>IntLiteral(variableValue(i).toInt)}))(constraint))
                         else if(variableType(i)=="BitVec")//如果返回的是BitVec类型
                         {
                             val bitVecSize=variableValue(i).length
@@ -513,7 +513,7 @@ object SMTFixGenerator {
                             var resultSet = Set[String]()
                             resultSet = translator.bitVector2Set(bitVecArray)
                             //在这里得到的是名为bitVecArray的boolean数组，下面需要将数组传到SMTBVLiteral里面，然后用老师写的函数得到值用rewrite替换变量即可
-                            result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule {  case IdentifierRef(a) if a==variableName(i) =>SMTBVLiteral(bitVecArray)}))(constraint))
+                            result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule[GExpression] {  case IdentifierRef(a) if a==variableName(i) =>SMTBVLiteral(bitVecArray)}))(constraint))
                         }
                         else //scalar类型
                         {
@@ -528,11 +528,11 @@ object SMTFixGenerator {
                             }
                             if(flag==false)
                             {//int
-                                  result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule {  case IdentifierRef(a) if a==variableName(i) => EnumLiteral(StringLiteral(variableValue(i)), translator.scala2EnumType(variableType(i).toInt)) }))(constraint))
+                                  result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule[Expression] {  case IdentifierRef(a) if a==variableName(i) => EnumLiteral(StringLiteral(variableValue(i)), translator.scala2EnumType(variableType(i).toInt)) }))(constraint))
                             }
                             else
                             {//string
-                                  result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule {  case IdentifierRef(a) if a==variableName(i) => EnumLiteral(IntLiteral(variableValue(i).toLong), translator.scala2EnumType(variableType(i).toInt)) }))(constraint))
+                                  result(i)= ExpressionHelper.simplify(rewrite(everywherebu(rule[Expression] {  case IdentifierRef(a) if a==variableName(i) => EnumLiteral(IntLiteral(variableValue(i).toLong), translator.scala2EnumType(variableType(i).toInt)) }))(constraint))
                             }
                         }
                     }
@@ -586,7 +586,7 @@ object SMTFixGenerator {
 	
 	//syntactic & semantic part
 	val syntConstrts = (constraints ++ semntcConstrts).map ( c => {
-	  val replaced = rewrite(everywheretd(repeat(rule{
+	  val replaced = rewrite(everywheretd(repeat(rule[Expression]{
 	    case IdentifierRef(id) if (!synt.contains(id) && !semanticVars.contains(id)) => configuration(id)
 	    case IdentifierRef(id) if (semanticVars.contains(id)) => semanticVars(id)
 	  } )))(c)
