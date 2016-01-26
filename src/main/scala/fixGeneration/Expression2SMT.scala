@@ -1,14 +1,23 @@
 package ca.uwaterloo.gsd.rangeFix
 import collection._
 
+object X {
+  // Needs to be in a separate object, since the compiler doesn't know that
+  // they in Expression2SMT's alternative constructor do not access
+  // Expression2SMT before it has been initialized. See:
+  // http://stackoverflow.com/a/30823465/595990
+  val collectLiterals: PartialFunction[Any, Literal] = { case a:Literal => a }
+  val collectIds: PartialFunction[Any, Any] = { case IdentifierRef(id) => id }
+}
+
 // any constraints that is translated later should only contain the
 // literals (in the case of EnumLiteral, the literals that are of the
 // same enum type) and variables passed to the constructors
 class Expression2SMT(literals:Iterable[Literal], types:Expression.Types) {
 
   def this(constraints:Iterable[Expression], config:Map[String, Literal], types:Expression.Types) = this ( 
-    Expression.collectl { case a:Literal => a } (constraints ++ config.values),
-    types filterKeys { Expression.collects{ case IdentifierRef(id) => id }(constraints).contains }
+    Expression.collectl(X.collectLiterals)(constraints ++ config.values),
+    types filterKeys { Expression.collects(X.collectIds)(constraints).contains }
   )
   
   private val StringSeparator = " "
