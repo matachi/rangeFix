@@ -66,13 +66,10 @@ object DotConfigParser {
     case _ => false
   }
 
-  def isHex(s: String) = try {
-      val hasPrefix = s startsWith "0x"
-      java.lang.Long.parseLong(s.substring(2), 16)
-      hasPrefix
-    } catch {
-      case _ => false
-    }
+  def isHex(s: String): Boolean = s.splitAt(2) match {
+    case ("0x", x) => util.Try(BigInt(x, 16)).isSuccess
+    case _ => false
+  }
 
   def parseFile(file: String): Map[String,TLiteral] = {
     val source = scala.io.Source.fromFile(file)
@@ -87,8 +84,12 @@ object DotConfigParser {
                 case "m" => TMod
                 case "n" => TNo
                 case x if isInt(x) => TInt(x.toInt)
-                case x if isHex(x) => TInt(java.lang.Long.parseLong(x.substring(2), 16))
-				case STRING_PATTERN(x) => TString(x)
+                case x if isHex(x) =>
+                TInt(java.lang.Long.parseLong(
+                  x.substring(2, math.min(15, x.size)),
+                  16
+                ))
+                case STRING_PATTERN(x) => TString(x)
                 case x => sys.error("Unmatched: " + line) //TString(x)
               }
             }
