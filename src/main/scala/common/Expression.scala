@@ -57,13 +57,15 @@ object Expression {
     s : => Strategy,
     fs : GFunctionDef[_] => Strategy,
     constructEverywhere : (Strategy, Strategy) => Strategy,
-    buffer : mutable.Map[String, Any]):Strategy =
+    buffer : mutable.Map[String, Any]
+  ): Strategy = {
     new Strategy("Test") {
       override val body : Any => Option[Any] = (r : Any) => {
         r match {
           case f:GFunctionDef[_] =>
-            if (buffer.contains(f.name)) Some(buffer(f.name))
-            else {
+            if (buffer.contains(f.name)) {
+              Some(buffer(f.name))
+            } else {
               val newS = fs(f)
               val result = rewrite(constructEverywhere(s, everywhereConstructor(newS, fs, constructEverywhere, buffer)))(r)
               buffer += f.name -> result
@@ -73,6 +75,7 @@ object Expression {
         }
       }
     }
+  }
     
   //   def everywheretdImpl : Strategy = {
   //     bypassFuncDef(a) <+ rememberFuncDef(a, attempt(s) <* (all (everywheretdImpl)))

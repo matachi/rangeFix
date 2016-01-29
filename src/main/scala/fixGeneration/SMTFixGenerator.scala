@@ -145,15 +145,18 @@ object SMTFixGenerator {
 			    ds:Iterable[Diagnosis],
                             getRelatedVars:Expression=>Set[String]):Iterable[DataFix] = {
     import org.kiama.rewriting.Rewriter._
-    val fixconstraints = 
-      for(d <- ds) yield {
-	constraints.filter(a=>d.exists(getRelatedVars(a).contains)).map ( c => {
-          def replace(id:String) = if (!d.contains(id)) Some(configuration(id)) else None
-          val result = Expression.assignVar(c, replace, types)
-	  assert(result != BoolLiteral(false))
-	  result
-	} ).filter(_ != BoolLiteral(true)).map(ExpressionHelper.simplifyWithReplacement(_,types)).filter(_!=BoolLiteral(true))
-      }
+    val fixconstraints = for(d <- ds) yield {
+      constraints.filter(a=>d.exists(getRelatedVars(a).contains)).map(c => {
+        def replace(id:String) =
+          if (!d.contains(id)) Some(configuration(id))
+          else None
+        val result = Expression.assignVar(c, replace, types)
+        assert(result != BoolLiteral(false))
+        result
+      }).filter(_ != BoolLiteral(true))
+        .map(ExpressionHelper.simplifyWithReplacement(_,types))
+        .filter(_!=BoolLiteral(true))
+    }
     val z3 = new Z3()
     try{
       fixconstraints.map(constraint2DataFix(z3, types, _))
