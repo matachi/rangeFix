@@ -841,7 +841,8 @@ class Kconfig2(val ak: AbstractKConfig) {
         !createFixedTEq(rlt._1, rlt._2)
       }
       case KNot(l) => !(fixType(translate(l)))
-      case Group(_, x) => translate(x)
+      // TODO: Fix this?
+      //case Group(_, x) => translate(x)
       case Yes => TYes
       case Module => TMod
       case No => TNo
@@ -946,7 +947,8 @@ class Kconfig(val ak: AbstractKConfig, checker: ExpressionTypeChecker = new Expr
     case NonCanonEq(l, r) => translate(l) teq translate(r)
     case KNEq(l, r) => !(translate(l) teq translate(r))
     case KNot(l) => !translate(l)
-    case Group(_, x) => translate(x)
+    // TODO: Fix this?
+    //case Group(_, x) => translate(x)
     case Yes => TYes
     case Module => TMod
     case No => TNo
