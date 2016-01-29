@@ -22,3 +22,15 @@ Steps to build the project:
     $ sbt
     > compile
 
+Prerequisites for running rangeFix:
+
+    $ sudo dnf install z3
+    $ cd ~
+    $ git clone git@github.com:matachi/linux-variability-analysis-tools.extracts.git
+    $ git clone --depth 1 --branch linux-2.6.32.y git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+
+Run:
+
+    $ cd ~/rangeFix
+    $ sbt run-main ca.uwaterloo.gsd.rangeFix.KconfigMain ../linux-variability-analysis-tools.extracts/2.6.32.69.exconfig ../linux-2.6.32.y/.config USB_C67X00_HCD yes
+
