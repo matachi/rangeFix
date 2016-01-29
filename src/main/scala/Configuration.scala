@@ -8,5 +8,5 @@ object CompilationOptions {
 	type CONVERT_REAL_TO_INT = TRUE
         type USE_MINIMAL_CORE = FALSE
 	val THREAD_NUMBER = 1
-	val Z3_PATH = """tools/Z3/z3.exe""" 
+	val Z3_PATH = """/usr/bin/z3""" 
 }
