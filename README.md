@@ -34,3 +34,13 @@ Run:
     $ cd ~/rangeFix
     $ sbt run-main ca.uwaterloo.gsd.rangeFix.KconfigMain ../linux-variability-analysis-tools.extracts/2.6.32.69.exconfig ../linux-2.6.32.y/.config USB_C67X00_HCD yes
 
+Smaller test:
+
+    $ sbt
+    > run-main ca.uwaterloo.gsd.rangeFix.KconfigMain testfiles/kconfig/test.exconfig testfiles/kconfig/test.config A yes
+    [info] Running ca.uwaterloo.gsd.rangeFix.KconfigMain testfiles/kconfig/test.exconfig testfiles/kconfig/test.config A yes
+    Loading file...Loaded.
+    Preparing the fix generator...done.
+    Computing fixes...
+            [No variables:(Enum[0,1,2].2 == A__effective())]
+
