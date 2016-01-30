@@ -1002,7 +1002,13 @@ object ExpressionHelper {
       }
     }
 
-    rewrite(everywheretd(rulef(removeSingleBooleanConditional)) <* everywheretd(rulef(removeSingleDataConditional)))(expr)
+    println("Build strategy")
+    val strategy = everywheretd(rulef(removeSingleBooleanConditional)) <* everywheretd(rulef(removeSingleDataConditional))
+    println("Strategy built")
+    println("Apply strategy")
+    val r = rewrite(strategy)(expr)
+    println("Strategy built")
+    r
   }
 
   def removeBooleanEq(expr: Expression, types: Expression.Types): Expression = {
