@@ -43,10 +43,12 @@ case class RangeUnit(vars:Set[String], override val constraint:Expression) exten
 		val sb = new StringBuilder
 		if (vars.size == 1)
 			sb ++= vars.head
-		else {
+		else if (vars.size > 1) {
 			sb += '('
 			sb ++= vars.map(_.toString).reduce(_ + ", " + _)
 			sb += ')'
+		} else {
+			sb ++= "No variables"
 		}
 		sb += ':'
 		sb ++= constraint.toString
