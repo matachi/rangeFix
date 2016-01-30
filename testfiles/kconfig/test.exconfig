@@ -1,0 +1,8 @@
+config A tristate {
+ depends on [B]
+}
+config B tristate {
+ depends on [C]
+}
+config C tristate {
+}
