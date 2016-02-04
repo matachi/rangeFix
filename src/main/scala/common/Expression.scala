@@ -1,5 +1,8 @@
 package ca.uwaterloo.gsd.rangeFix
 import collection._
+import org.kiama.rewriting
+import org.kiama.rewriting.Rewriter._
+import MyRewriter._
 
 object Expression {
   implicit def string2VarRef(s: String) = IdentifierRef(s)
@@ -9,9 +12,6 @@ object Expression {
   type Types = collection.Map[String, SingleType]
   type Configuration = collection.Map[String, Literal]
 
-  import org.kiama.rewriting.Rewriter._
-  import org.kiama.rewriting.Strategy
-  import MyRewriter._
   // private def rememberFuncDef(s:mutable.Map[String, Term], f: =>Strategy):Strategy =
   //   new Strategy {
   //     def apply (t : Term) : Option[Term] = {
@@ -34,32 +34,32 @@ object Expression {
     case x:GFunctionDef[_] => x
   }
 
-  def everywheretd(s : => Strategy):Strategy =
+  def everywheretd(s : => rewriting.Strategy):rewriting.Strategy =
     everywheretd(s, _ => s)
 
-  def everywheretd(s : => Strategy,
-                   fs : GFunctionDef[_] => Strategy,
-                   buffer : mutable.Map[String, Any] = mutable.Map()):Strategy =
+  def everywheretd(s : => rewriting.Strategy,
+                   fs : GFunctionDef[_] => rewriting.Strategy,
+                   buffer : mutable.Map[String, Any] = mutable.Map()):rewriting.Strategy =
     everywhereConstructor(s, fs,
                         (top, children) => attempt(top) <* all(children), buffer)
 
-  def everywherebu(s : => Strategy):Strategy =
+  def everywherebu(s : => rewriting.Strategy):rewriting.Strategy =
     everywherebu(s, _ => s)
 
-  def everywherebu(s : => Strategy,
-                   fs : GFunctionDef[_] => Strategy,
-                   buffer : mutable.Map[String, Any] = mutable.Map()):Strategy =
+  def everywherebu(s : => rewriting.Strategy,
+                   fs : GFunctionDef[_] => rewriting.Strategy,
+                   buffer : mutable.Map[String, Any] = mutable.Map()):rewriting.Strategy =
     everywhereConstructor(s, fs,
                         (top, children) => all(children) <* attempt(top), buffer)
 
   
   private def everywhereConstructor(
-    s : => Strategy,
-    fs : GFunctionDef[_] => Strategy,
-    constructEverywhere : (Strategy, Strategy) => Strategy,
+    s : => rewriting.Strategy,
+    fs : GFunctionDef[_] => rewriting.Strategy,
+    constructEverywhere : (rewriting.Strategy, rewriting.Strategy) => rewriting.Strategy,
     buffer : mutable.Map[String, Any]
-  ): Strategy = {
-    new Strategy("Test") {
+  ): rewriting.Strategy = {
+    new rewriting.Strategy("Test") {
       override val body : Any => Option[Any] = (r : Any) => {
         r match {
           case f:GFunctionDef[_] =>
@@ -101,11 +101,11 @@ object Expression {
   //   everywherebuWithGuard(bypassFuncDef(a), rememberFuncDef(a, s))
   // }
   
-  def everywheretdNoDef(s: => Strategy):Strategy = {
+  def everywheretdNoDef(s: => rewriting.Strategy):rewriting.Strategy = {
     everywheretdWithGuard(bypassFuncDef, s)
   }
 
-  def everywherebuNoDef(s: => Strategy):Strategy = {
+  def everywherebuNoDef(s: => rewriting.Strategy):rewriting.Strategy = {
     everywherebuWithGuard(bypassFuncDef, s)
   }
 
@@ -169,7 +169,7 @@ object Expression {
   // }
   
 
-  def replaceVars[T](replace:String => Option[T], localVars:Iterable[String] = Iterable()):Strategy = {
+  def replaceVars[T](replace:String => Option[T], localVars:Iterable[String] = Iterable()):rewriting.Strategy = {
     val func2ResultMap = mutable.Map[String, GFunctionDef[_]]()
     val captureFuncDef = rule[GFunctionDef[_]] {
         case f:GFunctionDef[_] =>
@@ -192,7 +192,7 @@ object Expression {
 
   def flatUserFuncCalls(
     types:Types,
-    replace:String=>Option[Expression] = (_)=>None):Strategy = {
+    replace:String=>Option[Expression] = (_)=>None):rewriting.Strategy = {
     val buffer = mutable.Map[(String, Seq[Expression]), Expression]()
     val captureFuncCall = rule[Expression] {
       case f:UserFunctionCall =>
@@ -242,7 +242,7 @@ object Expression {
     val ruleFuncDef=rule[FunctionDef]{
       case x:FunctionDef => x
     }
-    def commonRule:Strategy=rule[Expression]{
+    def commonRule:rewriting.Strategy=rule[Expression]{
      case IdentifierRef(vname)=>{
         val rlt = assign(vname)
         if (rlt isEmpty) IdentifierRef(vname) else rlt get
@@ -261,7 +261,7 @@ object Expression {
               x.args(index)
             }
           }
-          def rulet:Strategy={
+          def rulet:rewriting.Strategy={
             ruleFuncDef<+ruleParas<+(all(rulet)<*commonRule)
           }
           var getC:Int = nextC;
@@ -276,7 +276,7 @@ object Expression {
       case x:Expression => x
       case x=>x
     }
-    def rulea:Strategy = {
+    def rulea:rewriting.Strategy = {
       ruleFuncDef<+(all(rulea)<*commonRule)
     }
     val rlt = rewrite(rulea)(expr)
@@ -300,7 +300,7 @@ object Expression {
           x
       }
       val add: (T) => Unit = (v:T) => result += v
-      val qs:Strategy = query(f andThen add)
+      val qs:rewriting.Strategy = query(f andThen add)
       rewrite(MyRewriter.everywheretdWithGuard(captureFuncDef, qs))(ex)
       result
     }    
@@ -325,7 +325,7 @@ object Expression {
           x
       }
       val add : (T) => Unit = (v:T) => result += v
-      val qs:Strategy = query(f andThen add)
+      val qs:rewriting.Strategy = query(f andThen add)
       rewrite(MyRewriter.everywheretdWithGuard(captureFuncDef, qs))(ex)
       result.toList
     }    
@@ -341,10 +341,10 @@ object Expression {
 
   private def collectConstructor[T](s:PartialFunction[Any, T],
                             fs:GFunctionDef[_]=>PartialFunction[Any, T],
-                            b:collection.generic.Growable[T]):Strategy = {
+                            b:collection.generic.Growable[T]):rewriting.Strategy = {
     val add : (T) => Unit = (v:T) => b += v 
-    val qs:Strategy = query(s andThen add)
-    def newFs(f:GFunctionDef[_]):Strategy = query(fs(f) andThen add)
+    val qs:rewriting.Strategy = query(s andThen add)
+    def newFs(f:GFunctionDef[_]):rewriting.Strategy = query(fs(f) andThen add)
     this.everywheretd(qs, newFs)
   }
 
@@ -381,7 +381,7 @@ object Expression {
   def collectsNoDef[T](f: PartialFunction[Any, T])(e:Any):Set[T] = {
     val b = mutable.Set[T]()
     val add : (T) => Unit = (v:T) => b += v 
-    val qs:Strategy = query(f andThen add)
+    val qs:rewriting.Strategy = query(f andThen add)
     this.everywheretdNoDef(qs)(e)
     b
   } 
@@ -389,7 +389,7 @@ object Expression {
   def collectlNoDef[T](f: PartialFunction[Any, T])(e:Any):List[T] = {
     val b = mutable.ListBuffer[T]()
     val add : (T) => Unit = (v:T) => b += v 
-    val qs:Strategy = query(f andThen add)
+    val qs:rewriting.Strategy = query(f andThen add)
     this.everywheretdNoDef(qs)(e)
     b.toList
   } 
@@ -460,7 +460,7 @@ object Expression {
       case f:UserFunctionCall => get(f.func)
     }
 
-    def childrenRule(p:GFunctionDef[_]):Strategy = query[UserFunctionCall] {
+    def childrenRule(p:GFunctionDef[_]):rewriting.Strategy = query[UserFunctionCall] {
       case f:UserFunctionCall =>
         f.func.addOutgoing(p.asInstanceOf[FunctionDef])
     }
@@ -1002,12 +1002,8 @@ object ExpressionHelper {
       }
     }
 
-    println("Build strategy")
     val strategy = everywheretd(rulef(removeSingleBooleanConditional)) <* everywheretd(rulef(removeSingleDataConditional))
-    println("Strategy built")
-    println("Apply strategy")
     val r = rewrite(strategy)(expr)
-    println("Strategy built")
     r
   }
 

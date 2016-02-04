@@ -644,7 +644,7 @@ class EccFullPaserTest extends FunSuite with ShouldMatchers {
 
     
     val translatedNodes = NodeHelper.EccNodes2Nodes(eccParser.allNodes())
-    rewrite( everywheretd ( rule {
+    rewrite( everywheretd ( rule[Node] {
       case n:Node => new Node(n.id,
 			      n.cdlType,
 			      "",
@@ -665,7 +665,7 @@ class EccFullPaserTest extends FunSuite with ShouldMatchers {
     val imlFile = fileName
     val imlNodes = EcosIml.parseFile(imlFile)
     val allNames = collects { case n:Node => n.id }(imlNodes)
-    val translatedImlNodes = rewrite( everywheretd ( rule {
+    val translatedImlNodes = rewrite( everywheretd ( rule[Node] {
       case n:Node => new Node(n.id,
 			      n.cdlType,
 			      "",

@@ -4,13 +4,14 @@ import org.scalatest.matchers.ShouldMatchers
 import scala.collection.mutable.Stack
 import scala.collection.mutable
 import java.io._
+import org.kiama.rewriting
+import org.kiama.rewriting.Rewriter
+import org.kiama.rewriting.Rewriter._
 
 class RewritingTest extends FunSuite with ShouldMatchers {
-  import Expression._
-  import org.kiama.rewriting.Rewriter
   test("test simple bu rewriting") {
     val expr = IdentifierRef("a") === "b"
-    val newExpr = Rewriter.rewrite(everywherebu{ Rewriter.rule {
+    val newExpr = Rewriter.rewrite(Expression.everywherebu{ Rewriter.rule[Any] {
       case IdentifierRef(x) => IntLiteral(1)
     }})(expr)
 
@@ -18,7 +19,7 @@ class RewritingTest extends FunSuite with ShouldMatchers {
   }
   test("test simple td rewriting") {
     val expr = IdentifierRef("a") === "b"
-    val newExpr = Rewriter.rewrite(everywheretd{ Rewriter.rule {
+    val newExpr = Rewriter.rewrite(Expression.everywheretd{ Rewriter.rule[Any] {
       case IdentifierRef(x) => IntLiteral(1)
     }})(expr)
 
@@ -26,7 +27,7 @@ class RewritingTest extends FunSuite with ShouldMatchers {
   }
   test("test simple collections") {
     val expr = IdentifierRef("a") === "b"
-    val newExpr = collectl {
+    val newExpr = Expression.collectl {
       case IdentifierRef(x) => x
     }(expr)
 
@@ -37,7 +38,7 @@ class RewritingTest extends FunSuite with ShouldMatchers {
     val expr = IdentifierRef("a") + "b"
     val func = FunctionDef("f", List(("a", NumberType), ("b", NumberType)), NumberType, expr)
     val call = UserFunctionCall(func, List(IntLiteral(1), UserFunctionCall(func, List(2, 3)))) + UserFunctionCall(func, List(4, 5))
-    val result = collectl {
+    val result = Expression.collectl {
       case IdentifierRef(x) => x
     }(call)
 
@@ -163,26 +164,25 @@ class SortFuncDefTest extends FunSuite with ShouldMatchers {
 
 }
 class TestRewrite extends FunSuite with ShouldMatchers{
-  import org.kiama.rewriting.Rewriter._
   import Expression._
   test ("test rule"){
-    def sometopdown (s : => Strategy) : Strategy =
+    def sometopdown (s : => rewriting.Strategy) : rewriting.Strategy =
       s <* sometopdown (s)
     var expr:Expression = (IdentifierRef("a") - IdentifierRef("b"))+(IdentifierRef("a") - IdentifierRef("b"))
     var expr2:Expression = IdentifierRef("a") - IdentifierRef("b")
-    val rulea = rule{
+    val rulea = rule[Any]{
       case IdentifierRef(s:String)=>{
         println("ir:"+s)
         IntLiteral(10)}
       case x=>x
     }
-    val ruleb = rule{
+    val ruleb = rule[Any]{
       case Plus(a,b)=>{
         println("and")
         And(a,b)}
       case x@_ =>{ println("ds")}
     }
-    val sfun :Strategy= strategy{
+    val sfun :rewriting.Strategy= strategy[Any]{
         case And(a,b) => Some(a)
         case Plus(a,b) => Some(And(a,b))
         case IdentifierRef("a")=>Some(IntLiteral(10))
@@ -192,7 +192,6 @@ class TestRewrite extends FunSuite with ShouldMatchers{
     println("---"+result+"---")
   }
   test("test 100 levels"){
-    import org.kiama.rewriting.Rewriter
     var ct:Int = 0
     def trytest={
       val paras=("a",NumberType)::("b",NumberType)::Nil
@@ -202,12 +201,12 @@ class TestRewrite extends FunSuite with ShouldMatchers{
       for (i<-2 to 2){
         expr = UserFunctionCall(funcDef,IdentifierRef("a"+i)::expr::Nil)
       }
-      val rulea = rule{
+      val rulea = rule[Any]{
         case IdentifierRef("a")=>{
           ct = ct + 1
           IntLiteral(10)}
       }
-      Rewriter.rewrite(Rewriter.everywherebu(rulea))(expr)
+      rewrite(everywherebu(rulea))(expr)
     }
     val result = Timer.measureTime{trytest}
     println(result)
@@ -216,7 +215,6 @@ class TestRewrite extends FunSuite with ShouldMatchers{
   }
 }
 class TestAssign extends FunSuite with ShouldMatchers{
-  import org.kiama.rewriting.Rewriter._
   import Expression._
   test("assign test") {
     val paras=("a",NumberType)::("b",NumberType)::Nil

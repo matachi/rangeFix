@@ -44,7 +44,7 @@ class KconfigTest extends FunSuite with ShouldMatchers {
 
     // test if every function is defined exactly once
     val funcs = mutable.Map[String, FunctionDef]()
-    val rule = Expression.everywheretdNoDef(Rewriter.rule {
+    val rule = Expression.everywheretdNoDef(Rewriter.rule[Any] {
       case c:UserFunctionCall =>
         val x = c.func
         if (funcs.contains(x.name)) {
@@ -95,8 +95,9 @@ class KconfigTest extends FunSuite with ShouldMatchers {
 
 
   def expandAll(e:Expression, types:Expression.Types) = {
-    val a = Rewriter.rewrite(Rewriter.everywherebu(Rewriter.rule{
-      case u:UserFunctionCall => Rewriter.rewrite(Rewriter.everywherebu(Rewriter.rule{
+    import org.kiama.rewriting.Rewriter.everywherebu
+    val a = Rewriter.rewrite(Rewriter.everywherebu(Rewriter.rule[Any]{
+      case u:UserFunctionCall => Rewriter.rewrite(everywherebu(Rewriter.rule[Any]{
         case x@IdentifierRef(id)  =>
           val index = u.func.params.unzip._1.indexOf(id)
           if (index < 0) x
