@@ -189,7 +189,7 @@ class TimeTest extends FunSuite with ShouldMatchers{
             fixesUnit += fix.units.size
             fix.units.foreach(unit=> unitVars += unit.variables.size)
           })
-          oldLoader=oldLoader.modifyConfiguration(Map(str->modifyMap(str)))
+          oldLoader.modifyConfiguration(Map(str->modifyMap(str)))
         }
       }         
     }
