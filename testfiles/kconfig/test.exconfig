@@ -1,8 +1,8 @@
 config A tristate {
- depends on [B]
+ inherited [B]
 }
 config B tristate {
- depends on [C]
+ inherited [C]
 }
 config C tristate {
 }
