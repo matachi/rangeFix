@@ -15,7 +15,7 @@ object TestHelper{
 class TimeTest extends FunSuite with ShouldMatchers{
   test("bloody test")
   {
-    val path = "./experiment/Kconfig/"
+    val path = "./experiment/KConfig/"
     
     /*
      val configPath = path+"configuration_files/astlinux_2.6.17_281.config"
