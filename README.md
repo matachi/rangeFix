@@ -29,7 +29,6 @@ Run:
 
     $ PATH=`readlink -f openjdk-1.7.0-u80-unofficial-linux-amd64-image/bin`:$PATH
     $ PATH=`readlink -f scala-2.9.2/bin`:$PATH
-    $ PATH=`readlink -f sbt/bin`:$PATH
     $ cd rangeFix
     $ git apply linux-z3-path.patch
     $ sbt test
