@@ -212,35 +212,38 @@ class Z3 {
     writer.flush()
     var strline:StringBuffer=new StringBuffer(80)
     var flag=true
+    var n = false
+    var r = false
     var braceNum=0
     var group=0
-    while(flag)
-    {
-      var character=reader.read()
-      if(character.toChar=='(')
-	braceNum=braceNum+1
-      else if(character.toChar==')')
-	     {
-          braceNum=braceNum-1
-          if(braceNum==0)//括号匹配完成，读取输入结束
-            {  
+    while (flag) {
+      val character = reader.read()
+      if (!n && character.toChar == '\n')
+        n = true
+      if (!r && character.toChar == '\r')
+        r = true
+      if (character.toChar == '(')
+        braceNum = braceNum + 1
+      else if (character.toChar == ')') {
+        braceNum = braceNum - 1
+        if (braceNum == 0) { //括号匹配完成，读取输入结束
+          //两个read将换行符和回车符读进来
+          if (n)
             reader.read()
-            reader.read()//两个read将换行符和回车符读进来
-            flag=false
-          }
-          else if(braceNum==1)
-                 group=group+1
-        }
-      if(character!=13&&character!=10)//非换行符非回车符
-        {
-	  strline.append(character.toChar)
-	}
+          if (r)
+            reader.read()
+          flag = false
+        } else if (braceNum == 1)
+          group = group + 1
+      }
+      if (character != 13 && character != 10) { //非换行符非回车符
+        strline.append(character.toChar)
+      }
     }
-    val line=strline.toString() 
+    val line = strline.toString()
     assert(reader.ready() == false, reader.readLine)
-          (line.substring(9, line.length - 1),group.toString)
-
-  }	
+    (line.substring(9, line.length - 1), group.toString)
+  }
   //wj end
   
   def exit() {
