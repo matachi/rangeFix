@@ -14,3 +14,21 @@ varible `Path`.
 Create environment variable `JAVA_TOOL_OPTIONS` with value
 `-Dfile.encoding=UTF8`.
 
+# How to set up on Linux
+
+Download and extract:
+
+* OpenJDK 1.7.0 u80: <https://bitbucket.org/alexkasko/openjdk-unofficial-builds/downloads/openjdk-1.7.0-u80-unofficial-linux-amd64-image.zip>
+* Scala 2.9.2: <http://scala-lang.org/files/archive/scala-2.9.2.tgz>
+
+Install sbt and Z3: `sudo dnf install sbt z3`
+
+Run:
+
+    $ PATH=`readlink -f openjdk-1.7.0-u80-unofficial-linux-amd64-image/bin`:$PATH
+    $ PATH=`readlink -f scala-2.9.2/bin`:$PATH
+    $ PATH=`readlink -f sbt/bin`:$PATH
+    $ cd rangeFix
+    $ git add linux-z3-path.patch
+    $ sbt test
+
