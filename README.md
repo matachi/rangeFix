@@ -16,6 +16,8 @@ Create environment variable `JAVA_TOOL_OPTIONS` with value
 
 # How to set up on Linux
 
+*(Tested on Fedora 23 64-bit)*
+
 Download and extract:
 
 * OpenJDK 1.7.0 u80: <https://bitbucket.org/alexkasko/openjdk-unofficial-builds/downloads/openjdk-1.7.0-u80-unofficial-linux-amd64-image.zip>
