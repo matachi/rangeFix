@@ -36,7 +36,7 @@ object TraceWriter {
 }
 
 class Z3 {
-  val fixedParams = Array(CompilationOptions.Z3_PATH, "/in", "/smt2")
+  val fixedParams = Array(CompilationOptions.Z3_PATH, "-in", "-smt2")
   val parameters = if (CompilationOptions.THREAD_NUMBER == 1) fixedParams else fixedParams ++ List("PAR_NUM_THREADS=" + CompilationOptions.THREAD_NUMBER)
   val p = Runtime.getRuntime().exec(parameters)
   val orgWriter = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()))
