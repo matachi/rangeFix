@@ -31,6 +31,6 @@ Run:
     $ PATH=`readlink -f scala-2.9.2/bin`:$PATH
     $ PATH=`readlink -f sbt/bin`:$PATH
     $ cd rangeFix
-    $ git add linux-z3-path.patch
+    $ git apply linux-z3-path.patch
     $ sbt test
 
