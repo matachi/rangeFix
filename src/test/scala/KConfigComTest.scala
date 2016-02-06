@@ -608,7 +608,7 @@ class ActiveVariableTest extends FunSuite with ShouldMatchers{
     println("completed")
   }
   test("every version of constraints") {
-    val path = "./experiment/Kconfig/"
+    val path = "./experiment/KConfig/"
     //ChangeConfig(path+"constraint_files/2.6.17.exconfig", path+"configuration_files/astlinux_2.6.17_281.config", "NLS", Kconfig.tristateYes)//error :unmatched
     //ChangeConfig(path+"constraint_files/2.6.29.exconfig", path+"configuration_files/CdMa-HeRoc-2.6.29_2.6.29_2.config", "CRC16", Kconfig.tristateYes)//error :unmatched
     //ChangeConfig(path+"constraint_files/2.6.19.exconfig", path+"configuration_files/crux-arm_2.6.19_2.config", "CRYPTO_ALGAPI", Kconfig.tristateYes)//too long
@@ -634,7 +634,7 @@ class ActiveVariableTest extends FunSuite with ShouldMatchers{
 }
 class ActiveAllVariablesTest extends FunSuite with ShouldMatchers{
   test("active all variable tests"){
-    val path = "./experiment/Kconfig/"
+    val path = "./experiment/KConfig/"
     val configPath = path+"configuration_files/runnix_2.6.20_runnix_50.config"
     val loader = ComTestHelper.loadModelFile(path+"constraint_files/2.6.20.exconfig", configPath)
     val manager = new KconfigManager(loader, 1);

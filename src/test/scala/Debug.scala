@@ -10,8 +10,8 @@ import org.kiama.rewriting.Rewriter
 //<deleted>
 class DebugSuite extends FunSuite with ShouldMatchers with BeforeAndAfterEach {
   test("nested function") {
-    val model = "src\\test\\resources\\2.6.30.exconfig"
-    val config = "src\\test\\resources\\2.6.30.config"
+    val model = "src/test/resources/2.6.30.exconfig"
+    val config = "src/test/resources/2.6.30.config"
     val featureID = "I7300_IDLE"
     val value = Kconfig.tristateYes
     val loader = new KconfigLoader(model, config)
