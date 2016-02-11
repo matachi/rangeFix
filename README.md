@@ -33,3 +33,11 @@ Run:
     $ git apply linux-z3-path.patch
     $ sbt test
 
+# How to build RangeFix.jar
+
+    $ ./build-combined-jar.sh
+
+# How to run with RangeFix.jar
+
+    $ java -cp RangeFix.jar ca.uwaterloo.gsd.rangeFix.KconfigMain testfiles/kconfig/test.exconfig testfiles/kconfig/test.config A yes
+
