@@ -465,11 +465,11 @@ class ExpressionTypeChecker {
 }
 
 class Kconfig2(val ak: AbstractKConfig) {
-  private val akMap = ak.configs.map { case x @ AConfig(_, name, _, _, _, _, _, _, _) => name -> x }.toMap
+  private val akMap = ak.configs.map { case x @ AConfig(name, _, _, _, _, _, _) => name -> x }.toMap
 
   private val configTypes: Map[String, TType] = {
     ak.configs map {
-      case AConfig(_, name, ktype, _, _, _, _, _, _) =>
+      case AConfig(name, ktype, _, _, _, _, _) =>
 
         val configType: TType = ktype match {
           case KBoolType => TBoolType
@@ -874,7 +874,7 @@ class Kconfig2(val ak: AbstractKConfig) {
 
   lazy val configDomains: Map[String, Expression] = {
     ak.configs map {
-      case AConfig(_, name, ktype, _, _, _, _, _, _) =>
+      case AConfig(name, ktype, _, _, _, _, _) =>
         name -> {
           ktype match {
               //case KBoolType => IdentifierRef(encode(name)) !== tristateMod
@@ -889,7 +889,7 @@ class Kconfig2(val ak: AbstractKConfig) {
   }
 
   lazy val visibilityConstraints: Map[String, BoolExpr] = ak.configs map {
-    case AConfig(_, name, ktype, inherited, prompt, _, _, _, _) =>
+    case AConfig(name, ktype, inherited, prompt, _, _, _) =>
       name -> (translate(inherited) bneq TNo)
   } toMap
 
@@ -905,7 +905,7 @@ class Kconfig(val ak: AbstractKConfig, checker: ExpressionTypeChecker = new Expr
 
   val configTypes: Map[String, TType] = {
     ak.configs map {
-      case AConfig(_, name, ktype, _, _, _, _, _, _) =>
+      case AConfig(name, ktype, _, _, _, _, _) =>
 
         val configType: TType = ktype match {
           case KBoolType => TBoolType
@@ -1022,7 +1022,7 @@ class Kconfig(val ak: AbstractKConfig, checker: ExpressionTypeChecker = new Expr
   // Reverse dependencies are ignored for non-tristate features
   val configConstraints: List[BoolExpr] =
     ak.configs flatMap {
-      case AConfig(_, name, ktype, inherited, prompt, defaults, revs, ranges, _) =>
+      case AConfig(name, ktype, inherited, prompt, defaults, revs, ranges) =>
         // println("Working on: " + name)
         // println("prompt:" + prompt)
         // println("defaults:" + defaults)
@@ -1138,14 +1138,14 @@ class Kconfig(val ak: AbstractKConfig, checker: ExpressionTypeChecker = new Expr
   }
 
   val visibilityConstraints: Map[String, BoolExpr] = ak.configs map {
-    case AConfig(_, name, ktype, inherited, prompt, _, _, _, _) =>
+    case AConfig(name, ktype, inherited, prompt, _, _, _) =>
       //Yingfei's change here. Original: name -> (translate(prompt) bneq TNo)
       name -> (translate(inherited) bneq TNo)
   } toMap
 
   val configDomains: Map[String, Expression] = {
     ak.configs map {
-      case AConfig(_, name, ktype, _, _, _, _, _, _) =>
+      case AConfig(name, ktype, _, _, _, _, _) =>
         name -> {
           ktype match {
             case KBoolType => IdentifierRef(name) !== tristateMod
