@@ -6,3 +6,10 @@ config B tristate {
 }
 config C tristate {
 }
+
+config D tristate {
+ inherited [E]
+}
+config E tristate {
+ inherited [C]
+}
