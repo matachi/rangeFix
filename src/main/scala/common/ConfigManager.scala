@@ -4,6 +4,8 @@ import collection._
 import ExpressionHelper._
 import Expression._
 
+import scala.collection.mutable.ArrayBuffer
+
 class ErrorChecker(constraints:IndexedSeq[Expression], 
                    valuation:Map[String, Literal]) {
 
@@ -57,7 +59,7 @@ class MultiConstraintFixer(allConstraints:IndexedSeq[Expression],
   
   def fixWithIgnorance(constraintIndex:Int):FixGenResult = fixIgnoranceImpl(constraintIndex, fg)
   def fixWithElimination(constraintIndex:Int):FixGenResult = fixEliminationImpl(constraintIndex, fg)
-  def fixWithPropagation(constraintIndex:Int):FixGenResult = fixPropagationImpl(constraintIndex, fg)
+  def fixWithPropagation(constraintIndex:Int):FixGenResult = fixPropagationImpl(Set(constraintIndex), fg)
 
   private def fixImpl(f: =>Iterable[DataFix]):FixGenResult = {
     val result = Timer.measureTime(executionTime) {
@@ -74,22 +76,44 @@ class MultiConstraintFixer(allConstraints:IndexedSeq[Expression],
     fg.fixWithElimination(cIndex, errorChecker.getSatisfiedConstraintIndexes.toSet)
   }
 
-  private def fixPropagationImpl(cIndex:Int, fg:FixGenerator):FixGenResult = fixImpl {
+  private def fixPropagationImpl(cIndex: Set[Int], fg:FixGenerator):FixGenResult = fixImpl {
     val satisfiedConstraintIndexes = Timer.measureTime(errorChecker.getSatisfiedConstraintIndexes.toSet)
-    fg.fix(cIndex, satisfiedConstraintIndexes)
+    fg.fix(cIndex, satisfiedConstraintIndexes, Set[String]())
+  }
+
+  def addEqualConstraint(l: Literal, exprIndex: Int) = {
+
   }
 
   // fix a violated new equal constraint
-  def fixEqIgnorance(l:Literal, exprIndex:Int):FixGenResult = {
-    val (nfg, cIndex) = FixGenerator.addEqualConstraint(fg, l, exprIndex)
+  def fixEqIgnorance(features: ArrayBuffer[(Literal, Int)]): FixGenResult = {
+    var nfg: FixGenerator = fg
+    var cIndex: Int = 0
+    for ((l, exprIndex) <- features) {
+      val tuple: (FixGenerator, Int) = FixGenerator.addEqualConstraint(fg, l, exprIndex)
+      nfg = tuple._1
+      cIndex = tuple._2
+    }
     fixIgnoranceImpl(cIndex, nfg)
   }
-  def fixEqElimination(l:Literal, exprIndex:Int):FixGenResult = {
-    val (nfg, cIndex) = FixGenerator.addEqualConstraint(fg, l, exprIndex)
+  def fixEqElimination(features: ArrayBuffer[(Literal, Int)]): FixGenResult = {
+    var nfg: FixGenerator = fg
+    var cIndex: Int = 0
+    for ((l, exprIndex) <- features) {
+      val tuple: (FixGenerator, Int) = FixGenerator.addEqualConstraint(fg, l, exprIndex)
+      nfg = tuple._1
+      cIndex = tuple._2
+    }
     fixEliminationImpl(cIndex, nfg)
   }
-  def fixEqPropagation(l:Literal, exprIndex:Int):FixGenResult = {
-    val (nfg, cIndex) = FixGenerator.addEqualConstraint(fg, l, exprIndex)
+  def fixEqPropagation(features: ArrayBuffer[(Literal, Int)]): FixGenResult = {
+    var nfg: FixGenerator = fg
+    var cIndex: Set[Int] = Set()
+    for ((l, exprIndex) <- features) {
+      val tuple: (FixGenerator, Int) = FixGenerator.addEqualConstraint(nfg, l, exprIndex)
+      nfg = tuple._1
+      cIndex += tuple._2
+    }
     fixPropagationImpl(cIndex, nfg)
   }
 }
@@ -195,23 +219,26 @@ extends ConfigManager(loader, executionTime) with Serializable {
   }
 }
 
-class KconfigManager(loader:KconfigLoader, executionTime:Int=1)
-extends ConfigManager(loader, executionTime) {
-  def setFeature(id:String, l:Literal, strategy:Strategy = PropagationStrategy):FixGenResult = {
+class KconfigManager(loader:KconfigLoader, executionTime:Int=1) extends ConfigManager(loader, executionTime) {
+  private val features: ArrayBuffer[(Literal, Int)] = ArrayBuffer[(Literal, Int)]()
+
+  def setFeature(id:String, l:Literal) = {
     val optId = loader.getEffectiveIndex(id)
     if (optId.isEmpty)
       throw new java.lang.IllegalArgumentException("feature cannot be found.")
-    strategy.fixEq(l, optId.get)
+    features += ((l, optId.get))
   }
-  
-  
+
+  def getFixes(strategy:Strategy = PropagationStrategy): FixGenResult = {
+    strategy.fixEq(features)
+  }
 }
 
 class ConfigManager(loader:ModelLoader, executionTime:Int=1){
 
   protected abstract class Strategy {
     def fix(index:Int):FixGenResult
-    def fixEq(literal:Literal, exprIndex:Int):FixGenResult
+    def fixEq(features: ArrayBuffer[(Literal, Int)]):FixGenResult
   }
 
   object PropagationStrategy
@@ -219,8 +246,8 @@ class ConfigManager(loader:ModelLoader, executionTime:Int=1){
     override def fix(index:Int) = {
       fixer.fixWithPropagation(index)
     }
-    override def fixEq(l:Literal, e:Int):FixGenResult = {
-      fixer.fixEqPropagation(l, e)
+    override def fixEq(features: ArrayBuffer[(Literal, Int)]):FixGenResult = {
+      fixer.fixEqPropagation(features)
     }
   }
   object EliminationStrategy
@@ -228,8 +255,8 @@ class ConfigManager(loader:ModelLoader, executionTime:Int=1){
     override def fix(index:Int) = {
       fixer.fixWithElimination(index)
     }
-    override def fixEq(l:Literal, e:Int):FixGenResult = {
-      fixer.fixEqElimination(l, e)
+    override def fixEq(features: ArrayBuffer[(Literal, Int)]):FixGenResult = {
+      fixer.fixEqElimination(features)
     }
   }
   object IgnoranceStrategy
@@ -237,8 +264,8 @@ class ConfigManager(loader:ModelLoader, executionTime:Int=1){
     override def fix(index:Int) = {
       fixer.fixWithIgnorance(index)
     }
-    override def fixEq(l:Literal, e:Int):FixGenResult = {
-      fixer.fixEqElimination(l, e)
+    override def fixEq(features: ArrayBuffer[(Literal, Int)]):FixGenResult = {
+      fixer.fixEqElimination(features)
     }
   }
   var _fixerShouldUpdate:Boolean = true

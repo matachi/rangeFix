@@ -122,7 +122,8 @@ class KconfigTest extends FunSuite with ShouldMatchers {
     val value = Kconfig.tristateYes
     val loader = new KconfigLoader(model, config)
     val manager = new KconfigManager(loader)
-    val result = manager.setFeature(featureID, value)
+    manager.setFeature(featureID, value)
+    val result = manager.getFixes()
     val fixes = result.fixes
     println(fixes)
     fixes.size should equal (1)

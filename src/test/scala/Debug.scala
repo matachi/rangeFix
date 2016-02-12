@@ -16,7 +16,8 @@ class DebugSuite extends FunSuite with ShouldMatchers with BeforeAndAfterEach {
     val value = Kconfig.tristateYes
     val loader = new KconfigLoader(model, config)
     val manager = new KconfigManager(loader)
-    val result = manager.setFeature(featureID, value)
+    manager.setFeature(featureID, value)
+    val result = manager.getFixes()
     val fixes = result.fixes
     fixes.size should equal (1)
     fixes.head.units.size should equal (2)

@@ -171,7 +171,8 @@ class TimeTest extends FunSuite with ShouldMatchers{
         var flag:Boolean = false
         val task = new Runnable{
           override def run()={
-            fixRt = Timer.measureTime(manager.setFeature (str, modifyMap(str)))
+            manager.setFeature (str, modifyMap(str))
+            fixRt = Timer.measureTime(manager.getFixes())
             excutionTime = Timer.lastExecutionMillis
             flag = true
           }

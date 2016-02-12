@@ -206,7 +206,8 @@ object KConfigExperiment{
           val manager = new KconfigManager(loader, 1)
           val task = new Runnable{
             override def run()={
-                fixRlt = manager.setFeature(id, value)
+                manager.setFeature(id, value)
+                fixRlt = manager.getFixes()
                 flag = true
             }
           }
@@ -342,7 +343,8 @@ object KConfigExperiment{
           val manager = new KconfigManager(loader, 1)
           val task = new Runnable{
             override def run()={
-              fixRlt= manager.setFeature(id, value)
+              manager.setFeature(id, value)
+              fixRlt= manager.getFixes()
               flag = true
             }
           }
@@ -358,7 +360,8 @@ object KConfigExperiment{
         }
         else{
           val manager = new KconfigManager(loader,100)
-          fixRlt = manager.setFeature(id, value)
+          manager.setFeature(id, value)
+          fixRlt = manager.getFixes()
           println(fixRlt)
           mapResults += (id->ExperimentSingleData(value,true, cover, Some(fixRlt)))
         }

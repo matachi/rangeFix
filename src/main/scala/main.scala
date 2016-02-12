@@ -1,6 +1,7 @@
 package ca.uwaterloo.gsd.rangeFix
 import java.io._
 import collection._
+import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 
 object Main {
   var executionTimes = 1
@@ -69,7 +70,7 @@ object Main {
 // -time [n] or -t [n]: execute the generation n times to get the average execution time
 object KconfigMain {
   import Main._
-  
+
   def main(args: Array[String]) {
 
     if (!new java.io.File(CompilationOptions.Z3_PATH).exists()) {
@@ -88,13 +89,11 @@ object KconfigMain {
 
     val model = cArgs(0)
     val file = cArgs(1)
-    val id = cArgs(2)
-    val valueStr = cArgs(3)
-    val value = valueStr toLowerCase match {
-      case "yes" => Kconfig.tristateYes
-      case "no" => Kconfig.tristateNo
-      case "mode" => Kconfig.tristateMod
-      case x@_ => IntLiteral(x.toInt)
+    val options = ArrayBuffer[(String, Literal)]()
+    var i: Int = 2
+    while (i < cArgs.size) {
+      options += extractOptionNameAndValue(cArgs, i)
+      i += 2
     }
 
     try {
@@ -106,7 +105,9 @@ object KconfigMain {
       val manager = new KconfigManager(loader, executionTimes)
       println("done.")
       println("Computing fixes...")
-      val result = manager.setFeature(id, value)
+      for ((id, value) <- options)
+        manager.setFeature(id, value)
+      val result = manager.getFixes()
       val fixes = result.fixes
       printTime(result.milliseconds)
 
@@ -121,6 +122,17 @@ object KconfigMain {
     }
   }
 
+  def extractOptionNameAndValue(cArgs: ListBuffer[String], position: Int): (String, Literal) = {
+    val id = cArgs(position)
+    val valueStr = cArgs(position + 1)
+    val value = valueStr toLowerCase match {
+      case "yes" => Kconfig.tristateYes
+      case "no" => Kconfig.tristateNo
+      case "mode" => Kconfig.tristateMod
+      case x@_ => IntLiteral(x.toInt)
+    }
+    (id, value)
+  }
 }
 
 object EccMain {

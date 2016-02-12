@@ -599,7 +599,8 @@ class ActiveVariableTest extends FunSuite with ShouldMatchers{
     val v = if (l==Kconfig.tristateYes && loader.getVarType(id).get==BoolType)
               BoolLiteral(true)
             else l
-    val result = manager.setFeature(id, v)
+    manager.setFeature(id, v)
+    val result = manager.getFixes()
     val fixes = result.fixes
     if (fixes.size == 0)
       println("It is not possible to change the config.")
@@ -664,7 +665,8 @@ class ActiveAllVariablesTest extends FunSuite with ShouldMatchers{
           var flag:Boolean = false
           val task = new Runnable{
             override def run()={
-              fixRt = Timer.measureTime(manager.setFeature (varName, Kconfig.tristateYes))
+              manager.setFeature (varName, Kconfig.tristateYes)
+              fixRt = Timer.measureTime(manager.getFixes())
               excutionTime = Timer.lastExecutionMillis
               flag = true
             }
