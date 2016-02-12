@@ -1,4 +1,8 @@
-# How to set up on Windows
+# Build RangeFix
+
+JDK 7 and Scala 2.9 are required to build RangeFix.
+
+## How to set up on Windows
 
 *(Tested on Windows 7 32-bit)*
 
@@ -14,7 +18,7 @@ varible `Path`.
 Create environment variable `JAVA_TOOL_OPTIONS` with value
 `-Dfile.encoding=UTF8`.
 
-# How to set up on Linux
+## How to set up on Linux
 
 *(Tested on Fedora 23 64-bit)*
 
@@ -33,11 +37,13 @@ Run:
     $ git apply linux-z3-path.patch
     $ sbt test
 
-# How to build RangeFix.jar
+## How to build RangeFix.jar
 
     $ ./build-combined-jar.sh
 
-# How to run with RangeFix.jar
+# Run RangeFix
 
-    $ java -cp RangeFix.jar ca.uwaterloo.gsd.rangeFix.KconfigMain testfiles/kconfig/test.exconfig testfiles/kconfig/test.config A yes
+Running RangeFix.jar works with both JRE 7 and JRE 8.
+
+    $ java -cp RangeFix.jar ca.uwaterloo.gsd.rangeFix.KconfigMain testfiles/kconfig/test.exconfig testfiles/kconfig/test.config A yes D yes
 
