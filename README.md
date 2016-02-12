@@ -1,3 +1,10 @@
+# Run RangeFix
+
+Running RangeFix.jar works with both JRE 7 and JRE 8.
+
+    $ wget https://github.com/matachi/rangeFix/releases/download/0.1/RangeFix.jar
+    $ java -cp RangeFix.jar ca.uwaterloo.gsd.rangeFix.KconfigMain testfiles/kconfig/test.exconfig testfiles/kconfig/test.config A yes D yes
+
 # Build RangeFix
 
 JDK 7 and Scala 2.9 are required to build RangeFix.
@@ -40,10 +47,4 @@ Run:
 ## How to build RangeFix.jar
 
     $ ./build-combined-jar.sh
-
-# Run RangeFix
-
-Running RangeFix.jar works with both JRE 7 and JRE 8.
-
-    $ java -cp RangeFix.jar ca.uwaterloo.gsd.rangeFix.KconfigMain testfiles/kconfig/test.exconfig testfiles/kconfig/test.config A yes D yes
 
