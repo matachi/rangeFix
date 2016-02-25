@@ -66,9 +66,9 @@ object DotConfigParser {
     case _ => false
   }
 
-  def isHex(s: String) = try {
+  def isHex(s: String): Boolean = try {
       val hasPrefix = s startsWith "0x"
-      java.lang.Long.parseLong(s.substring(2), 16)
+      BigInt(s.substring(2), 16)
       hasPrefix
     } catch {
       case _ => false
@@ -87,8 +87,12 @@ object DotConfigParser {
                 case "m" => TMod
                 case "n" => TNo
                 case x if isInt(x) => TInt(x.toInt)
-                case x if isHex(x) => TInt(java.lang.Long.parseLong(x.substring(2), 16))
-				case STRING_PATTERN(x) => TString(x)
+                case x if isHex(x) =>
+                TInt(java.lang.Long.parseLong(
+                  x.substring(2, math.min(15, x.size)),
+                  16
+                ))
+                case STRING_PATTERN(x) => TString(x)
                 case x => sys.error("Unmatched: " + line) //TString(x)
               }
             }
