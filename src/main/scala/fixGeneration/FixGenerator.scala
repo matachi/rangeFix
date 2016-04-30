@@ -87,7 +87,7 @@ object FixGenerator {
     val smtFunctions:Map[String, SMTFuncDefine]
   ) extends FixGenerator {
 
-    private val printDetailedTime = false
+    private val printDetailedTime = true
     private def printDetailedTime[T](id: String)(func: => T): T = {
       if (printDetailedTime) Timer.printTime(id)(func) else func
     }

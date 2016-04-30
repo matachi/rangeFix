@@ -5,8 +5,8 @@ import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 
 object Main {
   var executionTimes = 1
-  var printDetailedTime = false
-  var measureTime = false
+  var printDetailedTime = true
+  var measureTime = true
 
   def printDetailedTime[T](id: String)(func: => T): T = {
     if (printDetailedTime) Timer.printTime(id)(func) else func

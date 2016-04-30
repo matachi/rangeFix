@@ -169,7 +169,9 @@ class HSDAG[T] extends GraphBase[List[T], T]{
     if(!root.isEmpty)
       stack.push(root.get)
 
+    var i: Int = 0
     while(!stack.isEmpty) {
+      i += 1
       var node = stack.pop
 
       if(node.conflicts.isEmpty) {
@@ -182,6 +184,7 @@ class HSDAG[T] extends GraphBase[List[T], T]{
         }
       }
      }
+     print("%d iterations ".format(i))
 
     return diagnoses
   } 
